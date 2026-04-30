@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>마이페이지 - GV DiscordBot Admin Tool</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+    }
+
+    .profile-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4A90D9, #357ABD);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .profile-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .profile-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .profile-dept {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .profile-role-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary-color);
+      background: #EFF6FF;
+      padding: 2px 10px;
+      border-radius: 12px;
+      margin-top: 2px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px 40px;
+    }
+
+    .info-grid.single {
+      grid-template-columns: 1fr;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-item-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .info-item-value {
+      font-size: 14px;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .info-divider {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--border-color);
+      margin: 4px 0;
+    }
+
+    .pw-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- LNB (Sidebar) -->
+    <!-- LNB (Sidebar) - 공통 모듈 -->
+    <aside id="lnb"></aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="page-title">마이페이지</div>
+      </header>
+
+      <div class="main-content" style="max-width: 720px;">
+
+        <!-- 기본 정보 카드 -->
+        <div class="card mb-24">
+          <div class="flex items-center justify-between mb-20">
+            <h2 class="card-title mb-0">기본 정보</h2>
+          </div>
+
+          <!-- 프로필 헤더 -->
+          <div class="profile-header">
+            <div class="profile-avatar">김</div>
+            <div class="profile-meta">
+              <span class="profile-name">김그라</span>
+              <span class="profile-dept">사업1팀</span>
+            </div>
+          </div>
+
+          <!-- 정보 필드 2열 -->
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-item-label">아이디 *</span>
+              <span class="info-item-value">admin_01</span>
+            </div>
+            <div class="info-item">
+              <span class="info-item-label">업무용 이메일 *</span>
+              <span class="info-item-value">adm***@gravity.co.kr</span>
+            </div>
+          </div>
+
+          <!-- 비밀번호 로우 -->
+          <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <div class="info-item">
+              <span class="info-item-label">비밀번호</span>
+              <div class="pw-row">
+                <span class="info-item-value">••••••••</span>
+                <button class="btn btn-secondary btn-sm"
+                  onclick="window.location.href='password_change.html'">변경</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-grid"
+            style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <div class="info-item">
+              <span class="info-item-label">이름 *</span>
+              <span class="info-item-value">김그라</span>
+            </div>
+            <div class="info-item">
+              <span class="info-item-label">팀 / 유닛명 *</span>
+              <span class="info-item-value">GV 글로벌사업실</span>
+            </div>
+          </div>
+
+          <div class="info-grid single"
+            style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <div class="info-item">
+              <span class="info-item-label">담당 게임 *</span>
+              <span class="info-item-value">RO1</span>
+            </div>
+          </div>
+
+          <div class="info-grid single"
+            style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <div class="info-item">
+              <span class="info-item-label">역할 / 권한 요청 사항</span>
+              <span class="info-item-value">서버 전체 운영 및 모니터링 권한 필요</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 계정 정보 카드 -->
+        <div class="card">
+          <h2 class="card-title mb-20">계정 정보</h2>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-item-label">역할</span>
+              <span class="info-item-value">슈퍼 관리자 (Super Admin)</span>
+            </div>
+            <div class="info-item">
+              <span class="info-item-label">계정 상태</span>
+              <span class="info-item-value">활성</span>
+            </div>
+          </div>
+
+          <div class="info-grid"
+            style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <div class="info-item">
+              <span class="info-item-label">최초 가입일</span>
+              <span class="info-item-value">2025년 11월 03일</span>
+            </div>
+            <div class="info-item">
+              <span class="info-item-label">마지막 로그인</span>
+              <span class="info-item-value">2026년 04월 30일 08:12</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+  <script src="lnb.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>

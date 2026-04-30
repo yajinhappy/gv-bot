@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>타이틀별 설정 - GV DiscordBot Admin Tool</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Modal show state */
+    .modal-overlay.show { display: flex; }
+
+    /* Toggle Switch */
+    .toggle-switch { position: relative; width: 36px; height: 20px; appearance: none; background: #CBD5E1; border-radius: 20px; outline: none; cursor: pointer; transition: background 0.3s; }
+    .toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: transform 0.3s; }
+    .toggle-switch:checked { background: var(--primary-color); }
+    .toggle-switch:checked::after { transform: translateX(16px); }
+
+    /* Custom Checkbox */
+    .custom-check { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #475569; cursor: pointer; }
+    .custom-check input[type='checkbox'] { appearance: none; width: 16px; height: 16px; border: 1px solid #cbd5e1; border-radius: 3px; background-color: #fff; display: grid; place-content: center; cursor: pointer; margin: 0; }
+    .custom-check input[type='checkbox']::before { content: ''; width: 10px; height: 10px; clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); transform: scale(0); background-color: white; transition: 0.1s transform; }
+    .custom-check input[type='checkbox']:checked { background-color: #0ea5e9; border-color: #0ea5e9; }
+    .custom-check input[type='checkbox']:checked::before { transform: scale(1); }
+    .custom-check input[type='checkbox']:disabled { background-color: #f1f5f9; border-color: #e2e8f0; cursor: not-allowed; }
+
+    /* Perm Row Layout */
+    .perm-row { display: flex; justify-content: space-between; align-items: center; }
+    .perm-controls { display: flex; align-items: center; gap: 16px; }
+    .perm-label { font-size: 14px; color: #334155; font-weight: 500; }
+
+    /* Toast Notification */
+    #toast-container { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .toast-message { background: #334155; color: #fff; padding: 12px 24px; border-radius: 6px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateY(20px); animation: toastIn 0.3s forwards, toastOut 0.3s forwards 2.7s; white-space: nowrap; }
+    @keyframes toastIn { to { opacity: 1; transform: translateY(0); } }
+    @keyframes toastOut { to { opacity: 0; transform: translateY(-20px); } }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- LNB (Sidebar) -->
+    <!-- LNB (Sidebar) - 공통 모듈 -->
+    <aside id="lnb"></aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="page-title">RO1 - 타이틀 설정</div>
+      </header>
+
+      <!-- Content Area -->
+      
+      <div class="main-content">
+        <!-- 서버 연동 카드 -->
+        <div class="card mb-24">
+          <div class="flex items-center justify-between mb-20">
+            <h2 class="card-title mb-0">디스코드 서버 연동</h2>
+            <span class="badge-active" style="background:#DCFCE7; color:#16A34A; padding:4px 12px; font-size:13px;">🟢 연동 완료</span>
+          </div>
+          <div class="form-row" style="max-width: 600px;">
+            <div class="form-group mb-0" style="display:flex; align-items:flex-end; gap:8px;">
+              <div style="flex:1;">
+                <label class="form-label">서버 ID (Server ID)</label>
+                <input type="text" class="form-control" id="serverIdInput" value="10482910481029301" placeholder="디스코드 서버 ID를 입력하세요">
+              </div>
+              <button class="btn btn-outline-primary" style="height:40px; white-space:nowrap;">연동 테스트</button>
+              <button class="btn btn-primary" style="height:40px; white-space:nowrap;" id="saveServerBtn">저장</button>
+            </div>
+          </div>
+          <p style="margin-top:12px; font-size:13px; color:var(--text-muted);">* 봇이 참여 중인 디스코드 서버의 ID를 입력해야 연동이 가능합니다.</p>
+        </div>
+
+        <!-- 사용 모듈 설정 카드 -->
+        <div class="card mb-24">
+          <div class="flex items-center justify-between mb-20">
+            <h2 class="card-title mb-0">사용 모듈 설정</h2>
+            <button class="btn btn-primary" onclick="showToast('모듈 설정이 저장되었습니다.')">저장</button>
+          </div>
+          <div style="display:flex; gap:24px; flex-wrap:wrap;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" class="toggle-switch" checked>
+              <span style="font-size:14px; font-weight:600; color:var(--text-main);">메시지 예약/관리</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; cursor:not-allowed; opacity:0.6;">
+              <input type="checkbox" class="toggle-switch" disabled>
+              <span style="font-size:14px; font-weight:600; color:var(--text-muted);">이벤트 관리 <span class="badge-role badge-viewer" style="font-size:10px; padding:2px 4px; margin-left:4px;">[WIP]</span></span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; cursor:not-allowed; opacity:0.6;">
+              <input type="checkbox" class="toggle-switch" disabled>
+              <span style="font-size:14px; font-weight:600; color:var(--text-muted);">SNS 미러링 <span class="badge-role badge-viewer" style="font-size:10px; padding:2px 4px; margin-left:4px;">[WIP]</span></span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; cursor:not-allowed; opacity:0.6;">
+              <input type="checkbox" class="toggle-switch" disabled>
+              <span style="font-size:14px; font-weight:600; color:var(--text-muted);">FAQ 자동응답 <span class="badge-role badge-viewer" style="font-size:10px; padding:2px 4px; margin-left:4px;">[WIP]</span></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 디스코드 서버 역할 매핑 카드 -->
+        <div class="card mb-24">
+          <div class="flex items-center justify-between mb-20">
+            <div>
+              <h2 class="card-title mb-0">디스코드 서버 역할 매핑</h2>
+              <p style="margin-top:8px; font-size:13px; color:var(--text-muted); margin-bottom:0;">디스코드 봇을 통해 연동된 서버의 역할을 불러와 관리자 등급별로 매핑합니다.</p>
+            </div>
+            <button class="btn btn-primary" onclick="saveRoleMapping()">저장</button>
+          </div>
+          
+          <div class="table-container">
+            <table class="data-table" style="table-layout: fixed;">
+              <thead>
+                <tr>
+                  <th style="width:200px;">시스템 권한 등급</th>
+                  <th>매핑할 디스코드 역할</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight:600;"><span class="badge-role badge-admin" style="background:#F0FDF4; color:#16A34A; padding:4px 12px; border-radius:12px; font-size:12px;">관리자</span></td>
+                  <td>
+                    <select class="form-control discord-role-select" id="roleMappingAdmin">
+                      <option value="">역할 목록을 불러오는 중...</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600;"><span class="badge-role badge-operator" style="background:#FFF7ED; color:#EA580C; padding:4px 12px; border-radius:12px; font-size:12px;">운영자</span></td>
+                  <td>
+                    <select class="form-control discord-role-select" id="roleMappingOperator">
+                      <option value="">역할 목록을 불러오는 중...</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600;"><span class="badge-role badge-viewer" style="background:#F1F5F9; color:#475569; padding:4px 12px; border-radius:12px; font-size:12px;">뷰어</span></td>
+                  <td>
+                    <select class="form-control discord-role-select" id="roleMappingViewer">
+                      <option value="">역할 목록을 불러오는 중...</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 운영자 권한 매핑 카드 -->
+        <div class="card">
+          <div class="flex items-center justify-between mb-20">
+            <div>
+              <h2 class="card-title mb-0">운영자 권한 매핑</h2>
+              <p style="margin-top:8px; font-size:13px; color:var(--text-muted); margin-bottom:0;">해당 타이틀에 접근 가능한 운영자를 관리하고 기능 모듈별 상세 권한을 설정합니다.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddOperatorModal()">+ 운영자 추가</button>
+          </div>
+          
+          <div class="table-container">
+            <table class="data-table" style="table-layout: auto;">
+              <thead>
+                <tr>
+                  <th style="white-space:nowrap;">아이디(이름)</th>
+                  <th style="white-space:nowrap;">시스템 등급</th>
+                  <th style="width:100%;">이용 가능 모듈 (권한)</th>
+                  <th style="white-space:nowrap; text-align:center;">관리</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="white-space:nowrap; font-weight:600;">sys_op (이서버)</td>
+                  <td style="white-space:nowrap;"><span class="badge-role badge-admin" style="background:#F0FDF4; color:#16A34A; padding:2px 10px; border-radius:12px; font-size:11px; font-weight:700;">관리자</span></td>
+                  <td>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                      <span style="font-size:12px; background:#F1F5F9; border:1px solid #E2E8F0; padding:2px 8px; border-radius:4px; color:#475569;">메시지 예약/관리 (전체)</span>
+                    </div>
+                  </td>
+                  <td style="white-space:nowrap; text-align:center;">
+                    <button class="btn btn-secondary btn-sm" onclick="openTitlePermModal('sys_op')">상세 권한</button>
+                    <button class="btn btn-outline-secondary btn-sm text-danger" style="margin-left:4px;" onclick="handleRevoke(this)">해제</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="white-space:nowrap; font-weight:600;">event_mgr (박이벤)</td>
+                  <td style="white-space:nowrap;"><span class="badge-role badge-operator" style="background:#FFF7ED; color:#EA580C; padding:2px 10px; border-radius:12px; font-size:11px; font-weight:700;">운영자</span></td>
+                  <td>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                      <span style="font-size:12px; background:#F1F5F9; border:1px solid #E2E8F0; padding:2px 8px; border-radius:4px; color:#475569;">메시지 예약/관리 (보기)</span>
+                    </div>
+                  </td>
+                  <td style="white-space:nowrap; text-align:center;">
+                    <button class="btn btn-secondary btn-sm" onclick="openTitlePermModal('event_mgr')">상세 권한</button>
+                    <button class="btn btn-outline-secondary btn-sm text-danger" style="margin-left:4px;" onclick="handleRevoke(this)">해제</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상세 권한 설정 모달 -->
+      <div class="modal-overlay" id="titlePermModal">
+        <div class="modal-content" style="width:600px;">
+          <div class="flex items-center justify-between mb-20">
+            <h3 class="modal-title"><span id="permModalUserId" style="color:var(--primary-color);"></span> 님의 RO1 상세 권한</h3>
+            <button class="modal-close" onclick="closeTitlePermModal()">&times;</button>
+          </div>
+          <div class="modal-body" style="padding-right:8px; background:#F8FAFC; padding:16px; border-radius:8px; border:1px solid #E2E8F0;">
+            
+            <div class="perm-row" style="padding:12px 0; border-bottom:1px solid #E2E8F0;">
+              <span class="perm-label" style="font-weight:700; color:#1E293B;">메시지 예약/관리</span>
+              <div class="perm-controls">
+                <label class="custom-check"><input type="checkbox" checked class="editMsg-all" onchange="toggleAllPerms(this, 'editMsg')"> 전체</label>
+                <label class="custom-check"><input type="checkbox" checked class="editMsg-sub manage-chk"> 관리</label>
+                <label class="custom-check"><input type="checkbox" checked class="editMsg-sub"> 보기</label>
+              </div>
+            </div>
+            
+            <div class="perm-row" style="padding:12px 0; border-bottom:1px solid #E2E8F0; opacity:0.5;">
+              <span class="perm-label" style="font-weight:700; color:#1E293B;">이벤트 관리 (2차)</span>
+              <div class="perm-controls">
+                <label class="custom-check"><input type="checkbox" disabled> 전체</label>
+                <label class="custom-check"><input type="checkbox" disabled> 관리</label>
+                <label class="custom-check"><input type="checkbox" disabled> 보기</label>
+              </div>
+            </div>
+
+            <div class="perm-row" style="padding:12px 0; border-bottom:1px solid #E2E8F0; opacity:0.5;">
+              <span class="perm-label" style="font-weight:700; color:#1E293B;">SNS 미러링 (2차)</span>
+              <div class="perm-controls">
+                <label class="custom-check"><input type="checkbox" disabled> 전체</label>
+                <label class="custom-check"><input type="checkbox" disabled> 관리</label>
+                <label class="custom-check"><input type="checkbox" disabled> 보기</label>
+              </div>
+            </div>
+
+            <div class="perm-row" style="padding:12px 0; opacity:0.5;">
+              <span class="perm-label" style="font-weight:700; color:#1E293B;">FAQ 자동응답 (2차)</span>
+              <div class="perm-controls">
+                <label class="custom-check"><input type="checkbox" disabled> 전체</label>
+                <label class="custom-check"><input type="checkbox" disabled> 관리</label>
+                <label class="custom-check"><input type="checkbox" disabled> 보기</label>
+              </div>
+            </div>
+
+          </div>
+          <div class="flex justify-end gap-8" style="margin-top:24px;">
+            <button class="btn btn-secondary" onclick="closeTitlePermModal()">취소</button>
+            <button class="btn btn-primary" onclick="closeTitlePermModal(); showToast('상세 권한이 저장되었습니다.')">저장</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 운영자 추가 모달 -->
+      <div class="modal-overlay" id="addOperatorModal">
+        <div class="modal-content" style="width:500px;">
+          <div class="flex items-center justify-between mb-20">
+            <h3 class="modal-title">운영자 추가 (RO1)</h3>
+            <button class="modal-close" onclick="closeAddOperatorModal()">&times;</button>
+          </div>
+          <div class="modal-body" style="max-height:none; overflow:visible;">
+            <div class="form-group">
+              <label class="form-label">운영자 선택</label>
+              <select class="form-control" id="addOpSelect">
+                <option value="">-- 운영자를 선택하세요 --</option>
+                <option value="dev_choi">dev_choi (최개발) - 운영자</option>
+                <option value="viewer_01">viewer_01 (정뷰어) - 뷰어</option>
+              </select>
+              <p style="margin-top:8px; font-size:12px; color:var(--text-muted);">* 시스템에 등록된 운영자 중 아직 이 타이틀에 매핑되지 않은 계정만 표시됩니다.</p>
+            </div>
+            <div class="form-group" style="margin-top:16px;">
+              <label class="form-label">초기 모듈 권한</label>
+              <div style="background:#F8FAFC; padding:16px; border-radius:8px; border:1px solid #E2E8F0;">
+                <div class="perm-row" style="padding:8px 0;">
+                  <span class="perm-label" style="font-weight:600;">메시지 예약/관리</span>
+                  <div class="perm-controls">
+                    <label class="custom-check"><input type="checkbox" class="addMsg-all" onchange="toggleAllPerms(this, 'addMsg')"> 전체</label>
+                    <label class="custom-check"><input type="checkbox" class="addMsg-sub manage-chk"> 관리</label>
+                    <label class="custom-check"><input type="checkbox" checked class="addMsg-sub"> 보기</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end gap-8" style="margin-top:24px;">
+            <button class="btn btn-secondary" onclick="closeAddOperatorModal()">취소</button>
+            <button class="btn btn-primary" onclick="confirmAddOperator()">추가</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="lnb.js"></script>
+  <script src="api-client.js"></script>
+  <script src="script.js"></script>
+  <script>
+    // =============================================
+    //  Toast Notification
+    // =============================================
+    function showToast(msg) {
+      let container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+      }
+      const toast = document.createElement('div');
+      toast.className = 'toast-message';
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // =============================================
+    //  상세 권한 모달
+    // =============================================
+    function openTitlePermModal(userId) {
+      document.getElementById('permModalUserId').textContent = userId;
+      document.getElementById('titlePermModal').classList.add('show');
+    }
+    function closeTitlePermModal() {
+      document.getElementById('titlePermModal').classList.remove('show');
+    }
+
+    let allOperators = [];
+    let currentTitle = '';
+
+    // =============================================
+    //  운영자 추가 모달
+    // =============================================
+    function openAddOperatorModal() {
+      document.getElementById('addOpSelect').value = '';
+      document.getElementById('addOperatorModal').classList.add('show');
+    }
+    function closeAddOperatorModal() {
+      document.getElementById('addOperatorModal').classList.remove('show');
+    }
+    async function confirmAddOperator() {
+      const sel = document.getElementById('addOpSelect');
+      const opId = parseInt(sel.value);
+      if (!sel.value) { showToast('운영자를 선택해주세요.'); return; }
+      
+      const op = allOperators.find(o => o.id === opId);
+      if (!op) return;
+
+      let newGameStr = currentTitle;
+      if (op.game && op.game.length > 0) {
+        newGameStr = op.game + ',' + currentTitle;
+      }
+
+      try {
+        await apiUpdateOperatorGame(op.id, newGameStr);
+        showToast(sel.options[sel.selectedIndex].text.split(' - ')[0] + ' 운영자가 추가되었습니다.');
+        closeAddOperatorModal();
+        setTimeout(() => location.reload(), 1000);
+      } catch (err) {
+        console.error(err);
+        showToast('운영자 추가에 실패했습니다.');
+      }
+    }
+
+    // =============================================
+    //  권한 해제 로직 (Browser Native)
+    // =============================================
+    async function handleRevoke(opId) {
+      if (confirm('해당 운영자의 타이틀 접근 권한을 해제하시겠습니까?')) {
+        const op = allOperators.find(o => o.id === opId);
+        if (!op) return;
+
+        let gameArr = op.game ? op.game.split(',').map(g => g.trim()) : [];
+        gameArr = gameArr.filter(g => g !== currentTitle);
+        const newGameStr = gameArr.join(',');
+
+        try {
+          await apiUpdateOperatorGame(op.id, newGameStr);
+          showToast('해당 운영자의 접근 권한이 해제되었습니다.');
+          setTimeout(() => location.reload(), 1000);
+        } catch (err) {
+          console.error(err);
+          showToast('권한 해제에 실패했습니다.');
+        }
+      }
+    }
+
+    // Checkbox Toggle Logic
+    function toggleAllPerms(allCheckbox, groupClass) {
+      const isChecked = allCheckbox.checked;
+      const subs = document.querySelectorAll('.' + groupClass + '-sub');
+      subs.forEach(sub => {
+        if (!sub.disabled) {
+          sub.checked = isChecked;
+        }
+      });
+    }
+
+    // Title parameter sync
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const activeTitle = urlParams.get('title') || 'RO1';
+      document.querySelector('.page-title').textContent = `${activeTitle} - 타이틀 설정`;
+      
+      // Update the modal title as well
+      const modalTitle = document.querySelector('#addOperatorModal .modal-title');
+      if (modalTitle) {
+        modalTitle.textContent = `운영자 추가 (${activeTitle})`;
+      }
+
+      // 연동 완료된 타이틀 목록 확인 (RO1은 기본 연동)
+      const configuredTitles = JSON.parse(localStorage.getItem('configuredTitles') || '["RO1"]');
+      const isConfigured = configuredTitles.includes(activeTitle);
+
+      const badge = document.querySelector('.badge-active');
+      const serverIdInput = document.getElementById('serverIdInput');
+      const tbody = document.querySelector('.data-table tbody');
+
+      if (!isConfigured) {
+        // 미연동 상태 표시
+        if (badge) {
+          badge.style.background = '#F1F5F9';
+          badge.style.color = '#64748B';
+          badge.textContent = '⚫ 미연동';
+        }
+        if (serverIdInput) {
+          serverIdInput.value = '';
+        }
+        
+        // 운영자 목록 초기화
+        if (tbody) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:32px 0; color:#64748B;">연동된 서버가 없어 운영자를 조회할 수 없습니다.</td></tr>`;
+        }
+      } else {
+        // 연동된 경우: 운영자 동적 로드
+        if (badge) {
+          badge.style.background = '#DCFCE7';
+          badge.style.color = '#16A34A';
+          badge.textContent = '🟢 연동 완료';
+        }
+
+        try {
+          // 실제 API 연동 시도
+          const ops = await fetchOperators();
+          renderTitleOperators(ops, activeTitle);
+          
+          // 디스코드 역할 불러오기
+          await loadDiscordRoles(activeTitle);
+        } catch (e) {
+          console.error("API 서버 통신 또는 렌더링 실패:", e);
+          const tbody = document.querySelector('.data-table tbody');
+          if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:32px 0; color:red;">데이터를 불러오는데 실패했습니다. 봇 서버가 실행 중인지 확인하세요.</td></tr>`;
+          }
+        }
+      }
+
+      // 서버 연동 저장 버튼 이벤트
+      const saveServerBtn = document.getElementById('saveServerBtn');
+      if (saveServerBtn) {
+        saveServerBtn.addEventListener('click', () => {
+          const serverId = serverIdInput ? serverIdInput.value.trim() : '';
+          if (!serverId) {
+            showToast('서버 ID를 입력해주세요.');
+            return;
+          }
+
+          // configuredTitles에 현재 타이틀 추가
+          const titles = JSON.parse(localStorage.getItem('configuredTitles') || '["RO1"]');
+          if (!titles.includes(activeTitle)) {
+            titles.push(activeTitle);
+            localStorage.setItem('configuredTitles', JSON.stringify(titles));
+          }
+
+          // 뱃지 업데이트
+          if (badge) {
+            badge.style.background = '#DCFCE7';
+            badge.style.color = '#16A34A';
+            badge.textContent = '🟢 연동 완료';
+          }
+
+          showToast('연동 설정이 저장되었습니다. 페이지를 새로고침합니다.');
+          setTimeout(() => location.reload(), 1000);
+        });
+      }
+
+      const addOpSelect = document.getElementById('addOpSelect');
+      if(addOpSelect) {
+        addOpSelect.addEventListener('change', function() {
+          const isViewer = this.options[this.selectedIndex].text.includes('뷰어');
+          const manageCheckbox = document.querySelector('.addMsg-sub.manage-chk');
+          const allCheckbox = document.querySelector('.addMsg-all');
+          
+          if(isViewer) {
+            manageCheckbox.disabled = true;
+            manageCheckbox.checked = false;
+            allCheckbox.disabled = true;
+            allCheckbox.checked = false;
+          } else {
+            manageCheckbox.disabled = false;
+            allCheckbox.disabled = false;
+          }
+        });
+      }
+    });
+
+    async function loadDiscordRoles(activeTitle) {
+      try {
+        const roles = await apiFetchRoles();
+        const selects = document.querySelectorAll('.discord-role-select');
+        
+        // 기존 저장된 매핑 불러오기
+        const savedMapping = JSON.parse(localStorage.getItem(activeTitle + '_roleMapping') || '{}');
+        
+        selects.forEach(select => {
+          select.innerHTML = '<option value="">-- 디스코드 역할 선택 --</option>';
+          roles.forEach(role => {
+            const option = document.createElement('option');
+            option.value = role.id;
+            option.textContent = role.name;
+            option.style.color = role.color !== '#000000' ? role.color : 'inherit';
+            select.appendChild(option);
+          });
+
+          // 저장된 값 세팅
+          if (select.id === 'roleMappingAdmin' && savedMapping.admin) select.value = savedMapping.admin;
+          if (select.id === 'roleMappingOperator' && savedMapping.operator) select.value = savedMapping.operator;
+          if (select.id === 'roleMappingViewer' && savedMapping.viewer) select.value = savedMapping.viewer;
+        });
+      } catch (err) {
+        console.error('역할 목록을 불러오는 데 실패했습니다.', err);
+        const selects = document.querySelectorAll('.discord-role-select');
+        selects.forEach(select => {
+          select.innerHTML = '<option value="">(역할 목록 로드 실패)</option>';
+        });
+      }
+    }
+
+    function saveRoleMapping() {
+      const mapping = {
+        admin: document.getElementById('roleMappingAdmin').value,
+        operator: document.getElementById('roleMappingOperator').value,
+        viewer: document.getElementById('roleMappingViewer').value,
+      };
+      
+      localStorage.setItem(currentTitle + '_roleMapping', JSON.stringify(mapping));
+      showToast('디스코드 역할 매핑이 저장되었습니다.');
+    }
+
+
+    function renderTitleOperators(allOps, activeTitle) {
+      allOperators = allOps;
+      currentTitle = activeTitle;
+
+      // 1. 해당 타이틀에 접근 가능한 운영자 필터링 (status === 'approved' 이고 game이 전체('')이거나 activeTitle과 일치)
+      const allowedOps = allOps.filter(op => {
+        if (op.status !== 'approved') return false;
+        if (!op.game || op.game === '전체' || op.game === '') return true;
+        
+        // game 컬럼이 콤마로 구분된 여러 게임을 가질 수 있음
+        const games = op.game.split(',').map(g => g.trim());
+        return games.includes(activeTitle);
+      });
+      
+      const tbody = document.querySelector('.data-table tbody');
+      if (allowedOps.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:32px 0; color:#64748B;">해당 타이틀에 등록된 운영자가 없습니다.</td></tr>`;
+      } else {
+        tbody.innerHTML = allowedOps.map(op => {
+          let roleName = op.role === 'admin' ? '관리자' : (op.role === 'operator' ? '운영자' : (op.role === 'super_admin' ? '마스터' : '뷰어'));
+          let roleClass = op.role === 'admin' ? 'badge-admin' : (op.role === 'operator' ? 'badge-operator' : (op.role === 'super_admin' ? 'badge-super' : 'badge-viewer'));
+          let styleStr = op.role === 'admin' ? 'background:#F0FDF4; color:#16A34A;' : (op.role === 'operator' ? 'background:#FFF7ED; color:#EA580C;' : 'background:#F1F5F9; color:#475569;');
+          
+          let modulePerm = roleName === '뷰어' ? '메시지 예약/관리 (보기)' : '메시지 예약/관리 (전체)';
+
+          return `<tr>
+            <td style="white-space:nowrap; font-weight:600;">${op.login_id} (${op.name})</td>
+            <td style="white-space:nowrap;"><span class="badge-role ${roleClass}" style="${styleStr} padding:2px 10px; border-radius:12px; font-size:11px; font-weight:700;">${roleName}</span></td>
+            <td>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <span style="font-size:12px; background:#F1F5F9; border:1px solid #E2E8F0; padding:2px 8px; border-radius:4px; color:#475569;">${modulePerm}</span>
+              </div>
+            </td>
+            <td style="white-space:nowrap; text-align:center;">
+              <button class="btn btn-secondary btn-sm" onclick="openTitlePermModal('${op.login_id}')">상세 권한</button>
+              <button class="btn btn-outline-secondary btn-sm text-danger" style="margin-left:4px;" onclick="handleRevoke(${op.id})">해제</button>
+            </td>
+          </tr>`;
+        }).join('');
+      }
+
+      // 2. 추가 가능한 운영자 셀렉트박스 필터링 (아직 권한이 없는 운영자)
+      const addOpSelect = document.getElementById('addOpSelect');
+      if (addOpSelect) {
+        const availableOps = allOps.filter(op => {
+          if (op.status !== 'approved') return false;
+          if (!op.game || op.game === '전체' || op.game === '') return false; // 전체 권한자는 이미 모든 타이틀 관리 가능
+          const games = op.game.split(',').map(g => g.trim());
+          return !games.includes(activeTitle);
+        });
+        
+        let selectHtml = '<option value="">-- 운영자를 선택하세요 --</option>';
+        availableOps.forEach(op => {
+          let roleName = op.role === 'admin' ? '관리자' : (op.role === 'operator' ? '운영자' : (op.role === 'super_admin' ? '마스터' : '뷰어'));
+          selectHtml += `<option value="${op.id}">${op.login_id} (${op.name}) - ${roleName}</option>`;
+        });
+        
+        if (availableOps.length === 0) {
+           selectHtml = '<option value="">-- 추가 가능한 운영자가 없습니다 --</option>';
+        }
+        addOpSelect.innerHTML = selectHtml;
+      }
+    }
+  </script>
+</body>
+
+</html>

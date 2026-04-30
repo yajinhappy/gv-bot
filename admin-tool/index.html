@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>대시보드 - GV DiscordBot Admin Tool</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- LNB (Sidebar) -->
+    <!-- LNB (Sidebar) - 공통 모듈 -->
+    <aside id="lnb"></aside>
+
+    <!-- Main Content -->
+    <main class="main-wrapper">
+
+      <header class="top-header">
+        <div class="page-title">대시보드</div>
+      </header>
+
+      <div class="main-content">
+
+        <!-- 요약 통계 카드 -->
+        <div class="dashboard-grid">
+          <div class="stat-card">
+            <div class="stat-card-label">예약 대기</div>
+            <div class="stat-card-value accent">3</div>
+            <div class="stat-card-sub">발송 예정 메시지</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">이번 달 발송 완료</div>
+            <div class="stat-card-value">12</div>
+            <div class="stat-card-sub">2026년 4월 기준</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">운영 중인 타이틀</div>
+            <div class="stat-card-value">2</div>
+            <div class="stat-card-sub">RO1 · Ragnarok Monster Kitchen</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">운영자 수</div>
+            <div class="stat-card-value">5</div>
+            <div class="stat-card-sub">활성 계정 기준</div>
+          </div>
+        </div>
+
+        <!-- 예약 대기 + 최근 발송 -->
+        <div class="dashboard-row">
+
+          <!-- 예약 대기 메시지 -->
+          <div class="card">
+            <div class="section-header">
+              <h2 class="section-title">예약 대기 메시지</h2>
+              <a href="index.html" class="view-all-link">전체 보기 →</a>
+            </div>
+            <div class="upcoming-list">
+              <div class="upcoming-item">
+                <div class="upcoming-item-left">
+                  <div class="upcoming-item-title">5월 정기 업데이트 안내 공지입니다.</div>
+                  <div class="upcoming-item-meta">RO1 · # 공지사항</div>
+                </div>
+                <div class="upcoming-item-time">04-30 10:00</div>
+              </div>
+              <div class="upcoming-item">
+                <div class="upcoming-item-left">
+                  <div class="upcoming-item-title">주말 핫타임 이벤트가 곧 시작됩니다!</div>
+                  <div class="upcoming-item-meta">RO1 · # 이벤트안내</div>
+                </div>
+                <div class="upcoming-item-time">04-29 18:00</div>
+              </div>
+              <div class="upcoming-item">
+                <div class="upcoming-item-left">
+                  <div class="upcoming-item-title">신규 캐릭터 밸런스 패치 노트</div>
+                  <div class="upcoming-item-meta">RO1 · # 업데이트</div>
+                </div>
+                <div class="upcoming-item-time">04-28 14:00</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 최근 발송 내역 -->
+          <div class="card">
+            <div class="section-header">
+              <h2 class="section-title">최근 발송 내역</h2>
+              <a href="index.html" class="view-all-link">전체 보기 →</a>
+            </div>
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="activity-dot success"></div>
+                <div class="activity-content">
+                  <div class="activity-text">서버 임시 점검 완료 안내</div>
+                  <div class="activity-time">2026-04-27 15:30 · RO1 # 공지사항</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot success"></div>
+                <div class="activity-content">
+                  <div class="activity-text">돌발 이벤트! 선착순 쿠폰 번호 공개</div>
+                  <div class="activity-time">2026-04-26 12:00 · RO1 # 이벤트안내</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot success"></div>
+                <div class="activity-content">
+                  <div class="activity-text">[이벤트] 길드전 보상 지급 완료</div>
+                  <div class="activity-time">2026-04-25 18:00 · RO1 # 공지사항</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot success"></div>
+                <div class="activity-content">
+                  <div class="activity-text">서버 접속 장애 관련 사과문</div>
+                  <div class="activity-time">2026-04-24 22:15 · RO1 # 공지사항</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot success"></div>
+                <div class="activity-content">
+                  <div class="activity-text">4월 3주차 정기 업데이트 내역</div>
+                  <div class="activity-time">2026-04-23 10:00 · RO1 # 업데이트</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 디스코드 서버 연결 상태 & 가입 승인 대기 -->
+        <div class="dashboard-row">
+          <div class="card">
+            <div class="section-header">
+              <h2 class="section-title">디스코드 서버 연결 상태</h2>
+              <a href="#" class="view-all-link">타이틀별 설정 →</a>
+            </div>
+            <div class="server-status-list">
+              <div class="server-status-item">
+                <div class="server-status-left">
+                  <div class="server-name">RO1 공식 서버</div>
+                  <div class="server-game">RO1</div>
+                </div>
+                <span class="status-badge connected">연결됨</span>
+              </div>
+              <div class="server-status-item">
+                <div class="server-status-left">
+                  <div class="server-name">Monster Kitchen 공식 서버</div>
+                  <div class="server-game">Ragnarok Monster Kitchen</div>
+                </div>
+                <span class="status-badge connected">연결됨</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 가입 승인 대기 (관리자 전용) -->
+          <div class="card border-primary">
+            <div class="section-header">
+              <div class="d-flex align-center">
+                <h2 class="section-title">가입 승인 대기 <span id="dashApprovalCount" style="background:#ef4444; color:white; border-radius:10px; padding:2px 8px; font-size:12px; margin-left:8px;">0</span></h2>
+                <span class="badge-master">마스터 권한</span>
+              </div>
+              <a href="operator_mgmt.html" class="view-all-link">운영자 관리 →</a>
+            </div>
+            <div class="approval-list" id="dashApprovalList">
+              <div style="padding: 20px; text-align: center; color: #888; font-size: 13px;">로딩 중...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 2 준비중 -->
+        <div class="card">
+          <div class="section-header">
+            <h2 class="section-title">추가 기능 ([WIP])</h2>
+            <span class="draft-date">순차적으로 업데이트될 예정입니다</span>
+          </div>
+          <div class="phase2-grid">
+
+            <div class="phase2-card">
+              <span class="phase2-badge">준비중</span>
+              <div class="phase2-card-icon">🎉</div>
+              <p class="phase2-card-title">이벤트 관리</p>
+              <p class="phase2-card-desc">일반 이벤트 및 이미지 인증 이벤트 등록, 쿠폰 발급 관리</p>
+              <span class="preparing-label">
+                <span class="preparing-dot"></span>
+                개발 예정
+              </span>
+            </div>
+
+            <div class="phase2-card">
+              <span class="phase2-badge">준비중</span>
+              <div class="phase2-card-icon">📡</div>
+              <p class="phase2-card-title">SNS 미러링 관리</p>
+              <p class="phase2-card-desc">유튜브·X·스팀 등 공식 SNS 채널 게시물 자동 미러링</p>
+              <span class="preparing-label">
+                <span class="preparing-dot"></span>
+                개발 예정
+              </span>
+            </div>
+
+            <div class="phase2-card">
+              <span class="phase2-badge">준비중</span>
+              <div class="phase2-card-icon">💬</div>
+              <p class="phase2-card-title">FAQ 자동응답</p>
+              <p class="phase2-card-desc">운영자 등록 템플릿 기반 FAQ 자동 응답, 임베드 말풍선 형태</p>
+              <span class="preparing-label">
+                <span class="preparing-dot"></span>
+                개발 예정
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="lnb.js"></script>
+  <script src="api-client.js"></script>
+  <script src="script.js"></script>
+  <script>
+    async function loadDashboardData() {
+      try {
+        const ops = await fetchOperators();
+        const pendingOps = ops.filter(op => op.status === 'pending');
+        
+        document.getElementById('dashApprovalCount').textContent = pendingOps.length;
+        
+        const listContainer = document.getElementById('dashApprovalList');
+        if (pendingOps.length === 0) {
+          listContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #888; font-size: 13px;">승인 대기 중인 계정이 없습니다.</div>';
+          return;
+        }
+
+        listContainer.innerHTML = pendingOps.slice(0, 3).map(op => `
+          <div class="approval-item">
+            <div class="approval-info">
+              <div class="approval-name">${op.name} <span class="approval-id">(${op.email})</span></div>
+              <div class="approval-meta">${op.team} · ${(op.created_at || '').substring(0, 16)}</div>
+            </div>
+            <div class="approval-actions">
+              <a href="operator_mgmt.html" class="btn-approve" style="text-decoration:none; padding:4px 12px; display:inline-block;">관리로 이동</a>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (error) {
+        console.error('대시보드 데이터 로드 실패:', error);
+      }
+    }
+    
+    // api-client.js 로드 후 실행 (requireAuth 이후)
+    setTimeout(loadDashboardData, 500);
+  </script>
+</body>
+
+</html>

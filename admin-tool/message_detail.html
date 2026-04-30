@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>메시지 상세 - GV DiscordBot Admin Tool</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- LNB (Sidebar) -->
+    <!-- LNB (Sidebar) - 공통 모듈 -->
+    <aside id="lnb"></aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="page-title">
+          <span id="pageTitle">메시지 상세</span>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="main-content">
+
+        <!-- 메시지 상세 정보 카드 -->
+        <div class="card" id="detailCard">
+          <div class="flex items-center justify-between mb-24">
+            <h2 class="card-title mb-0">메시지 상세 정보</h2>
+          </div>
+
+          <!-- 메시지 정보 테이블 -->
+          <div class="detail-info-grid">
+            <div class="detail-row">
+              <div class="detail-label">등록 번호</div>
+              <div class="detail-value" id="detailNo">-</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">상태</div>
+              <div class="detail-value" id="detailStatusText">
+                <span class="status-badge status-pending">-</span>
+              </div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">발송 채널</div>
+              <div class="detail-value" id="detailChannel">-</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">등록(발송)자</div>
+              <div class="detail-value" id="detailAuthor">-</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">등록일</div>
+              <div class="detail-value" id="detailCreatedAt">-</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">예약(발송) 시간</div>
+              <div class="detail-value" id="detailScheduledAt">-</div>
+            </div>
+            <div class="detail-row d-none" id="detailCompletedRow">
+              <div class="detail-label" id="detailCompletedLabel">발송 완료 시각</div>
+              <div class="detail-value" id="detailCompletedAt">-</div>
+            </div>
+          </div>
+
+          <!-- 이미지 첨부 영역 -->
+          <div class="detail-section" id="detailImageSection">
+            <h3 class="detail-section-title">첨부 이미지</h3>
+            <div class="detail-image-list" id="detailImages">
+            </div>
+          </div>
+
+          <!-- 메시지 본문 영역 -->
+          <div class="detail-section">
+            <h3 class="detail-section-title">메시지 내용</h3>
+            <div class="detail-message-body" id="detailMessageBody">
+            </div>
+          </div>
+
+          <!-- 링크 영역 -->
+          <div class="detail-section" id="detailLinkSection">
+            <h3 class="detail-section-title">메시지 링크</h3>
+            <a href="#" class="detail-link" id="detailLink" target="_blank"></a>
+          </div>
+
+          <!-- 하단 액션 버튼 영역 -->
+          <div class="flex items-center justify-between mt-24">
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='msg-mgmt.html'">목록보기</button>
+            <div class="flex gap-2" id="detailActions">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="lnb.js"></script>
+  <script src="api-client.js"></script>
+  <script src="script.js"></script>
+  <script>
+    async function init() {
+      const urlParams = new URLSearchParams(window.location.search);
+      let msgId = urlParams.get('id');
+
+      if (!msgId) {
+        document.getElementById('detailCard').innerHTML = '<p style="padding:40px; text-align:center; color:var(--text-muted);">메시지 ID가 지정되지 않았습니다.</p>';
+        return;
+      }
+
+      try {
+        const item = await fetchMessageById(msgId);
+        
+        let statusKor = item.status;
+        if (item.status === 'pending') statusKor = '예약 대기';
+        else if (item.status === 'sent') statusKor = '발송 완료';
+        else if (item.status === 'cancelled') statusKor = '예약 취소';
+        else if (item.status === 'failed') statusKor = '발송 실패';
+
+        const data = {
+          no: item.id,
+          channel: item.channel_id,
+          author: item.author || '알 수 없음',
+          createdAt: item.created_at,
+          scheduledAt: item.scheduled_at,
+          body: item.content,
+          link: item.link || '',
+          images: item.image_url ? 1 : 0,
+          imageUrl: item.image_url,
+          status: statusKor,
+          completedAt: item.sent_at || '-'
+        };
+
+        document.getElementById('detailNo').textContent = data.no;
+        document.getElementById('detailChannel').textContent = data.channel;
+        document.getElementById('detailAuthor').textContent = data.author;
+        document.getElementById('detailCreatedAt').textContent = data.createdAt;
+        document.getElementById('detailScheduledAt').textContent = data.scheduledAt;
+        
+        document.getElementById('detailMessageBody').innerHTML = data.body.replace(/\n/g, '<br>');
+
+        if (data.link) {
+          document.getElementById('detailLink').textContent = data.link;
+          document.getElementById('detailLink').href = data.link;
+          document.getElementById('detailLinkSection').style.display = 'block';
+        } else {
+          document.getElementById('detailLinkSection').style.display = 'none';
+        }
+
+        const imgSection = document.getElementById('detailImageSection');
+        const imgList = document.getElementById('detailImages');
+        if (data.imageUrl) {
+          imgSection.style.display = 'block';
+          imgList.innerHTML = `<div class="detail-image-thumb"><img src="${data.imageUrl}" style="max-width: 100%; max-height: 100%; border-radius: 4px;" /></div>`;
+        } else {
+          imgSection.style.display = 'none';
+        }
+
+        const statusBadge = document.createElement('span');
+        statusBadge.className = 'status-badge';
+        statusBadge.textContent = data.status;
+
+        const actionContainer = document.getElementById('detailActions');
+        actionContainer.innerHTML = '';
+        
+        document.getElementById('detailCompletedRow').classList.add('d-none');
+
+        if (data.status === '예약 대기') {
+          statusBadge.classList.add('status-pending');
+          
+          const btnModify = document.createElement('button');
+          btnModify.className = 'btn btn-primary';
+          btnModify.textContent = '수정';
+          btnModify.onclick = () => { window.location.href = 'message_write.html?edit=' + data.no; };
+          
+          const btnCancel = document.createElement('button');
+          btnCancel.className = 'btn btn-secondary';
+          btnCancel.textContent = '발송 취소';
+          btnCancel.onclick = async () => {
+            if(confirm('발송을 취소하시겠습니까?')) {
+              try {
+                await cancelMessage(data.no);
+                alert('취소되었습니다.');
+                window.location.href = 'msg-mgmt.html';
+              } catch (e) {
+                alert('취소 실패: ' + e.message);
+              }
+            }
+          };
+          
+          actionContainer.appendChild(btnModify);
+          actionContainer.appendChild(btnCancel);
+          
+        } else if (data.status === '발송 완료') {
+          statusBadge.classList.add('status-completed');
+          document.getElementById('detailCompletedRow').classList.remove('d-none');
+          document.getElementById('detailCompletedLabel').textContent = '발송 완료 시각';
+          document.getElementById('detailCompletedAt').textContent = data.completedAt;
+          
+        } else if (data.status === '예약 취소') {
+          statusBadge.classList.add('status-cancelled');
+          document.getElementById('detailCompletedRow').classList.remove('d-none');
+          document.getElementById('detailCompletedLabel').textContent = '취소 상태';
+          document.getElementById('detailCompletedAt').textContent = '-'; 
+        } else {
+          statusBadge.classList.add('status-cancelled'); // 실패
+        }
+
+        const statusContainer = document.getElementById('detailStatusText');
+        statusContainer.innerHTML = '';
+        statusContainer.appendChild(statusBadge);
+
+      } catch (error) {
+        document.getElementById('detailCard').innerHTML = '<p style="padding:40px; text-align:center; color:var(--text-muted);">메시지를 찾을 수 없습니다.</p>';
+        console.error(error);
+      }
+    }
+
+    init();
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>활동 로그 - GV DiscordBot Admin Tool</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .badge-role {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .badge-super {
+      background: #EFF6FF;
+      color: var(--primary-color);
+    }
+
+    .badge-admin {
+      background: #F0FDF4;
+      color: #16A34A;
+    }
+
+    .badge-operator {
+      background: #FFF7ED;
+      color: #EA580C;
+    }
+
+    .badge-viewer {
+      background: #F5F5F5;
+      color: #71717A;
+    }
+
+    .badge-active {
+      background: #DCFCE7;
+      color: #16A34A;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .badge-inactive {
+      background: #FEE2E2;
+      color: #DC2626;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .badge-pending-approval {
+      background: #FEF3C7;
+      color: #D97706;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .approval-card {
+      border: 1px solid #FDE68A;
+      background: #FFFBEB;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .approval-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #92400E;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .approval-count {
+      background: #F59E0B;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* 모달 */
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-body {
+      margin: 16px 0;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .detail-modal-grid {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 0;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .detail-modal-grid .dm-label {
+      padding: 10px 14px;
+      background: var(--bg-body);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+    }
+
+    .detail-modal-grid .dm-value {
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text-main);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .detail-modal-grid .dm-label:nth-last-child(2),
+    .detail-modal-grid .dm-value:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      appearance: none;
+      background: #CBD5E1;
+      border-radius: 20px;
+      outline: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .toggle-switch:checked {
+      background: var(--primary-color);
+    }
+
+    .toggle-switch:checked::after {
+      transform: translateX(16px);
+    }
+
+    /* Custom UI Components for Roles & Permissions */
+    .switch-ui {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      margin: 0;
+      vertical-align: middle;
+    }
+
+    .switch-ui input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider-ui {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #cbd5e1;
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .slider-ui:before {
+      position: absolute;
+      content: '';
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .switch-ui input:checked+.slider-ui {
+      background-color: #0b5cff;
+    }
+
+    .switch-ui input:checked+.slider-ui:before {
+      transform: translateX(20px);
+    }
+
+    .switch-ui input:disabled+.slider-ui {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .role-tabs {
+      display: inline-flex;
+      background: #fff;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+    }
+
+    .role-tab {
+      padding: 8px 24px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #737373;
+      cursor: pointer;
+      border-right: 1px solid #d1d5db;
+      text-align: center;
+      transition: color 0.2s;
+      position: relative;
+    }
+
+    .role-tab:last-child {
+      border-right: none;
+    }
+
+    .role-tab.active {
+      color: #0ea5e9;
+      font-weight: 700;
+    }
+
+    .role-tab.active::after {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+      border: 1.5px solid #0ea5e9;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .role-tab:first-child.active::after {
+      border-top-left-radius: 6px;
+      border-bottom-left-radius: 6px;
+    }
+
+    .role-tab:last-child.active::after {
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+    }
+
+    .perm-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .perm-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #fff;
+    }
+
+    .perm-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .perm-card-body {
+      padding: 0;
+      transition: opacity 0.3s;
+    }
+
+    .perm-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .perm-row:last-child {
+      border-bottom: none;
+    }
+
+    .perm-label {
+      font-size: 14px;
+      color: #334155;
+      font-weight: 500;
+    }
+
+    .perm-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .custom-check {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #475569;
+      cursor: pointer;
+    }
+
+    .custom-check input[type='checkbox'] {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 3px;
+      background-color: #fff;
+      display: grid;
+      place-content: center;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .custom-check input[type='checkbox']::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+      transform: scale(0);
+      background-color: white;
+      transition: 0.1s transform;
+    }
+
+    .custom-check input[type='checkbox']:checked {
+      background-color: #0ea5e9;
+      border-color: #0ea5e9;
+    }
+
+    .custom-check input[type='checkbox']:checked::before {
+      transform: scale(1);
+    }
+
+    .custom-check input[type='checkbox']:disabled {
+      background-color: #f1f5f9;
+      border-color: #e2e8f0;
+      cursor: not-allowed;
+    }
+
+    .custom-check input[type='checkbox']:disabled:checked {
+      background-color: #94a3b8;
+      border-color: #94a3b8;
+    }
+
+    .segment-toggles {
+      display: inline-flex;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .segment-toggle {
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7280;
+      background: #fff;
+      border-right: 1px solid #d1d5db;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .segment-toggle:last-child {
+      border-right: none;
+    }
+
+    .segment-toggle.active {
+      color: #0ea5e9;
+      font-weight: 700;
+      background: #f0f9ff;
+    }
+
+    .data-table th,
+    .data-table td {
+      white-space: nowrap;
+    }
+
+    .data-table td.col-detail {
+      max-width: 400px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- LNB (Sidebar) -->
+    <!-- LNB (Sidebar) - 공통 모듈 -->
+    <aside id="lnb"></aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="page-title">활동 로그</div>
+      </header>
+
+
+      <div class="main-content">
+        <div class="card">
+          <!-- Filters Area -->
+          <div class="flex items-center justify-between mb-20" style="gap:16px;">
+            <!-- Left Side: CSV Download -->
+            <div class="flex items-center gap-12">
+              <button class="btn btn-outline-primary white-space-nowrap">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                CSV 다운로드
+              </button>
+            </div>
+
+            <!-- Right Side: Filters & Search -->
+            <div class="flex items-center gap-12">
+              <!-- Date Range -->
+              <div class="daterange-picker" id="daterangePicker">
+                <div class="daterange-trigger" id="daterangeTrigger">
+                  <span class="daterange-trigger-text" id="daterangeLabel">기간: 전체</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                </div>
+                <div class="daterange-dropdown" id="daterangeDropdown">
+                  <div class="daterange-calendars">
+                    <div class="daterange-calendar" id="calendarLeft">
+                      <div class="calendar-header">
+                        <button type="button" class="cal-nav-btn" id="prevYear" title="이전 연도">«</button>
+                        <button type="button" class="cal-nav-btn" id="prevMonth" title="이전 달">‹</button>
+                        <span class="calendar-title" id="calLeftTitle"></span>
+                        <span class="flex-1"></span>
+                      </div>
+                      <div class="calendar-grid" id="calLeftGrid"></div>
+                    </div>
+                    <div class="daterange-calendar" id="calendarRight">
+                      <div class="calendar-header">
+                        <span class="flex-1"></span>
+                        <span class="calendar-title" id="calRightTitle"></span>
+                        <button type="button" class="cal-nav-btn" id="nextMonth" title="다음 달">›</button>
+                        <button type="button" class="cal-nav-btn" id="nextYear" title="다음 연도">»</button>
+                      </div>
+                      <div class="calendar-grid" id="calRightGrid"></div>
+                    </div>
+                  </div>
+                  <div class="daterange-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" id="daterangeReset">초기화</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="daterangeConfirm" disabled>저장</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Target Title Filter -->
+              <div class="select-wrapper" style="width:160px;">
+                <select class="form-control search-select">
+                  <option>대상 타이틀: 전체</option>
+                  <option>RO1</option>
+                  <option>Ragnarok Monster Kitchen</option>
+                  <option>시스템</option>
+                </select>
+                <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+
+              <!-- Type Filter -->
+              <div class="select-wrapper" style="width:160px;">
+                <select class="form-control search-select">
+                  <option>유형: 전체</option>
+                  <option>메시지 발송</option>
+                  <option>예약 등록</option>
+                  <option>메시지 수정</option>
+                  <option>예약 취소</option>
+                  <option>임시 저장</option>
+                  <option>운영자 등록</option>
+                  <option>운영자 수정</option>
+                  <option>운영자 삭제</option>
+                  <option>로그인</option>
+                  <option>로그아웃</option>
+                </select>
+                <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+
+              <!-- ID Search -->
+              <div class="search-input-wrapper" style="width:200px;">
+                <input type="text" class="form-control search-input-field" placeholder="아이디 검색">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" class="search-input-icon">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </div>
+
+              <button class="btn btn-primary" style="white-space:nowrap; padding:0 24px;">검색</button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="col-no">No.</th>
+                  <th>활동 일시</th>
+                  <th>활동 유형</th>
+                  <th>아이디</th>
+                  <th>대상 타이틀</th>
+                  <th>대상 채널</th>
+                  <th>상세</th>
+                  <th>IP 주소</th>
+                  <th>결과</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="col-no">15</td>
+                  <td>2026-04-30 14:22:15</td>
+                  <td><span class="badge-role" style="background:#E0F2FE; color:#0284C7;">메시지 발송</span></td>
+                  <td>sys_op</td>
+                  <td>RO1</td>
+                  <td>#ro1-announcement</td>
+                  <td class="col-detail" title="[공지] 내일 서버 점검 안내">[공지] 내일 서버 점검 안...</td>
+                  <td>192.168.1.45</td>
+                  <td><span style="color:#16A34A; font-weight:600;">성공</span></td>
+                </tr>
+                <tr>
+                  <td class="col-no">14</td>
+                  <td>2026-04-30 13:10:05</td>
+                  <td><span class="badge-role" style="background:#FEF3C7; color:#D97706;">예약 등록</span></td>
+                  <td>event_mgr</td>
+                  <td>RO1</td>
+                  <td>#ro1-event</td>
+                  <td class="col-detail" title="[이벤트] 출석체크 이벤트 안내">[이벤트] 출석체크 이벤트...</td>
+                  <td>110.12.34.56</td>
+                  <td><span style="color:#16A34A; font-weight:600;">성공</span></td>
+                </tr>
+                <tr>
+                  <td class="col-no">13</td>
+                  <td>2026-04-30 11:05:42</td>
+                  <td><span class="badge-role" style="background:#F3E8FF; color:#9333EA;">운영자 수정</span></td>
+                  <td>admin_01</td>
+                  <td>시스템</td>
+                  <td>-</td>
+                  <td class="col-detail" title="최개발 (운영자) 정보 수정">최개발 (운영자) 정보 수정</td>
+                  <td>192.168.1.100</td>
+                  <td><span style="color:#16A34A; font-weight:600;">성공</span></td>
+                </tr>
+                <tr>
+                  <td class="col-no">12</td>
+                  <td>2026-04-30 09:30:11</td>
+                  <td><span class="badge-role" style="background:#FEE2E2; color:#DC2626;">예약 취소</span></td>
+                  <td>event_mgr</td>
+                  <td>RO1</td>
+                  <td>#ro1-general</td>
+                  <td class="col-detail" title="안녕하세요 용사님들! 오늘의 퀴즈입니다.">안녕하세요 용사님들! 오...</td>
+                  <td>110.12.34.56</td>
+                  <td><span style="color:#16A34A; font-weight:600;">성공</span></td>
+                </tr>
+                <tr>
+                  <td class="col-no">11</td>
+                  <td>2026-04-30 09:02:10</td>
+                  <td><span class="badge-role" style="background:#F1F5F9; color:#475569;">로그인</span></td>
+                  <td>admin_01</td>
+                  <td>시스템</td>
+                  <td>-</td>
+                  <td class="col-detail" title="비밀번호 연속 5회 오류">비밀번호 연속 5회 오류</td>
+                  <td>192.168.1.100</td>
+                  <td><span style="color:#DC2626; font-weight:600;">실패 (비밀번호 오류)</span></td>
+                </tr>
+                <tr>
+                  <td class="col-no">10</td>
+                  <td>2026-04-30 09:00:22</td>
+                  <td><span class="badge-role" style="background:#F1F5F9; color:#475569;">로그인</span></td>
+                  <td>event_mgr</td>
+                  <td>-</td>
+                  <td>-</td>
+                  <td class="col-detail">-</td>
+                  <td>110.12.34.56</td>
+                  <td><span style="color:#16A34A; font-weight:600;">성공</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="lnb.js"></script>
+  <script src="api-client.js"></script>
+  <script src="script.js"></script>
+  <script>
+    // ---- 기간 검색 달력 초기화용 변수 (script.js의 공통 로직과 충돌하지 않도록 자체 IIFE 제거) ----
+    let dateRangeStart = null;
+    let dateRangeEnd = null;
+
+
+
+    // Mock Pagination JS
+    const paginationEl = document.getElementById('pagination');
+    let currentPage = 1;
+    const totalPages = 3;
+    function renderPagination() {
+      let html = '';
+      html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(1)"><img src="img/double-left.svg" alt="처음"></button>`;
+      html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(${currentPage - 1})"><img src="img/arrow-left.svg" alt="이전"></button>`;
+
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+      }
+
+      html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goPage(${currentPage + 1})"><img src="img/arrow-right.svg" alt="다음"></button>`;
+      html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goPage(${totalPages})"><img src="img/double-right.svg" alt="끝"></button>`;
+
+      if (paginationEl) paginationEl.innerHTML = html;
+    }
+
+    function goPage(page) {
+      if (page < 1 || page > totalPages) return;
+      currentPage = page;
+      renderPagination();
+    }
+    renderPagination();
+
+  </script>
+</body>
+
+</html>

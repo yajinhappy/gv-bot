@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>운영자 관리 - GV DiscordBot Admin Tool</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .badge-role {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .badge-super {
+      background: #EFF6FF;
+      color: var(--primary-color);
+    }
+
+    .badge-admin {
+      background: #F0FDF4;
+      color: #16A34A;
+    }
+
+    .badge-operator {
+      background: #FFF7ED;
+      color: #EA580C;
+    }
+
+    .badge-viewer {
+      background: #F5F5F5;
+      color: #71717A;
+    }
+
+    .badge-active {
+      background: #DCFCE7;
+      color: #16A34A;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .badge-inactive {
+      background: #FEE2E2;
+      color: #DC2626;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .badge-pending-approval {
+      background: #FEF3C7;
+      color: #D97706;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .approval-card {
+      border: 1px solid #FDE68A;
+      background: #FFFBEB;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .approval-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #92400E;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .approval-count {
+      background: #F59E0B;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* 모달 */
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-body {
+      margin: 16px 0;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .detail-modal-grid {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 0;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .detail-modal-grid .dm-label {
+      padding: 10px 14px;
+      background: var(--bg-body);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+    }
+
+    .detail-modal-grid .dm-value {
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text-main);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .detail-modal-grid .dm-label:nth-last-child(2),
+    .detail-modal-grid .dm-value:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      appearance: none;
+      background: #CBD5E1;
+      border-radius: 20px;
+      outline: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .toggle-switch:checked {
+      background: var(--primary-color);
+    }
+
+    .toggle-switch:checked::after {
+      transform: translateX(16px);
+    }
+
+    /* Custom UI Components for Roles & Permissions */
+    .switch-ui {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      margin: 0;
+      vertical-align: middle;
+    }
+
+    .switch-ui input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider-ui {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #cbd5e1;
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .slider-ui:before {
+      position: absolute;
+      content: '';
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .switch-ui input:checked+.slider-ui {
+      background-color: #0b5cff;
+    }
+
+    .switch-ui input:checked+.slider-ui:before {
+      transform: translateX(20px);
+    }
+
+    .switch-ui input:disabled+.slider-ui {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .role-tabs {
+      display: inline-flex;
+      background: #fff;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+    }
+
+    .role-tab {
+      padding: 8px 24px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #737373;
+      cursor: pointer;
+      border-right: 1px solid #d1d5db;
+      text-align: center;
+      transition: color 0.2s;
+      position: relative;
+    }
+
+    .role-tab:last-child {
+      border-right: none;
+    }
+
+    .role-tab.active {
+      color: #0ea5e9;
+      font-weight: 700;
+    }
+
+    .role-tab.active::after {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+      border: 1.5px solid #0ea5e9;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .role-tab:first-child.active::after {
+      border-top-left-radius: 6px;
+      border-bottom-left-radius: 6px;
+    }
+
+    .role-tab:last-child.active::after {
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+    }
+
+    .perm-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .perm-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #fff;
+    }
+
+    .perm-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .perm-card-body {
+      padding: 0;
+      transition: opacity 0.3s;
+    }
+
+    .perm-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .perm-row:last-child {
+      border-bottom: none;
+    }
+
+    .perm-label {
+      font-size: 14px;
+      color: #334155;
+      font-weight: 500;
+    }
+
+    .perm-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .custom-check {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #475569;
+      cursor: pointer;
+    }
+
+    .custom-check input[type='checkbox'] {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 3px;
+      background-color: #fff;
+      display: grid;
+      place-content: center;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .custom-check input[type='checkbox']::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+      transform: scale(0);
+      background-color: white;
+      transition: 0.1s transform;
+    }
+
+    .custom-check input[type='checkbox']:checked {
+      background-color: #0ea5e9;
+      border-color: #0ea5e9;
+    }
+
+    .custom-check input[type='checkbox']:checked::before {
+      transform: scale(1);
+    }
+
+    .custom-check input[type='checkbox']:disabled {
+      background-color: #f1f5f9;
+      border-color: #e2e8f0;
+      cursor: not-allowed;
+    }
+
+    .custom-check input[type='checkbox']:disabled:checked {
+      background-color: #94a3b8;
+      border-color: #94a3b8;
+    }
+
+    .segment-toggles {
+      display: inline-flex;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .segment-toggle {
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7280;
+      background: #fff;
+      border-right: 1px solid #d1d5db;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .segment-toggle:last-child {
+      border-right: none;
+    }
+
+    .segment-toggle.active {
+      color: #0ea5e9;
+      font-weight: 700;
+      background: #f0f9ff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- LNB (Sidebar) -->
+    <!-- LNB (Sidebar) - 공통 모듈 -->
+    <aside id="lnb"></aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="page-title">운영자 관리</div>
+      </header>
+
+      <div class="main-content">
+
+        <!-- 계정 신청 대기 -->
+        <div class="approval-card" id="approvalSection">
+          <div class="approval-card-title">
+            📋 계정 신청 대기 <span class="approval-count" id="approvalCount">2</span>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:50px;">No.</th>
+                  <th>이름</th>
+                  <th>아이디</th>
+                  <th>이메일</th>
+                  <th>팀/유닛</th>
+                  <th>담당 타이틀</th>
+                  <th>신청일</th>
+                  <th style="width:120px; text-align:right;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="approvalTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 운영자 목록 -->
+        <div class="card">
+          <div class="flex items-center justify-between mb-20">
+            <div class="flex items-center gap-4">
+              <h2 class="card-title mb-0">운영자 목록 <span class="list-count" id="opCount">총 8명</span></h2>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="d-flex gap-8 align-center">
+                <div class="search-input-wrapper">
+                  <input type="text" class="form-control search-input-field" id="opSearch" placeholder="이름 또는 아이디 검색">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" class="search-input-icon">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                </div>
+                <div class="select-wrapper">
+                  <select class="form-control search-select" id="roleFilter">
+                    <option>권한: 전체</option>
+                    <option>마스터</option>
+                    <option>관리자</option>
+                    <option>운영자</option>
+                    <option>뷰어</option>
+                  </select>
+                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+                <div class="select-wrapper">
+                  <select class="form-control search-select" id="statusFilter">
+                    <option>상태: 전체</option>
+                    <option>활성</option>
+                    <option>비활성</option>
+                  </select>
+                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+              </div>
+              <button class="btn btn-outline-primary white-space-nowrap" onclick="openTitleMgmtModal()">타이틀
+                관리</button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="col-no">No.</th>
+                  <th>이름</th>
+                  <th>아이디</th>
+                  <th>권한 등급</th>
+                  <th>담당 타이틀</th>
+                  <th>등록일</th>
+                  <th>상태</th>
+                  <th class="col-action">관리</th>
+                </tr>
+              </thead>
+              <tbody id="opTableBody">
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination" id="pagination"></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- 계정 승인 모달 -->
+  <div class="modal-overlay" id="approveModal">
+    <div class="modal-content"
+      style="width:800px; min-height:600px; max-height:90vh; display:flex; flex-direction:column;">
+      <div class="flex items-center justify-between mb-20" style="flex-shrink:0;">
+        <h3 class="modal-title">계정 승인 및 권한 부여</h3>
+        <button class="modal-close" onclick="closeApproveModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="flex:1; overflow-y:auto; padding-right:8px;">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">이름</label>
+            <input type="text" class="form-control" id="apprName" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label">아이디</label>
+            <input type="text" class="form-control" id="apprId" disabled>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">팀/유닛</label>
+            <input type="text" class="form-control" id="apprTeam" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label">요청 타이틀</label>
+            <input type="text" class="form-control" id="apprReqGame" disabled>
+          </div>
+        </div>
+        <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border-color);">
+        <div class="form-row">
+          <div class="form-group" style="width: 100%;">
+            <label class="form-label" style="display:block; margin-bottom:8px;">권한 등급 *</label>
+            <div class="role-tabs" id="apprRoleTabs">
+              <div class="role-tab" data-role="마스터" onclick="setApprRole('마스터', this)">마스터</div>
+              <div class="role-tab active" data-role="관리자" onclick="setApprRole('관리자', this)">관리자</div>
+              <div class="role-tab" data-role="운영자" onclick="setApprRole('운영자', this)">운영자</div>
+              <div class="role-tab" data-role="뷰어" onclick="setApprRole('뷰어', this)">뷰어</div>
+            </div>
+            <input type="hidden" id="apprRole" value="관리자">
+          </div>
+        </div>
+        <div class="form-group mt-16">
+          <label class="form-label">권한 상세 설정</label>
+          <div style="background:#F8FAFC; padding-top:4px; margin-top:8px;">
+
+            <div class="perm-card">
+              <div class="perm-card-header">
+                <h4 class="perm-card-title">시스템 권한</h4>
+              </div>
+              <div class="perm-card-body" id="apprSysPerms">
+                <div class="perm-row">
+                  <span class="perm-label">게임 타이틀 관리</span>
+                  <div class="segment-toggles" id="appr_title_mgmt">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+                <div class="perm-row">
+                  <span class="perm-label">기능 관리</span>
+                  <div class="segment-toggles" id="appr_feat_mgmt">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+                <div class="perm-row">
+                  <span class="perm-label">기능 사용</span>
+                  <div class="segment-toggles" id="appr_feat_use">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="읽기만">읽기만</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+                <div class="perm-row">
+                  <span class="perm-label">관리자 계정 생성</span>
+                  <div class="segment-toggles" id="appr_admin_create">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+                <div class="perm-row">
+                  <span class="perm-label">운영자·뷰어 관리</span>
+                  <div class="segment-toggles" id="appr_op_mgmt">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+                <div class="perm-row">
+                  <span class="perm-label">시스템 설정</span>
+                  <div class="segment-toggles" id="appr_sys_set">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+                <div class="perm-row">
+                  <span class="perm-label">활동 로그</span>
+                  <div class="segment-toggles" id="appr_act_log">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-8" style="padding-top:16px; border-top:1px solid var(--border-color);">
+        <button class="btn btn-secondary" onclick="closeApproveModal()">취소</button>
+        <button class="btn btn-primary" onclick="confirmApprove()">승인 및 이메일 발송</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 운영자 수정 모달 -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-content"
+      style="width:800px; min-height:600px; max-height:90vh; display:flex; flex-direction:column;">
+      <div class="flex items-center justify-between mb-20" style="flex-shrink:0;">
+        <h3 class="modal-title">운영자 정보 수정</h3>
+        <button class="modal-close" onclick="closeEditModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="flex:1; overflow-y:auto; padding-right:8px;">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">이름</label>
+            <input type="text" class="form-control" id="editName" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label">아이디</label>
+            <input type="text" class="form-control" id="editId" disabled>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="display:flex; flex-direction:column; justify-content:flex-start;">
+            <label class="form-label" style="display:block; margin-bottom:12px;">계정 상태 *</label>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <label class="switch-ui">
+                <input type="checkbox" id="editStatusToggle" checked
+                  onchange="document.getElementById('editStatusLabel').textContent = this.checked ? '활성' : '비활성'; document.getElementById('editStatus').value = this.checked ? '활성' : '비활성'">
+                <span class="slider-ui"></span>
+              </label>
+              <span id="editStatusLabel" style="font-size:14px; font-weight:600; color:#1e293b;">활성</span>
+              <input type="hidden" id="editStatus" value="활성">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="display:block; margin-bottom:8px;">권한 등급 *</label>
+            <div class="role-tabs" id="editRoleTabs">
+              <div class="role-tab" data-role="마스터" onclick="setEditRole('마스터', this)">마스터</div>
+              <div class="role-tab active" data-role="관리자" onclick="setEditRole('관리자', this)">관리자</div>
+              <div class="role-tab" data-role="운영자" onclick="setEditRole('운영자', this)">운영자</div>
+              <div class="role-tab" data-role="뷰어" onclick="setEditRole('뷰어', this)">뷰어</div>
+            </div>
+            <input type="hidden" id="editRole" value="관리자">
+          </div>
+        </div>
+        <div class="form-group mt-16">
+          <label class="form-label">권한 상세 설정</label>
+          <div style="background:#F8FAFC; padding-top:4px; margin-top:8px;">
+
+            <div class="perm-card">
+              <div class="perm-card-header">
+                <h4 class="perm-card-title">시스템 권한</h4>
+              </div>
+              <div class="perm-card-body" id="editSysPerms">
+                <div class="perm-row">
+                  <span class="perm-label">게임 타이틀 관리</span>
+                  <div class="segment-toggles" id="edit_title_mgmt">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+                <div class="perm-row">
+                  <span class="perm-label">기능 관리</span>
+                  <div class="segment-toggles" id="edit_feat_mgmt">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+                <div class="perm-row">
+                  <span class="perm-label">기능 사용</span>
+                  <div class="segment-toggles" id="edit_feat_use">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="읽기만">읽기만</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+                <div class="perm-row">
+                  <span class="perm-label">관리자 계정 생성</span>
+                  <div class="segment-toggles" id="edit_admin_create">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+                <div class="perm-row">
+                  <span class="perm-label">운영자·뷰어 관리</span>
+                  <div class="segment-toggles" id="edit_op_mgmt">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+                <div class="perm-row">
+                  <span class="perm-label">시스템 설정</span>
+                  <div class="segment-toggles" id="edit_sys_set">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+                <div class="perm-row">
+                  <span class="perm-label">활동 로그</span>
+                  <div class="segment-toggles" id="edit_act_log">
+                    <div class="segment-toggle active" data-val="가능">가능</div>
+                    <div class="segment-toggle" data-val="불가">불가</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-8" style="padding-top:16px; border-top:1px solid var(--border-color);">
+        <button class="btn btn-secondary" onclick="closeEditModal()">취소</button>
+        <button class="btn btn-primary" onclick="confirmEdit()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 타이틀 관리 모달 -->
+  <div class="modal-overlay" id="titleMgmtModal">
+    <div class="modal-content" style="width: 600px; max-height: 80vh; display: flex; flex-direction: column;">
+      <div class="flex items-center justify-between mb-20" style="flex-shrink:0;">
+        <h3 class="modal-title">타이틀 설정 및 관리</h3>
+        <button class="modal-close" onclick="closeTitleMgmtModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="flex: 1; overflow-y: auto; padding-right: 8px;">
+        <!-- 타이틀 생성 영역 -->
+        <div class="card mb-20" style="background:#F8FAFC; border:1px solid #E2E8F0; padding:16px;">
+          <h4 style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:12px;">새 타이틀 생성</h4>
+          <div class="flex gap-8">
+            <input type="text" class="form-control flex-1" id="newTitleName" placeholder="새 타이틀 입력">
+            <button class="btn btn-primary" onclick="createNewTitle()" style="white-space:nowrap;">추가</button>
+          </div>
+        </div>
+
+        <!-- 기존 타이틀 목록 영역 -->
+        <div id="titleListContainer" style="display:flex; flex-direction:column; gap:16px;">
+          <!-- RO1 -->
+          <div class="card" style="border:1px solid var(--border-color); padding:16px; margin:0;">
+            <div class="flex items-center justify-between mb-16">
+              <h4 style="font-size:15px; font-weight:700; color:var(--primary-color);">Ragnarok Online (RO1)</h4>
+              <span class="badge-active">운영 중</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <label
+                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+                <span>메시지 예약/관리</span>
+                <input type="checkbox" checked class="toggle-switch">
+              </label>
+              <label
+                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+                <span>이벤트 관리 (2차)</span>
+                <input type="checkbox" checked class="toggle-switch">
+              </label>
+              <label
+                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+                <span>SNS 미러링 관리 (2차)</span>
+                <input type="checkbox" checked class="toggle-switch">
+              </label>
+              <label
+                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+                <span>FAQ 자동응답 (2차)</span>
+                <input type="checkbox" checked class="toggle-switch">
+              </label>
+              <label
+                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+                <span>다국어 자동 번역 (2차)</span>
+                <input type="checkbox" class="toggle-switch">
+              </label>
+            </div>
+          </div>
+
+          <!-- RMK -->
+          <div class="card" style="border:1px solid var(--border-color); padding:16px; margin:0;">
+            <div class="flex items-center justify-between mb-16">
+              <h4 style="font-size:15px; font-weight:700; color:var(--primary-color);">Ragnarok Monster Kitchen</h4>
+              <span class="badge-active">운영 중</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <label
+                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+                <span>메시지 예약/관리</span>
+                <input type="checkbox" checked class="toggle-switch">
+              </label>
+              <label
+                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+                <span>이벤트 관리 (2차)</span>
+                <input type="checkbox" class="toggle-switch">
+              </label>
+              <label
+                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+                <span>SNS 미러링 관리 (2차)</span>
+                <input type="checkbox" class="toggle-switch">
+              </label>
+              <label
+                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+                <span>FAQ 자동응답 (2차)</span>
+                <input type="checkbox" class="toggle-switch">
+              </label>
+              <label
+                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+                <span>다국어 자동 번역 (2차)</span>
+                <input type="checkbox" class="toggle-switch">
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-8"
+        style="flex-shrink:0; padding-top:16px; border-top:1px solid var(--border-color);">
+        <button class="btn btn-primary" onclick="closeTitleMgmtModal(); alert('타이틀 설정이 저장되었습니다.');">저장 및 닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="lnb.js"></script>
+  <script src="api-client.js"></script>
+  <script src="script.js"></script>
+  <script>
+    let allOperators = [];
+    let filteredOps = [];
+
+    // =============================================
+    //  API 로드 및 렌더링
+    // =============================================
+    async function loadOperators() {
+      try {
+        allOperators = await fetchOperators();
+        applyFilters();
+      } catch (error) {
+        console.error('운영자 목록 로드 실패:', error);
+        alert('운영자 목록을 불러오는 데 실패했습니다.');
+      }
+    }
+
+    function roleBadge(role) {
+      const displayRole = formatRole(role);
+      const map = { '마스터': 'badge-super', '관리자': 'badge-admin', '운영자': 'badge-operator', '뷰어': 'badge-viewer' };
+      return '<span class="badge-role ' + (map[displayRole] || '') + '">' + displayRole + '</span>';
+    }
+
+    function statusBadge(status) {
+      const displayStatus = formatStatus(status);
+      return displayStatus === '활성'
+        ? '<span class="badge-active">' + displayStatus + '</span>'
+        : '<span class="badge-inactive">' + displayStatus + '</span>';
+    }
+
+    function formatRole(role) {
+      const map = { 'super_admin': '마스터', 'admin': '관리자', 'operator': '운영자', 'viewer': '뷰어' };
+      return map[role] || role;
+    }
+
+    function formatStatus(status) {
+      if (status === 'approved') return '활성';
+      if (status === 'suspended' || status === 'rejected') return '비활성';
+      return '대기';
+    }
+
+    function renderOperators(ops) {
+      const tbody = document.getElementById('opTableBody');
+      document.getElementById('opCount').textContent = '총 ' + ops.length + '명';
+
+      if (ops.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted);">검색 결과가 없습니다.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = ops.map((op, index) => `<tr>
+        <td class="col-no">${ops.length - index}</td>
+        <td>${op.name}</td>
+        <td>${op.login_id}</td>
+        <td>${roleBadge(op.role)}</td>
+        <td>${op.game || '전체'}</td>
+        <td>${(op.created_at || '').substring(0, 10)}</td>
+        <td>${statusBadge(op.status)}</td>
+        <td class="col-action">
+          <div class="flex gap-8 justify-end">
+            <button class="btn btn-secondary btn-sm" onclick="openEditModal(${op.id})">수정</button>
+            ${op.role !== 'super_admin' ? `<button class="btn btn-secondary btn-sm" onclick="suspendUser(${op.id})">정지</button>` : ''}
+          </div>
+        </td>
+      </tr>`).join('');
+    }
+
+    function renderApprovals(ops) {
+      const tbody = document.getElementById('approvalTableBody');
+      document.getElementById('approvalCount').textContent = ops.length;
+
+      if (ops.length === 0) {
+        document.getElementById('approvalSection').style.display = 'none';
+        return;
+      } else {
+        document.getElementById('approvalSection').style.display = 'block';
+      }
+
+      tbody.innerHTML = ops.map((a, index) => `<tr>
+        <td>${ops.length - index}</td>
+        <td>${a.name}</td>
+        <td>${a.login_id}</td>
+        <td>${a.email}</td>
+        <td>${a.team}</td>
+        <td>${a.game || '전체'}</td>
+        <td>${(a.created_at || '').substring(0, 16)}</td>
+        <td style="text-align:right;">
+          <div class="flex gap-8 justify-end">
+            <button class="btn btn-primary btn-sm" onclick="openApproveModal(${a.id})">승인</button>
+            <button class="btn btn-secondary btn-sm" onclick="rejectUser(${a.id})">반려</button>
+          </div>
+        </td>
+      </tr>`).join('');
+    }
+
+    function applyFilters() {
+      const keyword = document.getElementById('opSearch').value.trim().toLowerCase();
+      const roleVal = document.getElementById('roleFilter').value;
+      const statusVal = document.getElementById('statusFilter').value;
+
+      const approvedOps = allOperators.filter(op => op.status !== 'pending');
+      const pendingOps = allOperators.filter(op => op.status === 'pending');
+
+      filteredOps = approvedOps.filter(op => {
+        if (keyword && !(op.name + ' ' + op.login_id).toLowerCase().includes(keyword)) return false;
+        if (roleVal !== '권한: 전체' && formatRole(op.role) !== roleVal) return false;
+        if (statusVal !== '상태: 전체' && formatStatus(op.status) !== statusVal) return false;
+        return true;
+      });
+
+      renderOperators(filteredOps);
+      renderApprovals(pendingOps);
+    }
+
+    document.getElementById('opSearch').addEventListener('input', applyFilters);
+    document.getElementById('roleFilter').addEventListener('change', applyFilters);
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+
+    // =============================================
+    //  모달 상태/권한 UI 헬퍼
+    // =============================================
+    function setSegmentVal(id, val) {
+      const group = document.getElementById(id);
+      if (!group) return;
+      group.querySelectorAll('.segment-toggle').forEach(el => {
+        if (el.dataset.val === val) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+    }
+
+    function applyRoleDefaults(prefix, role) {
+      if (role === '마스터') {
+        setSegmentVal(prefix + '_title_mgmt', '가능');
+        setSegmentVal(prefix + '_feat_mgmt', '가능');
+        setSegmentVal(prefix + '_feat_use', '가능');
+        setSegmentVal(prefix + '_admin_create', '가능');
+        setSegmentVal(prefix + '_op_mgmt', '가능');
+        setSegmentVal(prefix + '_sys_set', '가능');
+        setSegmentVal(prefix + '_act_log', '가능');
+      } else if (role === '관리자') {
+        setSegmentVal(prefix + '_title_mgmt', '가능');
+        setSegmentVal(prefix + '_feat_mgmt', '가능');
+        setSegmentVal(prefix + '_feat_use', '가능');
+        setSegmentVal(prefix + '_admin_create', '불가');
+        setSegmentVal(prefix + '_op_mgmt', '가능');
+        setSegmentVal(prefix + '_sys_set', '가능');
+        setSegmentVal(prefix + '_act_log', '가능');
+      } else if (role === '운영자') {
+        setSegmentVal(prefix + '_title_mgmt', '불가');
+        setSegmentVal(prefix + '_feat_mgmt', '불가');
+        setSegmentVal(prefix + '_feat_use', '가능');
+        setSegmentVal(prefix + '_admin_create', '불가');
+        setSegmentVal(prefix + '_op_mgmt', '불가');
+        setSegmentVal(prefix + '_sys_set', '불가');
+        setSegmentVal(prefix + '_act_log', '가능');
+      } else if (role === '뷰어') {
+        setSegmentVal(prefix + '_title_mgmt', '불가');
+        setSegmentVal(prefix + '_feat_mgmt', '불가');
+        setSegmentVal(prefix + '_feat_use', '읽기만');
+        setSegmentVal(prefix + '_admin_create', '불가');
+        setSegmentVal(prefix + '_op_mgmt', '불가');
+        setSegmentVal(prefix + '_sys_set', '불가');
+        setSegmentVal(prefix + '_act_log', '가능');
+      }
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.target.classList.contains('segment-toggle')) {
+        const group = e.target.parentElement;
+        group.querySelectorAll('.segment-toggle').forEach(el => el.classList.remove('active'));
+        e.target.classList.add('active');
+      }
+    });
+
+    function setApprRole(role, elem) {
+      document.getElementById('apprRole').value = role;
+      document.querySelectorAll('#apprRoleTabs .role-tab').forEach(el => el.classList.remove('active'));
+      elem.classList.add('active');
+      applyRoleDefaults('appr', role);
+    }
+
+    function setEditRole(role, elem) {
+      document.getElementById('editRole').value = role;
+      document.querySelectorAll('#editRoleTabs .role-tab').forEach(el => el.classList.remove('active'));
+      elem.classList.add('active');
+      applyRoleDefaults('edit', role);
+    }
+
+    // =============================================
+    //  승인/반려
+    // =============================================
+    let currentApproveId = null;
+
+    function openApproveModal(id) {
+      const user = allOperators.find(a => a.id === id);
+      if (!user) return;
+      currentApproveId = id;
+      document.getElementById('apprName').value = user.name;
+      document.getElementById('apprId').value = user.login_id;
+      document.getElementById('apprTeam').value = user.team;
+      document.getElementById('apprReqGame').value = user.game;
+
+      document.getElementById('apprRole').value = '관리자';
+      document.querySelectorAll('#apprRoleTabs .role-tab').forEach(el => {
+        el.classList.remove('active');
+        if (el.dataset.role === '관리자') el.classList.add('active');
+      });
+      applyRoleDefaults('appr', '관리자');
+
+      document.getElementById('approveModal').classList.add('show');
+    }
+
+    function closeApproveModal() {
+      document.getElementById('approveModal').classList.remove('show');
+      currentApproveId = null;
+    }
+
+    async function confirmApprove() {
+      if (!currentApproveId) return;
+      if (confirm('설정한 권한으로 계정을 승인하시겠습니까?')) {
+        try {
+          const result = await updateOperatorStatus(currentApproveId, 'approved');
+          if (result.success) {
+            alert('승인 완료. 계정이 활성화되었습니다.');
+            closeApproveModal();
+            loadOperators();
+          }
+        } catch (error) {
+          alert('승인 처리 중 오류가 발생했습니다: ' + error.message);
+        }
+      }
+    }
+
+    async function rejectUser(id) {
+      if (confirm('계정 신청을 반려하시겠습니까?')) {
+        try {
+          const result = await updateOperatorStatus(id, 'rejected');
+          if (result.success) {
+            alert('계정 신청이 반려되었습니다.');
+            loadOperators();
+          }
+        } catch (error) {
+          alert('반려 처리 중 오류가 발생했습니다: ' + error.message);
+        }
+      }
+    }
+
+    // =============================================
+    //  모달
+    // =============================================
+    // =============================================
+    //  수정 모달
+    // =============================================
+    let currentEditId = null;
+
+    function openEditModal(id) {
+      const op = allOperators.find(o => o.id === id);
+      if (!op) return;
+      currentEditId = id;
+      document.getElementById('editName').value = op.name;
+      document.getElementById('editId').value = op.login_id;
+      document.getElementById('editStatus').value = formatStatus(op.status);
+
+      const isStatusActive = op.status === 'approved';
+      document.getElementById('editStatusToggle').checked = isStatusActive;
+      document.getElementById('editStatusLabel').textContent = isStatusActive ? '활성' : '비활성';
+
+      const displayRole = formatRole(op.role);
+      document.getElementById('editRole').value = displayRole;
+
+      document.querySelectorAll('#editRoleTabs .role-tab').forEach(el => {
+        el.classList.remove('active');
+        if (el.dataset.role === displayRole) el.classList.add('active');
+      });
+      applyRoleDefaults('edit', displayRole);
+
+      document.getElementById('editModal').classList.add('show');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('show');
+      currentEditId = null;
+    }
+
+    async function confirmEdit() {
+      if (!currentEditId) return;
+      const op = allOperators.find(o => o.id === currentEditId);
+      if (op) {
+        // 권한이나 다른 정보 저장 API가 있다면 여기에 추가 (현재는 상태만 업데이트 API가 있음)
+        const newStatus = document.getElementById('editStatusToggle').checked ? 'approved' : 'suspended';
+
+        if (op.status !== newStatus) {
+          try {
+            await updateOperatorStatus(currentEditId, newStatus);
+          } catch (error) {
+            alert('상태 변경 실패: ' + error.message);
+            return;
+          }
+        }
+
+        alert('운영자 정보가 수정되었습니다.');
+        closeEditModal();
+        loadOperators();
+      }
+    }
+
+    async function suspendUser(id) {
+      if (confirm('이 계정을 정지하시겠습니까? (정지된 계정은 로그인할 수 없습니다)')) {
+        try {
+          const result = await updateOperatorStatus(id, 'suspended');
+          if (result.success) {
+            alert('계정이 정지되었습니다.');
+            loadOperators();
+          }
+        } catch (error) {
+          alert('처리 중 오류가 발생했습니다: ' + error.message);
+        }
+      }
+    }
+
+    // =============================================
+    //  타이틀 관리 모달
+    // =============================================
+    function openTitleMgmtModal() {
+      document.getElementById('titleMgmtModal').classList.add('show');
+    }
+
+    function closeTitleMgmtModal() {
+      document.getElementById('titleMgmtModal').classList.remove('show');
+    }
+
+    function createTitleCard(name) {
+      const container = document.getElementById('titleListContainer');
+      const newCard = document.createElement('div');
+      newCard.className = 'card';
+      newCard.style.cssText = 'border:1px solid var(--border-color); padding:16px; margin:0;';
+      newCard.innerHTML = `
+        <div class="flex items-center justify-between mb-16">
+          <h4 style="font-size:15px; font-weight:700; color:var(--primary-color);">${name}</h4>
+          <span class="badge-active">운영 중</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+            <span>메시지 예약/관리</span>
+            <input type="checkbox" class="toggle-switch" checked>
+          </label>
+          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+            <span>이벤트 관리 (2차)</span>
+            <input type="checkbox" class="toggle-switch">
+          </label>
+          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+            <span>SNS 미러링 관리 (2차)</span>
+            <input type="checkbox" class="toggle-switch">
+          </label>
+          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+            <span>FAQ 자동응답 (2차)</span>
+            <input type="checkbox" class="toggle-switch">
+          </label>
+          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
+            <span>다국어 자동 번역 (2차)</span>
+            <input type="checkbox" class="toggle-switch">
+          </label>
+        </div>
+      `;
+      container.insertBefore(newCard, container.firstChild);
+    }
+
+    function createNewTitle() {
+      const input = document.getElementById('newTitleName');
+      const name = input.value.trim();
+      if (!name) {
+        alert('타이틀명을 입력해주세요.');
+        return;
+      }
+
+      const titles = JSON.parse(localStorage.getItem('customTitles') || '[]');
+      if (titles.includes(name)) {
+        alert('이미 존재하는 타이틀입니다.');
+        return;
+      }
+
+      titles.push(name);
+      localStorage.setItem('customTitles', JSON.stringify(titles));
+
+      createTitleCard(name);
+      
+      // 전역 LNB 업데이트
+      if (typeof loadCustomTitles === 'function') {
+        loadCustomTitles();
+      }
+
+      input.value = '';
+      alert('[' + name + '] 타이틀이 생성되었습니다.');
+    }
+
+    function initTitleModal() {
+      const titles = JSON.parse(localStorage.getItem('customTitles') || '[]');
+      // 배열 역순으로 렌더링해야 최신 생성된 것이 위에 위치
+      titles.reverse().forEach(name => {
+        createTitleCard(name);
+      });
+    }
+
+    // 초기 데이터 로드
+    loadOperators();
+    initTitleModal();
+  </script>
+</body>
+
+</html>

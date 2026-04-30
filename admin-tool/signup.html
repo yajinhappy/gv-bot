@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>계정 생성 요청 - GV DiscordBot Admin Tool</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card signup">
+      <div class="auth-header">
+        <h1>계정 생성 요청</h1>
+        <p>슈퍼 관리자 승인 후 계정 생성이 완료됩니다.</p>
+      </div>
+      
+      <form id="signupForm">
+        <div class="form-group">
+          <label class="form-label" for="signup-id">아이디 <span class="required">*</span></label>
+          <input type="text" id="signup-id" class="form-control" placeholder="사용할 아이디 입력 (3자 이상)" required minlength="3">
+        </div>
+        
+        <div class="flex gap-4">
+          <div class="form-group flex-1">
+            <label class="form-label" for="signup-pw">비밀번호 <span class="required">*</span></label>
+            <input type="password" id="signup-pw" class="form-control" placeholder="비밀번호 입력 (6자 이상)" required minlength="6">
+          </div>
+          <div class="form-group flex-1">
+            <label class="form-label" for="signup-pw-confirm">비밀번호 확인 <span class="required">*</span></label>
+            <input type="password" id="signup-pw-confirm" class="form-control" placeholder="비밀번호 재입력" required>
+          </div>
+        </div>
+        
+        <div class="flex gap-4">
+          <div class="form-group flex-1">
+            <label class="form-label" for="signup-name">이름 <span class="required">*</span></label>
+            <input type="text" id="signup-name" class="form-control" placeholder="실명 입력" required>
+          </div>
+          <div class="form-group flex-1">
+            <label class="form-label" for="signup-email">업무용 이메일 <span class="required">*</span></label>
+            <input type="email" id="signup-email" class="form-control" placeholder="자사 이메일만 허용" required>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="form-group flex-1">
+            <label class="form-label" for="signup-team">팀 / 유닛명 <span class="required">*</span></label>
+            <input type="text" id="signup-team" class="form-control" placeholder="예. GV 마케팅Unit" required>
+          </div>
+          <div class="form-group flex-1">
+            <label class="form-label" for="signup-game">담당 게임 <span class="required">*</span></label>
+            <input type="text" id="signup-game" class="form-control" placeholder="예. RO1" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signup-role">필요 역할 / 권한 요청 사항</label>
+          <textarea id="signup-role" class="form-control" placeholder="요청 사항을 자유롭게 적어주세요."></textarea>
+        </div>
+
+        <div id="signupError" style="display:none; color: #ef4444; font-size: 13px; margin-bottom: 12px; padding: 8px 12px; background: #fef2f2; border-radius: 6px;"></div>
+        <div id="signupSuccess" style="display:none; color: #16a34a; font-size: 13px; margin-bottom: 12px; padding: 8px 12px; background: #f0fdf4; border-radius: 6px;"></div>
+
+        <div class="mt-4 flex gap-2">
+          <a href="login.html" class="btn btn-secondary btn-block">취소</a>
+          <button type="submit" class="btn btn-primary btn-block" id="signupBtn">신청하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="api-client.js"></script>
+  <script>
+    const form = document.getElementById('signupForm');
+    const errorEl = document.getElementById('signupError');
+    const successEl = document.getElementById('signupSuccess');
+    const submitBtn = document.getElementById('signupBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      const password = document.getElementById('signup-pw').value;
+      const passwordConfirm = document.getElementById('signup-pw-confirm').value;
+
+      if (password !== passwordConfirm) {
+        errorEl.textContent = '비밀번호가 일치하지 않습니다.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      const data = {
+        loginId: document.getElementById('signup-id').value.trim(),
+        password: password,
+        name: document.getElementById('signup-name').value.trim(),
+        email: document.getElementById('signup-email').value.trim(),
+        team: document.getElementById('signup-team').value.trim(),
+        game: document.getElementById('signup-game').value.trim(),
+        note: document.getElementById('signup-role').value.trim(),
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '처리 중...';
+
+      try {
+        const result = await apiSignup(data);
+        if (result.success) {
+          successEl.textContent = '계정 생성 요청이 완료되었습니다. 관리자 승인 후 로그인하실 수 있습니다.';
+          successEl.style.display = 'block';
+          form.reset();
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 3000);
+        }
+      } catch (error) {
+        errorEl.textContent = error.message || '계정 생성 요청에 실패했습니다.';
+        errorEl.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '신청하기';
+      }
+    });
+  </script>
+</body>
+</html>

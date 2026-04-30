@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>새 예약 작성 - GV DiscordBot Admin Tool</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Quill WYSIWYG Editor -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <!-- HTML to Markdown converter -->
+  <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- LNB (Sidebar) -->
+    <!-- LNB (Sidebar) - 공통 모듈 -->
+    <aside id="lnb"></aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="page-title">
+          <span id="pageTitle">새 메시지 보내기</span>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="main-content">
+
+        <!-- 메시지 작성 및 예약 카드 -->
+        <div class="card">
+          <h2 class="card-title" id="cardTitle">메시지 발송하기</h2>
+          <form id="msg-form">
+            <div class="form-group">
+              <label class="form-label">발송 채널 <span class="required">*</span></label>
+              <div class="multi-select-container" id="channelMultiSelect">
+                <div class="form-control multi-select-trigger"
+                  onclick="this.nextElementSibling.classList.toggle('active')">
+                  <span class="selected-text" id="channelSelectedText">채널을 선택하세요 (다중 선택 가능)</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+                <div class="multi-select-dropdown" id="channelDropdown">
+                  <div style="padding: 10px; color: #888;">채널 목록을 불러오는 중...</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">메시지 내용</label>
+              <!-- Quill 에디터 컨테이너 -->
+              <div id="editor-container" style="height: 250px; background: var(--bg-body); border-radius: 0 0 6px 6px;">
+              </div>
+              <!-- 실제 값이 저장되는 hidden textarea -->
+              <textarea class="form-control" id="messageBody" style="display:none;"></textarea>
+            </div>
+
+            <div class="flex gap-4">
+              <div class="form-group flex-1">
+                <label class="form-label">이미지 첨부</label>
+                <div class="flex items-center gap-2 flex-wrap mb-2">
+                  <input type="file" id="imageUpload" class="d-none"
+                    accept="image/jpeg, image/png, image/gif, image/webp" multiple>
+                  <button type="button" class="btn" onclick="document.getElementById('imageUpload').click()" style="background-color: #ffffff; color: #00549D; height: 34px; padding: 0 16px; border: solid 1px
+                    #00549D;">파일 첨부</button>
+                  <span class="text-muted-color font-size-13" style="margin-right: 8px;">* 최대 4개까지 첨부 가능</span>
+                  <div id="fileListContainer" class="flex items-center gap-2 flex-wrap"></div>
+                </div>
+                <small class="form-hint">지원 포맷: JPG, PNG, GIF, WEBP. 파일당 최대 25MB.</small>
+              </div>
+              <div class="form-group flex-1">
+                <label class="form-label">메시지 링크 (선택)</label>
+                <input type="url" class="form-control" id="messageLink" placeholder="https://...">
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between mt-4">
+              <button type="button" class="btn btn-secondary"
+                onclick="window.location.href='msg-mgmt.html'">목록보기</button>
+              <div class="flex gap-2">
+                <button type="button" class="btn btn-secondary"
+                  onclick="document.getElementById('draftModal').style.display='flex'">
+                  <span class="text-primary-color font-weight-700">2</span>
+                  <span style="margin: 0 8px; color: var(--border-color);">|</span>
+                  불러오기
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="alert('작성 중인 내용이 임시 저장되었습니다.')">임시 저장</button>
+                <button type="button" class="btn btn-secondary" onclick="handleTestSend()">발송 테스트</button>
+                <button type="button" class="btn btn-outline-primary" onclick="openReservationModal()">예약발송</button>
+                <button type="button" class="btn btn-primary" onclick="handleInstantSend()">즉시발송</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- 예약발송 모달 -->
+  <div id="reservationModal" class="modal modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="flex items-center justify-between mb-20">
+        <h3 class="modal-title">예약 발송 설정</h3>
+        <button type="button" onclick="document.getElementById('reservationModal').style.display='none'"
+          class="modal-close">&times;</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">발송 시간 <span class="required">*</span></label>
+        <div class="custom-datetime-picker" id="customDatetimePicker">
+          <input type="text" class="form-control" id="scheduledTime" placeholder="YYYY-MM-DD HH:mm" readonly
+            style="background: white; cursor: pointer;">
+          <div class="datetime-dropdown" id="dtDropdown" style="display:none;">
+            <div class="dt-content-row">
+              <div class="dt-calendar">
+                <div class="calendar-header flex items-center justify-between mb-12">
+                  <span class="calendar-title" id="dtCalTitle"></span>
+                  <div class="flex gap-4">
+                    <button type="button" class="cal-nav-btn" id="dtPrevMonth">&#8593;</button>
+                    <button type="button" class="cal-nav-btn" id="dtNextMonth">&#8595;</button>
+                  </div>
+                </div>
+                <div class="calendar-grid" id="dtCalGrid"></div>
+                <div class="flex items-center justify-end mt-12">
+                  <button type="button" class="btn-text text-primary-color" id="dtToday">오늘</button>
+                </div>
+              </div>
+              <div class="dt-timepicker">
+                <div class="dt-time-col" id="dtHourCol"></div>
+                <div class="dt-time-col" id="dtMinCol"></div>
+                <div class="dt-time-col" id="dtAmPmCol">
+                  <div class="dt-time-item" data-val="AM">오전</div>
+                  <div class="dt-time-item" data-val="PM">오후</div>
+                </div>
+              </div>
+            </div>
+            <div class="daterange-footer">
+              <button type="button" class="btn btn-secondary btn-sm" id="dtReset">초기화</button>
+              <button type="button" class="btn btn-primary btn-sm" id="dtSave">저장</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">기준 시간 <span class="required">*</span></label>
+        <div class="select-wrapper">
+          <select class="form-control" id="timezoneSelect">
+            <option value="GMT-12:00">GMT -12:00 (베이커 섬)</option>
+            <option value="GMT-11:00">GMT -11:00 (사모아)</option>
+            <option value="GMT-10:00">GMT -10:00 (하와이)</option>
+            <option value="GMT-09:00">GMT -09:00 (알래스카)</option>
+            <option value="GMT-08:00">GMT -08:00 (로스앤젤레스, 미국)</option>
+            <option value="GMT-07:00">GMT -07:00 (덴버, 미국)</option>
+            <option value="GMT-06:00">GMT -06:00 (시카고, 미국)</option>
+            <option value="GMT-05:00">GMT -05:00 (뉴욕, 미국)</option>
+            <option value="GMT-04:00">GMT -04:00 (카라카스, 베네수엘라)</option>
+            <option value="GMT-03:00">GMT -03:00 (상파울루, 브라질)</option>
+            <option value="GMT-02:00">GMT -02:00 (중부 대서양)</option>
+            <option value="GMT-01:00">GMT -01:00 (아조레스, 포르투갈)</option>
+            <option value="GMT+00:00">GMT +00:00 (런던, 영국)</option>
+            <option value="GMT+01:00">GMT +01:00 (파리, 프랑스)</option>
+            <option value="GMT+02:00">GMT +02:00 (카이로, 이집트)</option>
+            <option value="GMT+03:00">GMT +03:00 (모스크바, 러시아)</option>
+            <option value="GMT+04:00">GMT +04:00 (두바이, UAE)</option>
+            <option value="GMT+05:00">GMT +05:00 (카라치, 파키스탄)</option>
+            <option value="GMT+05:30">GMT +05:30 (델리, 인도)</option>
+            <option value="GMT+06:00">GMT +06:00 (다카, 방글라데시)</option>
+            <option value="GMT+07:00">GMT +07:00 (방콕, 태국)</option>
+            <option value="GMT+08:00">GMT +08:00 (베이징, 중국)</option>
+            <option value="GMT+09:00" selected>GMT +09:00 (서울, 대한민국)</option>
+            <option value="GMT+10:00">GMT +10:00 (시드니, 호주)</option>
+            <option value="GMT+11:00">GMT +11:00 (솔로몬 제도)</option>
+            <option value="GMT+12:00">GMT +12:00 (오클랜드, 뉴질랜드)</option>
+          </select>
+          <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 mt-20">
+        <button type="button" class="btn btn-secondary"
+          onclick="document.getElementById('reservationModal').style.display='none'">취소</button>
+        <button type="button" class="btn btn-primary" onclick="confirmReservation()">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 임시 저장 목록 모달 -->
+  <div id="draftModal" class="modal modal-overlay">
+    <div class="modal-content modal-content">
+      <div class="flex items-center justify-between mb-20">
+        <h3 class="modal-title">임시 저장 목록</h3>
+        <button type="button" onclick="document.getElementById('draftModal').style.display='none'"
+          class="modal-close">&times;</button>
+      </div>
+      <div class="draft-list draft-list">
+
+        <!-- Draft Item 1 (최신순 정렬) -->
+        <div class="draft-item draft-item"
+          onclick="if(confirm('기존 내용을 덮어쓰시겠습니까?')) { document.getElementById('draftModal').style.display='none'; alert('불러왔습니다.'); }">
+          <div class="draft-title">
+            <!-- 30자 요약 -->
+            5월 정기 업데이트 관련하여 안내 드립니다. 점검 시간은...
+          </div>
+          <div class="draft-date">2026-04-28 15:30:00</div>
+        </div>
+
+        <!-- Draft Item 2 -->
+        <div class="draft-item draft-item"
+          onclick="if(confirm('기존 내용을 덮어쓰시겠습니까?')) { document.getElementById('draftModal').style.display='none'; alert('불러왔습니다.'); }">
+          <div class="draft-title">
+            서버 임시 점검 완료 보상 아이템 지급 안내입니다. 확인...
+          </div>
+          <div class="draft-date">2026-04-27 10:15:00</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="lnb.js"></script>
+  <script src="api-client.js"></script>
+  <script src="script.js"></script>
+  <style>
+    .draft-item:hover {
+      background: var(--bg-surface) !important;
+      border-color: var(--primary-color) !important;
+    }
+  </style>
+  <script>
+    // 커스텀 다중 선택(체크박스) 로직은 API 로드 후 초기화됩니다.
+    // 외부 클릭 시 드롭다운 닫기
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.multi-select-container')) {
+        document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('active'));
+      }
+    });
+
+    async function loadChannels() {
+      try {
+        const channels = await fetchChannels();
+        const dropdown = document.getElementById('channelDropdown');
+        dropdown.innerHTML = '';
+
+        channels.forEach(ch => {
+          const label = document.createElement('label');
+          label.className = 'multi-select-option';
+          label.innerHTML = `<input type="checkbox" value="${ch.id}" class="channel-checkbox"> # ${ch.name}`;
+          dropdown.appendChild(label);
+        });
+
+        const checkboxes = document.querySelectorAll('.channel-checkbox');
+        const selectedTextEl = document.getElementById('channelSelectedText');
+
+        checkboxes.forEach(cb => {
+          cb.addEventListener('change', () => {
+            const checked = Array.from(checkboxes).filter(i => i.checked).map(i => i.nextSibling.textContent.trim());
+            if (checked.length === 0) {
+              selectedTextEl.textContent = '채널을 선택하세요 (다중 선택 가능)';
+              selectedTextEl.style.color = 'var(--text-muted)';
+            } else {
+              selectedTextEl.textContent = checked.join(', ');
+              selectedTextEl.style.color = 'var(--text-main)';
+            }
+          });
+        });
+      } catch (err) {
+        document.getElementById('channelDropdown').innerHTML = '<div style="padding: 10px; color: red;">채널 목록을 불러오지 못했습니다. 봇 서버가 켜져있는지 확인해주세요.</div>';
+      }
+    }
+
+    // 첨부파일 확장자 검증 및 다중 파일 관리 로직
+    const imageUpload = document.getElementById('imageUpload');
+    const fileListContainer = document.getElementById('fileListContainer');
+    let selectedFiles = [];
+
+    if (imageUpload) {
+      imageUpload.addEventListener('change', function () {
+        const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        const newFiles = Array.from(this.files);
+
+        let validFiles = [];
+        for (let file of newFiles) {
+          const extension = file.name.split('.').pop().toLowerCase();
+          if (!allowedExtensions.includes(extension)) {
+            alert(file.name + '은(는) 지원하지 않는 포맷입니다.');
+            continue;
+          }
+          if (file.size > 25 * 1024 * 1024) {
+            alert(file.name + '의 용량이 25MB를 초과합니다.');
+            continue;
+          }
+          validFiles.push(file);
+        }
+
+        if (selectedFiles.length + validFiles.length > 4) {
+          alert('최대 4개까지만 첨부 가능합니다.');
+          validFiles = validFiles.slice(0, 4 - selectedFiles.length);
+        }
+
+        selectedFiles = [...selectedFiles, ...validFiles];
+        renderFileList();
+
+        this.value = ''; // 같은 파일을 다시 선택할 수 있도록 초기화
+      });
+    }
+
+    function renderFileList() {
+      if (!fileListContainer) return;
+      fileListContainer.innerHTML = '';
+      selectedFiles.forEach((file, index) => {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+
+        const fileItem = document.createElement('div');
+        fileItem.style.cssText = 'display: flex; align-items: center; gap: 8px; padding: 4px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; font-size: 13px; color: var(--text-muted); height: 34px;';
+
+        const fileName = document.createElement('span');
+        fileName.textContent = `${file.name} (${sizeMB}MB)`;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>';
+        deleteBtn.style.cssText = 'background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; margin-left: 4px;';
+        deleteBtn.onclick = () => {
+          selectedFiles.splice(index, 1);
+          renderFileList();
+        };
+
+        fileItem.appendChild(fileName);
+        fileItem.appendChild(deleteBtn);
+        fileListContainer.appendChild(fileItem);
+      });
+    }
+
+    // Quill WYSIWYG 에디터 초기화
+    let quillEditor;
+    let turndownService;
+    document.addEventListener("DOMContentLoaded", function () {
+      // 마크다운 변환기 초기화
+      turndownService = new TurndownService({
+        headingStyle: 'atx',
+        codeBlockStyle: 'fenced'
+      });
+      // 디스코드 취소선(strikethrough) 커스텀 규칙
+      turndownService.addRule('strikethrough', {
+        filter: ['s', 'strike', 'del'],
+        replacement: function (content) {
+          return '~~' + content + '~~'
+        }
+      });
+
+      quillEditor = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: "메시지를 작성하세요...",
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'strike'],
+            [{ 'header': 1 }, { 'header': 2 }, { 'header': 3 }],
+            ['blockquote', 'code-block'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['link'],
+            ['clean'] // 포맷 초기화
+          ]
+        }
+      });
+
+      // 에디터 내용이 바뀔 때마다 hidden textarea에 마크다운으로 변환하여 저장
+      quillEditor.on('text-change', function () {
+        const html = quillEditor.root.innerHTML;
+        const markdown = turndownService.turndown(html);
+        document.getElementById('messageBody').value = markdown;
+      });
+
+      // API를 통해 채널 목록 불러오기
+      loadChannels();
+    });
+
+    // 발송 테스트 및 토스트 알림 로직
+    function showToast(message) {
+      let container = document.getElementById('toastContainer');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        container.style.cssText = 'position:fixed; bottom:40px; left:50%; transform:translateX(-50%); z-index:9999;';
+        document.body.appendChild(container);
+      }
+
+      const toast = document.createElement('div');
+      toast.className = 'toast toast-success';
+      toast.innerHTML = `<span>&#10003;</span> <span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.animation = 'toastFadeOut 0.3s ease forwards';
+        setTimeout(() => {
+          toast.remove();
+          if (container.children.length === 0) container.remove();
+        }, 300);
+      }, 3000);
+    }
+
+    function handleTestSend() {
+      const checkedChannels = document.querySelectorAll('.channel-checkbox:checked');
+      if (checkedChannels.length === 0) {
+        alert("테스트 발송할 채널을 먼저 선택해주세요.");
+        return;
+      }
+
+      const confirmMsg = "선택하신 채널로 발송 테스트하시겠습니까?\n'확인'을 클릭하신 경우 예약한 시간과 상관 없이 메시지가 발송됩니다.\n발송 전 채널을 다시 한 번 더 확인해주세요.";
+
+      if (confirm(confirmMsg)) {
+        showToast("메시지를 테스트 발송했습니다. 선택하신 채널에서 메시지 내용을 확인해주세요.");
+      }
+    }
+
+    // 예약발송 모달 열기
+    function openReservationModal() {
+      const checkedChannels = document.querySelectorAll('.channel-checkbox:checked');
+      if (checkedChannels.length === 0) {
+        alert("발송할 채널을 먼저 선택해주세요.");
+        return;
+      }
+      document.getElementById('reservationModal').style.display = 'flex';
+    }
+
+    // 예약발송 확인
+    async function confirmReservation() {
+      const scheduledTime = document.getElementById('scheduledTime').value;
+      if (!scheduledTime) {
+        alert("발송 시간을 선택해주세요.");
+        return;
+      }
+      const timezoneSelect = document.getElementById('timezoneSelect');
+      const timezone = timezoneSelect.value;
+
+      const checkedChannels = Array.from(document.querySelectorAll('.channel-checkbox:checked')).map(cb => cb.value);
+      if (checkedChannels.length === 0) {
+        alert("발송할 채널을 먼저 선택해주세요.");
+        return;
+      }
+
+      const content = document.getElementById('messageBody').value;
+      if (!content || !content.trim()) {
+        alert("메시지 내용을 입력해주세요.");
+        return;
+      }
+
+      const link = document.getElementById('messageLink').value;
+
+      document.getElementById('reservationModal').style.display = 'none';
+
+      try {
+        await createMessage({
+          channelId: checkedChannels.join(','),
+          content: content,
+          link: link || "",
+          scheduledAt: scheduledTime,
+          timezone: timezone,
+          author: '관리자'
+        });
+        showToast("선택하신 채널에 메시지가 예약발송 등록되었습니다.");
+        setTimeout(() => window.location.href = 'msg-mgmt.html', 1500);
+      } catch (error) {
+        alert("예약 등록 실패: " + error.message);
+      }
+    }
+
+    // 즉시발송
+    async function handleInstantSend() {
+      const checkedChannels = Array.from(document.querySelectorAll('.channel-checkbox:checked')).map(cb => cb.value);
+      if (checkedChannels.length === 0) {
+        alert("발송할 채널을 먼저 선택해주세요.");
+        return;
+      }
+
+      const content = document.getElementById('messageBody').value;
+      if (!content || !content.trim()) {
+        alert("메시지 내용을 입력해주세요.");
+        return;
+      }
+
+      const link = document.getElementById('messageLink').value;
+
+      if (confirm("즉시발송을 선택하셨습니다. 지금 디스코드 메시지를 발송하시겠습니까?")) {
+        try {
+          await sendMessageNow({
+            channelId: checkedChannels.join(','),
+            content: content,
+            link: link || "",
+            author: '관리자'
+          });
+          showToast("선택하신 채널에 메시지가 발송되었습니다.");
+          setTimeout(() => window.location.href = 'msg-mgmt.html', 1500);
+        } catch (error) {
+          alert("즉시 발송 실패: " + error.message);
+        }
+      }
+    }
+
+    // 커스텀 발송 시간 피커 로직
+    const dtInput = document.getElementById('scheduledTime');
+    const dtDropdown = document.getElementById('dtDropdown');
+    const dtCalGrid = document.getElementById('dtCalGrid');
+    const dtCalTitle = document.getElementById('dtCalTitle');
+    const dtHourCol = document.getElementById('dtHourCol');
+    const dtMinCol = document.getElementById('dtMinCol');
+    const dtAmPmItems = document.querySelectorAll('#dtAmPmCol .dt-time-item');
+
+    let currentDate = new Date();
+    let selectedDate = null;
+    let selectedHour = '12';
+    let selectedMin = '00';
+    let selectedAmPm = 'AM';
+
+    function updateInput() {
+      if (!selectedDate) {
+        dtInput.value = '';
+        return;
+      }
+      let h = parseInt(selectedHour);
+      if (selectedAmPm === 'PM' && h !== 12) h += 12;
+      if (selectedAmPm === 'AM' && h === 12) h = 0;
+
+      const yyyy = selectedDate.getFullYear();
+      const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(selectedDate.getDate()).padStart(2, '0');
+      const hh = String(h).padStart(2, '0');
+      const min = String(selectedMin).padStart(2, '0');
+
+      dtInput.value = `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+    }
+
+    function renderTimeCols() {
+      dtHourCol.innerHTML = '';
+      for (let i = 1; i <= 12; i++) {
+        const val = String(i).padStart(2, '0');
+        const div = document.createElement('div');
+        div.className = `dt-time-item ${val === selectedHour ? 'active' : ''}`;
+        div.textContent = val;
+        div.onclick = () => { selectedHour = val; renderTimeCols(); updateInput(); };
+        dtHourCol.appendChild(div);
+      }
+
+      dtMinCol.innerHTML = '';
+      for (let i = 0; i < 60; i++) {
+        const val = String(i).padStart(2, '0');
+        const div = document.createElement('div');
+        div.className = `dt-time-item ${val === selectedMin ? 'active' : ''}`;
+        div.textContent = val;
+        div.onclick = () => { selectedMin = val; renderTimeCols(); updateInput(); };
+        dtMinCol.appendChild(div);
+      }
+
+      dtAmPmItems.forEach(item => {
+        item.className = `dt-time-item ${item.dataset.val === selectedAmPm ? 'active' : ''}`;
+        item.onclick = () => { selectedAmPm = item.dataset.val; renderTimeCols(); updateInput(); };
+      });
+    }
+
+    function renderCalendar() {
+      dtCalGrid.innerHTML = '';
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      dtCalTitle.textContent = `${year}년 ${String(month + 1).padStart(2, '0')}월 ▾`;
+
+      const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+      weekdays.forEach(day => {
+        const div = document.createElement('div');
+        div.className = 'cal-weekday';
+        div.textContent = day;
+        dtCalGrid.appendChild(div);
+      });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        const div = document.createElement('div');
+        div.className = 'cal-day other-month';
+        div.textContent = daysInPrevMonth - firstDay + i + 1;
+        dtCalGrid.appendChild(div);
+      }
+
+      for (let i = 1; i <= daysInMonth; i++) {
+        const div = document.createElement('div');
+        const isSelected = selectedDate && selectedDate.getFullYear() === year && selectedDate.getMonth() === month && selectedDate.getDate() === i;
+        div.className = `cal-day ${isSelected ? 'active' : ''}`;
+        div.textContent = i;
+        div.onclick = () => {
+          selectedDate = new Date(year, month, i);
+          renderCalendar();
+        };
+        dtCalGrid.appendChild(div);
+      }
+    }
+
+    dtInput.addEventListener('click', () => {
+      const isHidden = dtDropdown.style.display === 'none' || dtDropdown.style.display === '';
+      dtDropdown.style.display = isHidden ? 'flex' : 'none';
+      if (!selectedDate) {
+        selectedDate = new Date();
+        renderCalendar();
+        updateInput();
+      }
+    });
+
+    document.getElementById('dtPrevMonth').onclick = () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar();
+    };
+    document.getElementById('dtNextMonth').onclick = () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar();
+    };
+    document.getElementById('dtReset').onclick = () => {
+      selectedDate = null;
+      selectedHour = '12';
+      selectedMin = '00';
+      selectedAmPm = 'AM';
+      currentDate = new Date();
+      dtInput.value = '';
+      renderTimeCols();
+      renderCalendar();
+    };
+    document.getElementById('dtSave').onclick = () => {
+      if (!selectedDate) {
+        alert('날짜를 선택해주세요.');
+        return;
+      }
+      updateInput();
+      dtDropdown.style.display = 'none';
+    };
+    document.getElementById('dtToday').onclick = () => {
+      selectedDate = new Date();
+      currentDate = new Date();
+      renderCalendar();
+    };
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#customDatetimePicker')) {
+        dtDropdown.style.display = 'none';
+      }
+    });
+
+    renderTimeCols();
+    renderCalendar();
+
+    // 수정 모드: ?edit=ID 파라미터가 있으면 기존 데이터 로드
+    (function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const editId = parseInt(urlParams.get('edit'));
+      if (!editId) return;
+
+      // 샘플 데이터 (message_detail.html과 동일)
+      const messages = {
+        15: {
+          channel: 'ch1',
+          scheduledAt: '2026-04-30T10:00',
+          link: 'https://ro.gnjoy.com/notice/update',
+          body: '5월 정기 업데이트 안내 공지입니다.\n\n점검 시간은 오전 6시부터 오후 2시까지이며, 점검 중에는 게임 접속이 불가합니다.\n\n**주요 업데이트 내용:**\n- 신규 던전 \'잊혀진 신전\' 추가\n- 전사/마법사 계열 스킬 밸런스 조정\n- UI/UX 개선 (인벤토리 정렬, 파티 매칭)\n- 봄 시즌 한정 코스튬 5종 출시\n\n점검 보상으로 경험치 부스트 아이템이 지급될 예정입니다.\n자세한 사항은 공식 홈페이지를 확인해 주세요.\n\n감사합니다.'
+        },
+        14: {
+          channel: 'ch2',
+          scheduledAt: '2026-04-29T18:00',
+          link: '',
+          body: '주말 핫타임 이벤트가 곧 시작됩니다! 놓치지 마세요.\n\n이번 주말 특별 보상이 지급됩니다.\n\n🎉 이벤트 기간: 2026-04-29 18:00 ~ 2026-04-30 23:59\n🎁 보상: 경험치 2배 부스트, 한정 아바타\n\n참여 방법:\n1. 이벤트 기간 중 접속\n2. 미션 NPC \'이벤트 요정\' 대화\n3. 일일 미션 3개 완료\n\n많은 참여 부탁드립니다!'
+        }
+      };
+
+      const msg = messages[editId];
+      if (!msg) return;
+
+      // 페이지 타이틀 변경
+      document.title = '메시지 수정 - GV DiscordBot Admin Tool';
+      document.getElementById('pageTitle').textContent = '메시지 수정';
+      document.getElementById('cardTitle').textContent = '메시지 수정';
+      document.getElementById('submitBtn').textContent = '수정 저장';
+
+      // 폼 필드 채우기 (채널은 체크박스로 처리)
+      if (msg.channel === 'ch1') {
+        channelCheckboxes[0].checked = true;
+      } else if (msg.channel === 'ch2') {
+        channelCheckboxes[1].checked = true;
+      }
+      // 이벤트 트리거하여 텍스트 업데이트
+      if (channelCheckboxes.length > 0) {
+        const event = new Event('change');
+        channelCheckboxes[0].dispatchEvent(event);
+      }
+
+      document.getElementById('messageLink').value = msg.link;
+
+      // 예약 시간 파싱 및 셋팅 로직 연동
+      if (msg.scheduledAt) {
+        const [datePart, timePart] = msg.scheduledAt.split('T');
+        if (datePart && timePart) {
+          const [yy, mm, dd] = datePart.split('-');
+          const [hh, min] = timePart.split(':');
+          selectedDate = new Date(yy, mm - 1, dd);
+          currentDate = new Date(yy, mm - 1, dd);
+          let hourInt = parseInt(hh);
+          selectedAmPm = hourInt >= 12 ? 'PM' : 'AM';
+          if (hourInt === 0) hourInt = 12;
+          if (hourInt > 12) hourInt -= 12;
+          selectedHour = String(hourInt).padStart(2, '0');
+          selectedMin = min;
+          renderTimeCols();
+          renderCalendar();
+          updateInput();
+        }
+      }
+
+      // Quill 에디터는 로드 후 값을 셋팅 (마크다운을 HTML로 변환하는 대신, 편의상 줄바꿈만 br로 처리하여 삽입)
+      setTimeout(() => {
+        if (quillEditor) {
+          // 원래는 markdown->html 변환기가 필요하나, 단순 줄바꿈 처리를 위해 클립보드 매치 사용
+          quillEditor.clipboard.dangerouslyPasteHTML(msg.body.replace(/\n/g, '<br>'));
+        }
+      }, 100);
+    })();
+  </script>
+</body>
+
+</html>
