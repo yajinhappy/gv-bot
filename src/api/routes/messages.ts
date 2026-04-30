@@ -11,6 +11,7 @@ import {
   deleteMessageById,
   markAsSent,
   getMessageStats,
+  nowKST,
 } from '../../db/schema';
 
 const router = Router();
@@ -259,7 +260,6 @@ router.post('/send-now', async (req: Request, res: Response) => {
 
   try {
     const imageUrl = saveImages(images);
-    const { nowKST } = await import('../../db/schema');
     const now = nowKST();
     const msgId = insertMessage({
       channelId,
