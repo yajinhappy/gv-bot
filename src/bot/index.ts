@@ -22,8 +22,9 @@ async function loadCommands() {
 
   for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
-    const fileUrl = pathToFileURL(filePath).href;
-    const { default: command } = await import(fileUrl);
+    // CommonJS 환경에서는 require를 직접 사용하는 것이 안전합니다.
+    const commandModule = require(filePath);
+    const command = commandModule.default || commandModule;
     client.commands.set(command.data.name, command);
     commands.push(command.data.toJSON());
   }
@@ -50,8 +51,7 @@ async function loadEvents() {
 
   for (const file of eventFiles) {
     const filePath = path.join(eventsPath, file);
-    const fileUrl = pathToFileURL(filePath).href;
-    await import(fileUrl);
+    require(filePath);
   }
 }
 
