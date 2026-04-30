@@ -4,7 +4,8 @@
  */
 
 const API_CONFIG = {
-  BASE_URL: 'http://localhost:3001/api',
+  // 배포 환경과 로컬 환경을 모두 지원하도록 현재 도메인을 사용합니다.
+  BASE_URL: window.location.origin.includes('localhost') ? 'http://localhost:3001/api' : '/api',
   API_KEY: 'gv-admin-secret-key-change-in-production',
 };
 
@@ -278,7 +279,8 @@ async function apiUpdateOperatorGame(id, game) {
  */
 async function checkApiHealth() {
   try {
-    const response = await fetch('http://localhost:3001/health');
+    const healthUrl = window.location.origin.includes('localhost') ? 'http://localhost:3001/health' : '/health';
+    const response = await fetch(healthUrl);
     const json = await response.json();
     return json.status === 'ok';
   } catch {
