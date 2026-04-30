@@ -1,3 +1,6 @@
+// 서버 시간대를 한국(KST)으로 강제 설정 — 반드시 모든 import보다 먼저 실행
+process.env.TZ = 'Asia/Seoul';
+
 import * as fs from 'fs';
 import * as path from 'path';
 import { pathToFileURL } from 'url';
