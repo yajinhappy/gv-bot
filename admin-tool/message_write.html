@@ -479,17 +479,32 @@
       if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '처리 중...'; }
 
       try {
-        const images = await getImagesBase64();
-        await createMessage({
-          channelId: checkedChannels.join(','),
-          content: content,
-          link: link || "",
-          images: images.length > 0 ? images : undefined,
-          scheduledAt: scheduledTime,
-          timezone: timezone,
-          author: '관리자'
-        });
-        showToast("선택하신 채널에 메시지가 예약발송 등록되었습니다.");
+        const editId = new URLSearchParams(window.location.search).get('edit');
+
+        if (editId) {
+          // 수정 모드
+          await updateMessage(editId, {
+            channelId: checkedChannels.join(','),
+            content: content,
+            link: link || "",
+            scheduledAt: scheduledTime,
+            timezone: timezone,
+          });
+          showToast("메시지가 수정되었습니다.");
+        } else {
+          // 신규 등록 모드
+          const images = await getImagesBase64();
+          await createMessage({
+            channelId: checkedChannels.join(','),
+            content: content,
+            link: link || "",
+            images: images.length > 0 ? images : undefined,
+            scheduledAt: scheduledTime,
+            timezone: timezone,
+            author: '관리자'
+          });
+          showToast("선택하신 채널에 메시지가 예약발송 등록되었습니다.");
+        }
         setTimeout(() => window.location.href = 'msg-mgmt.html', 1500);
       } catch (error) {
         alert("예약 등록 실패: " + error.message);
@@ -679,78 +694,102 @@
     renderTimeCols();
     renderCalendar();
 
-    // 수정 모드: ?edit=ID 파라미터가 있으면 기존 데이터 로드
-    (function () {
+    // 수정 모드: ?edit=ID 파라미터가 있으면 실제 API에서 데이터 로드
+    (async function () {
       const urlParams = new URLSearchParams(window.location.search);
-      const editId = parseInt(urlParams.get('edit'));
+      const editId = urlParams.get('edit');
       if (!editId) return;
-
-      // 샘플 데이터 (message_detail.html과 동일)
-      const messages = {
-        15: {
-          channel: 'ch1',
-          scheduledAt: '2026-04-30T10:00',
-          link: 'https://ro.gnjoy.com/notice/update',
-          body: '5월 정기 업데이트 안내 공지입니다.\n\n점검 시간은 오전 6시부터 오후 2시까지이며, 점검 중에는 게임 접속이 불가합니다.\n\n**주요 업데이트 내용:**\n- 신규 던전 \'잊혀진 신전\' 추가\n- 전사/마법사 계열 스킬 밸런스 조정\n- UI/UX 개선 (인벤토리 정렬, 파티 매칭)\n- 봄 시즌 한정 코스튬 5종 출시\n\n점검 보상으로 경험치 부스트 아이템이 지급될 예정입니다.\n자세한 사항은 공식 홈페이지를 확인해 주세요.\n\n감사합니다.'
-        },
-        14: {
-          channel: 'ch2',
-          scheduledAt: '2026-04-29T18:00',
-          link: '',
-          body: '주말 핫타임 이벤트가 곧 시작됩니다! 놓치지 마세요.\n\n이번 주말 특별 보상이 지급됩니다.\n\n🎉 이벤트 기간: 2026-04-29 18:00 ~ 2026-04-30 23:59\n🎁 보상: 경험치 2배 부스트, 한정 아바타\n\n참여 방법:\n1. 이벤트 기간 중 접속\n2. 미션 NPC \'이벤트 요정\' 대화\n3. 일일 미션 3개 완료\n\n많은 참여 부탁드립니다!'
-        }
-      };
-
-      const msg = messages[editId];
-      if (!msg) return;
 
       // 페이지 타이틀 변경
       document.title = '메시지 수정 - GV DiscordBot Admin Tool';
       document.getElementById('pageTitle').textContent = '메시지 수정';
       document.getElementById('cardTitle').textContent = '메시지 수정';
-      document.getElementById('submitBtn').textContent = '수정 저장';
 
-      // 폼 필드 채우기 (채널은 체크박스로 처리)
-      if (msg.channel === 'ch1') {
-        channelCheckboxes[0].checked = true;
-      } else if (msg.channel === 'ch2') {
-        channelCheckboxes[1].checked = true;
-      }
-      // 이벤트 트리거하여 텍스트 업데이트
-      if (channelCheckboxes.length > 0) {
-        const event = new Event('change');
-        channelCheckboxes[0].dispatchEvent(event);
-      }
-
-      document.getElementById('messageLink').value = msg.link;
-
-      // 예약 시간 파싱 및 셋팅 로직 연동
-      if (msg.scheduledAt) {
-        const [datePart, timePart] = msg.scheduledAt.split('T');
-        if (datePart && timePart) {
-          const [yy, mm, dd] = datePart.split('-');
-          const [hh, min] = timePart.split(':');
-          selectedDate = new Date(yy, mm - 1, dd);
-          currentDate = new Date(yy, mm - 1, dd);
-          let hourInt = parseInt(hh);
-          selectedAmPm = hourInt >= 12 ? 'PM' : 'AM';
-          if (hourInt === 0) hourInt = 12;
-          if (hourInt > 12) hourInt -= 12;
-          selectedHour = String(hourInt).padStart(2, '0');
-          selectedMin = min;
-          renderTimeCols();
-          renderCalendar();
-          updateInput();
+      try {
+        // API에서 실제 메시지 데이터 가져오기
+        const msg = await fetchMessageById(editId);
+        if (!msg) {
+          alert('해당 메시지를 찾을 수 없습니다.');
+          return;
         }
-      }
 
-      // Quill 에디터는 로드 후 값을 셋팅 (마크다운을 HTML로 변환하는 대신, 편의상 줄바꿈만 br로 처리하여 삽입)
-      setTimeout(() => {
-        if (quillEditor) {
-          // 원래는 markdown->html 변환기가 필요하나, 단순 줄바꿈 처리를 위해 클립보드 매치 사용
-          quillEditor.clipboard.dangerouslyPasteHTML(msg.body.replace(/\n/g, '<br>'));
+        // 채널 체크박스 선택 (채널 목록 로드 완료를 기다림)
+        const waitForChannels = () => new Promise((resolve) => {
+          const check = () => {
+            const checkboxes = document.querySelectorAll('.channel-checkbox');
+            if (checkboxes.length > 0) {
+              resolve(checkboxes);
+            } else {
+              setTimeout(check, 100);
+            }
+          };
+          check();
+        });
+
+        const checkboxes = await waitForChannels();
+        const channelIds = msg.channel_id.toString().split(',').map(id => id.trim());
+
+        checkboxes.forEach(cb => {
+          if (channelIds.includes(cb.value)) {
+            cb.checked = true;
+          }
+        });
+        // 선택 텍스트 업데이트
+        const checked = Array.from(checkboxes).filter(i => i.checked).map(i => i.nextSibling.textContent.trim());
+        const selectedTextEl = document.getElementById('channelSelectedText');
+        if (checked.length > 0) {
+          selectedTextEl.textContent = checked.join(', ');
+          selectedTextEl.style.color = 'var(--text-main)';
         }
-      }, 100);
+
+        // 메시지 링크 셋팅
+        if (msg.link) {
+          document.getElementById('messageLink').value = msg.link;
+        }
+
+        // 예약 시간 파싱 및 셋팅
+        if (msg.scheduled_at) {
+          // scheduled_at 형식: "2026-04-30 10:00" 또는 "2026-04-30T10:00"
+          const normalized = msg.scheduled_at.replace('T', ' ');
+          const [datePart, timePart] = normalized.split(' ');
+          if (datePart && timePart) {
+            const [yy, mm, dd] = datePart.split('-');
+            const [hh, min] = timePart.split(':');
+            selectedDate = new Date(parseInt(yy), parseInt(mm) - 1, parseInt(dd));
+            currentDate = new Date(parseInt(yy), parseInt(mm) - 1, parseInt(dd));
+            let hourInt = parseInt(hh);
+            selectedAmPm = hourInt >= 12 ? 'PM' : 'AM';
+            if (hourInt === 0) hourInt = 12;
+            if (hourInt > 12) hourInt -= 12;
+            selectedHour = String(hourInt).padStart(2, '0');
+            selectedMin = String(parseInt(min)).padStart(2, '0');
+            renderTimeCols();
+            renderCalendar();
+            updateInput();
+          }
+        }
+
+        // Quill 에디터에 본문 내용 삽입
+        const waitForQuill = () => new Promise((resolve) => {
+          const check = () => {
+            if (quillEditor) {
+              resolve();
+            } else {
+              setTimeout(check, 100);
+            }
+          };
+          check();
+        });
+
+        await waitForQuill();
+        if (msg.content) {
+          quillEditor.clipboard.dangerouslyPasteHTML(msg.content.replace(/\n/g, '<br>'));
+        }
+
+      } catch (error) {
+        console.error('메시지 로드 실패:', error);
+        alert('메시지 정보를 불러오는 데 실패했습니다: ' + error.message);
+      }
     })();
   </script>
 </body>
