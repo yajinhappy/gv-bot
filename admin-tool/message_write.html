@@ -63,23 +63,21 @@
               <textarea class="form-control" id="messageBody" style="display:none;"></textarea>
             </div>
 
-            <div class="flex gap-4">
-              <div class="form-group flex-1">
-                <label class="form-label">이미지 첨부</label>
-                <div class="flex items-center gap-2 flex-wrap mb-2">
-                  <input type="file" id="imageUpload" class="d-none"
-                    accept="image/jpeg, image/png, image/gif, image/webp" multiple>
-                  <button type="button" class="btn" onclick="document.getElementById('imageUpload').click()" style="background-color: #ffffff; color: #00549D; height: 34px; padding: 0 16px; border: solid 1px
-                    #00549D;">파일 첨부</button>
-                  <span class="text-muted-color font-size-13" style="margin-right: 8px;">* 최대 4개까지 첨부 가능</span>
-                  <div id="fileListContainer" class="flex items-center gap-2 flex-wrap"></div>
-                </div>
-                <small class="form-hint">지원 포맷: JPG, PNG, GIF, WEBP. 파일당 최대 25MB.</small>
+            <div class="form-group" style="margin-bottom: 24px;">
+              <label class="form-label">이미지 첨부</label>
+              <div class="flex items-center gap-2 flex-wrap mb-2">
+                <input type="file" id="imageUpload" class="d-none"
+                  accept="image/jpeg, image/png, image/gif, image/webp" multiple>
+                <button type="button" class="btn" onclick="document.getElementById('imageUpload').click()" style="background-color: #ffffff; color: #00549D; height: 34px; padding: 0 16px; border: solid 1px
+                  #00549D;">파일 첨부</button>
+                <span class="text-muted-color font-size-13" style="margin-right: 8px;">* 최대 4개까지 첨부 가능</span>
+                <div id="fileListContainer" class="flex items-center gap-2 flex-wrap"></div>
               </div>
-              <div class="form-group flex-1">
-                <label class="form-label">메시지 링크 (선택)</label>
-                <input type="url" class="form-control" id="messageLink" placeholder="https://...">
-              </div>
+              <small class="form-hint">지원 포맷: JPG, PNG, GIF, WEBP. 파일당 최대 25MB.</small>
+            </div>
+            <div class="form-group" style="margin-bottom: 24px;">
+              <label class="form-label">메시지 링크 (선택)</label>
+              <input type="url" class="form-control" id="messageLink" placeholder="https://...">
             </div>
 
             <div class="flex items-center justify-between mt-4">
@@ -325,10 +323,11 @@
         const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
 
         const fileItem = document.createElement('div');
-        fileItem.style.cssText = 'display: flex; align-items: center; gap: 8px; padding: 4px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; font-size: 13px; color: var(--text-muted); height: 34px;';
+        fileItem.style.cssText = 'display: flex; align-items: center; gap: 8px; padding: 4px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; font-size: 12px; color: var(--text-muted); height: 34px; max-width: 100%;';
 
         const fileName = document.createElement('span');
         fileName.textContent = `${file.name} (${sizeMB}MB)`;
+        fileName.style.cssText = 'overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;';
 
         const deleteBtn = document.createElement('button');
         deleteBtn.type = 'button';
@@ -437,6 +436,20 @@
       document.getElementById('reservationModal').style.display = 'flex';
     }
 
+    // 파일들을 Base64로 변환하는 유틸 함수
+    async function getImagesBase64() {
+      const images = [];
+      for (const file of selectedFiles) {
+        const base64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.readAsDataURL(file);
+        });
+        images.push({ name: file.name, data: base64 });
+      }
+      return images;
+    }
+
     // 예약발송 확인
     async function confirmReservation() {
       const scheduledTime = document.getElementById('scheduledTime').value;
@@ -462,12 +475,16 @@
       const link = document.getElementById('messageLink').value;
 
       document.getElementById('reservationModal').style.display = 'none';
+      const submitBtn = document.querySelector('#reservationModal .btn-primary');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '처리 중...'; }
 
       try {
+        const images = await getImagesBase64();
         await createMessage({
           channelId: checkedChannels.join(','),
           content: content,
           link: link || "",
+          images: images.length > 0 ? images : undefined,
           scheduledAt: scheduledTime,
           timezone: timezone,
           author: '관리자'
@@ -497,10 +514,12 @@
 
       if (confirm("즉시발송을 선택하셨습니다. 지금 디스코드 메시지를 발송하시겠습니까?")) {
         try {
+          const images = await getImagesBase64();
           await sendMessageNow({
             channelId: checkedChannels.join(','),
             content: content,
             link: link || "",
+            images: images.length > 0 ? images : undefined,
             author: '관리자'
           });
           showToast("선택하신 채널에 메시지가 발송되었습니다.");
