@@ -786,6 +786,41 @@
           quillEditor.clipboard.dangerouslyPasteHTML(msg.content.replace(/\n/g, '<br>'));
         }
 
+        // 기존 첨부 이미지 표시
+        if (msg.image_url) {
+          let baseUrl = '';
+          if (window.API_CONFIG && window.API_CONFIG.BASE_URL) {
+            baseUrl = window.API_CONFIG.BASE_URL.replace('/api', '');
+            if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
+          }
+          const urls = msg.image_url.split(',');
+          const container = document.getElementById('fileListContainer');
+          urls.forEach(url => {
+            let relativeUrl = url.trim();
+            if (relativeUrl.includes('\\') || relativeUrl.startsWith('/app/')) {
+              const filename = relativeUrl.replace(/\\/g, '/').split('/').pop();
+              relativeUrl = '/uploads/' + filename;
+            }
+            const src = relativeUrl.startsWith('http') ? relativeUrl : baseUrl + relativeUrl;
+            const filename = relativeUrl.split('/').pop();
+
+            const fileItem = document.createElement('div');
+            fileItem.style.cssText = 'display: flex; align-items: center; gap: 8px; padding: 4px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; font-size: 12px; color: var(--text-muted); height: 34px; max-width: 100%;';
+
+            const thumb = document.createElement('img');
+            thumb.src = src;
+            thumb.style.cssText = 'width: 24px; height: 24px; object-fit: cover; border-radius: 3px;';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = filename;
+            nameSpan.style.cssText = 'overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;';
+
+            fileItem.appendChild(thumb);
+            fileItem.appendChild(nameSpan);
+            container.appendChild(fileItem);
+          });
+        }
+
       } catch (error) {
         console.error('메시지 로드 실패:', error);
         alert('메시지 정보를 불러오는 데 실패했습니다: ' + error.message);
