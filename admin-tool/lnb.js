@@ -183,15 +183,86 @@
     });
   }
 
+  // ─── 모바일 헤더 HTML 생성 ───
+  function buildMobileHeader() {
+    return `
+      <div class="mobile-header" id="mobileHeader">
+        <div class="mobile-header-left">
+          <div class="mobile-logo">GV</div>
+          <span class="mobile-title">디스코드봇 운영 관리툴</span>
+        </div>
+        <button class="mobile-hamburger" id="mobileHamburger" aria-label="메뉴 열기">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    `;
+  }
+
+  // ─── 모바일 메뉴 토글 ───
+  function initMobileMenu() {
+    const hamburger = document.getElementById('mobileHamburger');
+    const sidebar = document.getElementById('lnb');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (!hamburger || !sidebar || !overlay) return;
+
+    function openMenu() {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+      hamburger.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+      hamburger.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    hamburger.addEventListener('click', () => {
+      if (sidebar.classList.contains('open')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+
+    overlay.addEventListener('click', closeMenu);
+
+    // 메뉴 항목 클릭 시 자동 닫기 (모바일)
+    sidebar.addEventListener('click', (e) => {
+      const link = e.target.closest('a.nav-link:not(.phase2-item)');
+      if (link && window.innerWidth <= 1100) {
+        closeMenu();
+      }
+    });
+
+    // 화면 크기 변경 시 정리
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 1100) {
+        closeMenu();
+      }
+    });
+  }
+
   // ─── 초기화 ───
   function initLNB() {
     const sidebar = document.getElementById('lnb');
     if (!sidebar) return;
 
+    // 모바일 헤더 삽입 (아직 없으면)
+    if (!document.getElementById('mobileHeader')) {
+      document.body.insertAdjacentHTML('afterbegin', buildMobileHeader());
+    }
+
     sidebar.className = 'sidebar';
     sidebar.innerHTML = buildSidebarHTML();
     highlightActiveLink(sidebar);
     bindEvents(sidebar);
+    initMobileMenu();
   }
 
   // DOM 준비 후 실행

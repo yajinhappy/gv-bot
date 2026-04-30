@@ -1429,34 +1429,148 @@ td .btn {
 }
 
 /* =========================================
-   Mobile Responsiveness (모바일 대응)
+   Mobile Header (모바일 전용 상단바)
 ========================================= */
-@media screen and (max-width: 1024px) {
-
-  .dashboard-grid,
-  .phase2-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1100;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
-@media screen and (max-width: 768px) {
+.mobile-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-logo {
+  width: 28px;
+  height: 28px;
+  background-color: var(--primary-color);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.mobile-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+.mobile-hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 8px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  transition: background var(--transition-fast);
+}
+
+.mobile-hamburger:hover {
+  background: var(--sidebar-hover);
+}
+
+.mobile-hamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--text-main);
+  border-radius: 2px;
+  transition: all 0.25s ease;
+}
+
+.mobile-hamburger.active span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.mobile-hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+.mobile-hamburger.active span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* 모바일 오버레이 백드롭 */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1050;
+  backdrop-filter: blur(2px);
+  animation: overlayFadeIn 0.2s ease;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* =========================================
+   Mobile Responsiveness (1100px 이하 모바일 대응)
+========================================= */
+@media screen and (max-width: 1100px) {
+
+  /* 모바일 헤더 표시 */
+  .mobile-header {
+    display: flex;
+  }
+
+  /* 사이드바를 슬라이드 드로어로 변경 */
+  .sidebar {
+    position: fixed;
+    top: 0; right: -300px;
+    width: 280px;
+    height: 100vh;
+    z-index: 1080;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: none;
+    border-left: 1px solid var(--border-color);
+    box-shadow: -4px 0 16px rgba(0,0,0,0.1);
+    overflow-y: auto;
+  }
+
+  .sidebar.open {
+    right: 0;
+  }
+
+  .sidebar-overlay.show {
+    display: block;
+  }
+
+  /* 데스크톱 사이드바 헤더를 모바일에서는 숨기기 (모바일 헤더가 대체) */
+  .sidebar .sidebar-header {
+    height: 56px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  /* 메인 컨텐츠 영역 조정 */
   .app-container {
     flex-direction: column;
   }
 
-  .sidebar {
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .sidebar-content {
-    max-height: 300px;
-  }
-
   .main-wrapper {
+    margin-top: 56px;
     overflow-y: auto;
+    height: calc(100vh - 56px);
   }
 
   .main-content {
@@ -1467,20 +1581,160 @@ td .btn {
     padding: 20px 16px 16px 16px;
   }
 
+  .page-title {
+    font-size: 20px;
+  }
+
+  /* 대시보드 그리드 1열 */
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
   .dashboard-row {
     grid-template-columns: 1fr;
   }
 
-  .dashboard-grid,
   .phase2-grid {
     grid-template-columns: 1fr;
   }
 
-  /* 테이블 가로 스크롤 허용 */
-  table {
-    display: block;
+  /* 통계 카드 축소 */
+  .stat-card {
+    padding: 16px;
+  }
+
+  .stat-card-value {
+    font-size: 24px;
+  }
+
+  /* 카드 패딩 축소 */
+  .card {
+    padding: 16px;
+  }
+
+  /* 테이블 가로 스크롤 */
+  .table-container {
     overflow-x: auto;
-    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table {
+    min-width: 700px;
+  }
+
+  /* 검색바/필터 영역 모바일 레이아웃 */
+  .search-filter-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .search-input-wrapper {
+    width: 100%;
+  }
+
+  /* 상세 페이지 그리드 1열 */
+  .detail-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-row {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  /* 이미지 썸네일 리스트 반응형 */
+  .detail-image-list {
+    gap: 8px;
+  }
+
+  .detail-image-thumb {
+    width: 80px;
+    height: 80px;
+  }
+
+  /* 폼 영역 */
+  .flex.items-center.justify-between {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* 모달 반응형 */
+  .modal-content {
+    width: 90vw !important;
+    max-width: 500px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  /* 날짜 피커 반응형 */
+  .daterange-dropdown {
+    min-width: auto;
+    width: 95vw;
+    max-width: 560px;
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .daterange-calendars {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* 버튼 영역 반응형 */
+  .flex.gap-2 {
+    flex-wrap: wrap;
+  }
+
+  /* auth 페이지 */
+  .auth-card {
+    margin: 16px;
+    padding: 24px;
+  }
+
+  /* datetime picker 반응형 */
+  .datetime-dropdown {
+    width: 90vw;
+    max-width: 480px;
+  }
+
+  .dt-content-row {
+    flex-direction: column;
+  }
+
+  .dt-timepicker {
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+    padding-left: 0;
+    padding-top: 12px;
+    height: auto;
+    justify-content: center;
+  }
+}
+
+/* 480px 이하 초소형 화면 */
+@media screen and (max-width: 480px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-title {
+    font-size: 18px;
+  }
+
+  .mobile-title {
+    font-size: 13px;
+  }
+
+  .btn {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .detail-image-thumb {
+    width: 60px;
+    height: 60px;
   }
 }
 /* =========================================
