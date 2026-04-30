@@ -151,8 +151,8 @@ export function insertMessage(params: {
   interactionMessageId?: string | null;
 }): number {
   db.run(
-    `INSERT INTO scheduled_messages (channel_id, content, link, image_url, click_url, scheduled_at, timezone, author, user_id, interaction_message_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO scheduled_messages (channel_id, content, link, image_url, click_url, scheduled_at, timezone, author, user_id, interaction_message_id, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       params.channelId,
       params.content,
@@ -164,6 +164,7 @@ export function insertMessage(params: {
       params.author,
       params.userId ?? null,
       params.interactionMessageId ?? null,
+      nowKST(),
     ]
   );
   const result = db.exec('SELECT last_insert_rowid() as id');
@@ -339,9 +340,9 @@ export function createOperator(params: {
   note?: string;
 }): number {
   db.run(
-    `INSERT INTO operators (login_id, password_hash, name, email, team, game, note)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [params.loginId, params.passwordHash, params.name, params.email, params.team, params.game, params.note ?? null]
+    `INSERT INTO operators (login_id, password_hash, name, email, team, game, note, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [params.loginId, params.passwordHash, params.name, params.email, params.team, params.game, params.note ?? null, nowKST()]
   );
   const result = db.exec('SELECT last_insert_rowid() as id');
   const id = result[0].values[0][0] as number;
