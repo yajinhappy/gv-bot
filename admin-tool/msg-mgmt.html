@@ -323,13 +323,14 @@
       let selEnd = null;
 
       trigger.addEventListener('click', () => {
-        dropdown.classList.toggle('show');
+        const isHidden = dropdown.style.display === 'none' || dropdown.style.display === '';
+        dropdown.style.display = isHidden ? 'block' : 'none';
         trigger.classList.toggle('active');
       });
 
       document.addEventListener('click', (e) => {
         if (!e.target.closest('#daterangePicker')) {
-          dropdown.classList.remove('show');
+          dropdown.style.display = 'none';
           trigger.classList.remove('active');
         }
       });
@@ -355,7 +356,7 @@
           dateRangeStart = formatDateStr(selStart);
           dateRangeEnd = formatDateStr(selEnd);
           label.textContent = dateRangeStart + ' ~ ' + dateRangeEnd;
-          dropdown.classList.remove('show');
+          dropdown.style.display = 'none';
           trigger.classList.remove('active');
           applyFilters();
         }
@@ -532,7 +533,7 @@
             no: item.id,
             channel: channelDisplay,
             body: item.content,
-            images: item.image_url ? 1 : 0,
+            images: item.image_url ? item.image_url.split(',').length : 0,
             scheduledAt: item.scheduled_at,
             createdAt: item.created_at,
             author: item.author || '알 수 없음',

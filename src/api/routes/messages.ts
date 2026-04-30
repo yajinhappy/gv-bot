@@ -28,10 +28,10 @@ function saveImages(images: { name: string; data: string }[] | undefined): strin
   for (const img of images) {
     const base64Data = img.data.replace(/^data:image\/\w+;base64,/, "");
     const buffer = Buffer.from(base64Data, 'base64');
-    const uniqueName = Date.now() + '_' + img.name;
+    const uniqueName = Date.now() + '_' + img.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
     const filePath = path.join(uploadDir, uniqueName);
     fs.writeFileSync(filePath, buffer);
-    savedPaths.push(filePath);
+    savedPaths.push('/uploads/' + uniqueName);
   }
   return savedPaths.join(',');
 }

@@ -21,8 +21,9 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// 관리자페이지 정적 파일 서빙 (admin-tool 폴더)
+// 관리자페이지 정적 파일 서빙 (admin-tool 폴더 및 업로드 폴더)
 app.use('/admin', express.static(path.join(__dirname, '../../admin-tool')));
+app.use('/uploads', express.static(path.join(__dirname, '../../data/uploads')));
 
 // API 인증 미들웨어 (JWT Bearer 또는 API Key 허용)
 const JWT_SECRET = process.env.JWT_SECRET ?? 'gv-jwt-secret-change-in-production';
