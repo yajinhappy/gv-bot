@@ -92,12 +92,17 @@
 
     return `
       <div class="sidebar-header">
-        <div class="sidebar-logo">
-          <span class="sidebar-logo-text">GV</span>
+        <div style="display:flex; align-items:center;">
+          <div class="sidebar-logo">
+            <span class="sidebar-logo-text">GV</span>
+          </div>
+          <div>
+            <h1 class="m-0"><a href="index.html" class="text-inherit">디스코드봇 운영 관리툴</a></h1>
+          </div>
         </div>
-        <div>
-          <h1 class="m-0"><a href="index.html" class="text-inherit">디스코드봇 운영 관리툴</a></h1>
-        </div>
+        <button class="mobile-close-btn" id="mobileCloseBtn" aria-label="메뉴 닫기">
+          &times;
+        </button>
       </div>
 
       <div class="sidebar-content">
@@ -231,6 +236,11 @@
     });
 
     overlay.addEventListener('click', closeMenu);
+
+    const closeBtn = document.getElementById('mobileCloseBtn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeMenu);
+    }
 
     // 메뉴 항목 클릭 시 자동 닫기 (모바일)
     sidebar.addEventListener('click', (e) => {

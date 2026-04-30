@@ -86,6 +86,10 @@ button {
   margin-bottom: 2px;
 }
 
+.mobile-close-btn {
+  display: none;
+}
+
 .sidebar-header-sub {
   font-size: 12px;
   color: var(--text-muted);
@@ -1533,17 +1537,17 @@ td .btn {
     display: flex;
   }
 
-  /* 사이드바를 슬라이드 드로어로 변경 */
+  /* 사이드바를 전체 화면(100vw) 드로어로 변경 */
   .sidebar {
     position: fixed;
-    top: 0; right: -300px;
-    width: 280px;
+    top: 0; right: -100vw;
+    width: 100vw;
     height: 100vh;
     z-index: 1080;
     transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-right: none;
-    border-left: 1px solid var(--border-color);
-    box-shadow: -4px 0 16px rgba(0,0,0,0.1);
+    border-left: none;
+    box-shadow: none;
     overflow-y: auto;
   }
 
@@ -1555,11 +1559,27 @@ td .btn {
     display: block;
   }
 
-  /* 데스크톱 사이드바 헤더를 모바일에서는 숨기기 (모바일 헤더가 대체) */
+  /* 데스크톱 사이드바 헤더를 모바일에서는 숨기지 않고, 전체 화면 메뉴의 헤더로 재사용 */
   .sidebar .sidebar-header {
     height: 56px;
     padding: 0 16px;
     border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .mobile-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-main);
+    cursor: pointer;
   }
 
   /* 메인 컨텐츠 영역 조정 */
