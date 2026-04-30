@@ -138,7 +138,17 @@
         };
 
         document.getElementById('detailNo').textContent = data.no;
-        document.getElementById('detailChannel').textContent = data.channel;
+
+        try {
+          const channels = await fetchChannels();
+          const channelMap = {};
+          channels.forEach(ch => channelMap[ch.id] = ch.name);
+          const ids = data.channel.toString().split(',').map(id => id.trim());
+          const channelDisplay = ids.map(id => channelMap[id] ? '#' + channelMap[id] : id).join(', ');
+          document.getElementById('detailChannel').textContent = channelDisplay;
+        } catch (err) {
+          document.getElementById('detailChannel').textContent = data.channel;
+        }
         document.getElementById('detailAuthor').textContent = data.author;
         document.getElementById('detailCreatedAt').textContent = data.createdAt;
         document.getElementById('detailScheduledAt').textContent = data.scheduledAt;
@@ -173,7 +183,7 @@
                relativeUrl = '/uploads/' + filename;
             }
             const src = relativeUrl.startsWith('http') ? relativeUrl : baseUrl + relativeUrl;
-            return `<div class="detail-image-thumb" style="margin-bottom:8px;"><img src="${src}" style="max-width: 100%; max-height: 400px; border-radius: 4px; border: 1px solid #e2e8f0; display: block;" /></div>`;
+            return `<div class="detail-image-thumb" style="margin-bottom:8px; display: flex; align-items: center; justify-content: center; background: #fff;"><img src="${src}" style="max-width: 100%; max-height: 100%; object-fit: contain;" /></div>`;
           }).join('');
         } else {
           imgSection.style.display = 'none';
