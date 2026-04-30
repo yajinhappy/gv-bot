@@ -28,22 +28,22 @@
         <div class="dashboard-grid">
           <div class="stat-card">
             <div class="stat-card-label">예약 대기</div>
-            <div class="stat-card-value accent">3</div>
+            <div class="stat-card-value accent" id="statPendingCount">-</div>
             <div class="stat-card-sub">발송 예정 메시지</div>
           </div>
           <div class="stat-card">
             <div class="stat-card-label">이번 달 발송 완료</div>
-            <div class="stat-card-value">12</div>
-            <div class="stat-card-sub">2026년 4월 기준</div>
+            <div class="stat-card-value" id="statSentCount">-</div>
+            <div class="stat-card-sub">이번 달 기준</div>
           </div>
           <div class="stat-card">
             <div class="stat-card-label">운영 중인 타이틀</div>
-            <div class="stat-card-value">2</div>
+            <div class="stat-card-value" id="statTitleCount">2</div>
             <div class="stat-card-sub">RO1 · Ragnarok Monster Kitchen</div>
           </div>
           <div class="stat-card">
             <div class="stat-card-label">운영자 수</div>
-            <div class="stat-card-value">5</div>
+            <div class="stat-card-value" id="statOpCount">-</div>
             <div class="stat-card-sub">활성 계정 기준</div>
           </div>
         </div>
@@ -57,28 +57,8 @@
               <h2 class="section-title">예약 대기 메시지</h2>
               <a href="index.html" class="view-all-link">전체 보기 →</a>
             </div>
-            <div class="upcoming-list">
-              <div class="upcoming-item">
-                <div class="upcoming-item-left">
-                  <div class="upcoming-item-title">5월 정기 업데이트 안내 공지입니다.</div>
-                  <div class="upcoming-item-meta">RO1 · # 공지사항</div>
-                </div>
-                <div class="upcoming-item-time">04-30 10:00</div>
-              </div>
-              <div class="upcoming-item">
-                <div class="upcoming-item-left">
-                  <div class="upcoming-item-title">주말 핫타임 이벤트가 곧 시작됩니다!</div>
-                  <div class="upcoming-item-meta">RO1 · # 이벤트안내</div>
-                </div>
-                <div class="upcoming-item-time">04-29 18:00</div>
-              </div>
-              <div class="upcoming-item">
-                <div class="upcoming-item-left">
-                  <div class="upcoming-item-title">신규 캐릭터 밸런스 패치 노트</div>
-                  <div class="upcoming-item-meta">RO1 · # 업데이트</div>
-                </div>
-                <div class="upcoming-item-time">04-28 14:00</div>
-              </div>
+            <div class="upcoming-list" id="dashUpcomingList">
+              <div style="padding: 20px; text-align: center; color: #888; font-size: 13px;">로딩 중...</div>
             </div>
           </div>
 
@@ -88,42 +68,8 @@
               <h2 class="section-title">최근 발송 내역</h2>
               <a href="index.html" class="view-all-link">전체 보기 →</a>
             </div>
-            <div class="activity-list">
-              <div class="activity-item">
-                <div class="activity-dot success"></div>
-                <div class="activity-content">
-                  <div class="activity-text">서버 임시 점검 완료 안내</div>
-                  <div class="activity-time">2026-04-27 15:30 · RO1 # 공지사항</div>
-                </div>
-              </div>
-              <div class="activity-item">
-                <div class="activity-dot success"></div>
-                <div class="activity-content">
-                  <div class="activity-text">돌발 이벤트! 선착순 쿠폰 번호 공개</div>
-                  <div class="activity-time">2026-04-26 12:00 · RO1 # 이벤트안내</div>
-                </div>
-              </div>
-              <div class="activity-item">
-                <div class="activity-dot success"></div>
-                <div class="activity-content">
-                  <div class="activity-text">[이벤트] 길드전 보상 지급 완료</div>
-                  <div class="activity-time">2026-04-25 18:00 · RO1 # 공지사항</div>
-                </div>
-              </div>
-              <div class="activity-item">
-                <div class="activity-dot success"></div>
-                <div class="activity-content">
-                  <div class="activity-text">서버 접속 장애 관련 사과문</div>
-                  <div class="activity-time">2026-04-24 22:15 · RO1 # 공지사항</div>
-                </div>
-              </div>
-              <div class="activity-item">
-                <div class="activity-dot success"></div>
-                <div class="activity-content">
-                  <div class="activity-text">4월 3주차 정기 업데이트 내역</div>
-                  <div class="activity-time">2026-04-23 10:00 · RO1 # 업데이트</div>
-                </div>
-              </div>
+            <div class="activity-list" id="dashActivityList">
+              <div style="padding: 20px; text-align: center; color: #888; font-size: 13px;">로딩 중...</div>
             </div>
           </div>
 
@@ -224,28 +170,88 @@
   <script>
     async function loadDashboardData() {
       try {
+        const channels = await fetchChannels().catch(() => []);
+        const channelMap = {};
+        channels.forEach(ch => channelMap[ch.id] = ch.name);
+
         const ops = await fetchOperators();
+        const activeOps = ops.filter(op => op.status === 'approved' || op.status === 'active');
         const pendingOps = ops.filter(op => op.status === 'pending');
         
         document.getElementById('dashApprovalCount').textContent = pendingOps.length;
-        
         const listContainer = document.getElementById('dashApprovalList');
         if (pendingOps.length === 0) {
           listContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #888; font-size: 13px;">승인 대기 중인 계정이 없습니다.</div>';
-          return;
+        } else {
+          listContainer.innerHTML = pendingOps.slice(0, 3).map(op => `
+            <div class="approval-item">
+              <div class="approval-info">
+                <div class="approval-name">${op.name} <span class="approval-id">(${op.email})</span></div>
+                <div class="approval-meta">${op.team} · ${(op.created_at || '').substring(0, 16)}</div>
+              </div>
+              <div class="approval-actions">
+                <a href="operator_mgmt.html" class="btn-approve" style="text-decoration:none; padding:4px 12px; display:inline-block;">관리로 이동</a>
+              </div>
+            </div>
+          `).join('');
         }
 
-        listContainer.innerHTML = pendingOps.slice(0, 3).map(op => `
-          <div class="approval-item">
-            <div class="approval-info">
-              <div class="approval-name">${op.name} <span class="approval-id">(${op.email})</span></div>
-              <div class="approval-meta">${op.team} · ${(op.created_at || '').substring(0, 16)}</div>
-            </div>
-            <div class="approval-actions">
-              <a href="operator_mgmt.html" class="btn-approve" style="text-decoration:none; padding:4px 12px; display:inline-block;">관리로 이동</a>
-            </div>
-          </div>
-        `).join('');
+        const statOpCountEl = document.getElementById('statOpCount');
+        if (statOpCountEl) statOpCountEl.textContent = activeOps.length;
+
+        const stats = await fetchMessageStats();
+        if (stats) {
+           const statPendingCountEl = document.getElementById('statPendingCount');
+           if (statPendingCountEl) statPendingCountEl.textContent = stats.pending || 0;
+
+           const statSentCountEl = document.getElementById('statSentCount');
+           if (statSentCountEl) statSentCountEl.textContent = stats.sentThisMonth || 0;
+        }
+
+        const pendingRes = await fetchMessages({ status: 'pending', limit: 3 });
+        const upcomingList = document.getElementById('dashUpcomingList');
+        if (upcomingList && pendingRes && pendingRes.data) {
+           if (pendingRes.data.length === 0) {
+              upcomingList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888; font-size: 13px;">대기 중인 메시지가 없습니다.</div>';
+           } else {
+              upcomingList.innerHTML = pendingRes.data.map(item => {
+                 const ids = item.channel_id.toString().split(',').map(id => id.trim());
+                 const cName = ids.map(id => channelMap[id] ? '#' + channelMap[id] : id).join(', ');
+                 const title = item.content.length > 30 ? item.content.substring(0, 30) + '...' : item.content;
+                 return `
+                 <div class="upcoming-item">
+                   <div class="upcoming-item-left">
+                     <div class="upcoming-item-title" style="cursor:pointer;" onclick="window.location.href='message_detail.html?id=${item.id}'">${title}</div>
+                     <div class="upcoming-item-meta">RO1 · ${cName}</div>
+                   </div>
+                   <div class="upcoming-item-time">${item.scheduled_at.substring(5, 16)}</div>
+                 </div>`;
+              }).join('');
+           }
+        }
+
+        const sentRes = await fetchMessages({ status: 'sent', limit: 5 });
+        const activityList = document.getElementById('dashActivityList');
+        if (activityList && sentRes && sentRes.data) {
+           if (sentRes.data.length === 0) {
+              activityList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888; font-size: 13px;">최근 발송된 내역이 없습니다.</div>';
+           } else {
+              activityList.innerHTML = sentRes.data.map(item => {
+                 const ids = item.channel_id.toString().split(',').map(id => id.trim());
+                 const cName = ids.map(id => channelMap[id] ? '#' + channelMap[id] : id).join(', ');
+                 const title = item.content.length > 30 ? item.content.substring(0, 30) + '...' : item.content;
+                 const time = item.sent_at || item.scheduled_at;
+                 return `
+                 <div class="activity-item">
+                   <div class="activity-dot success"></div>
+                   <div class="activity-content" style="cursor:pointer;" onclick="window.location.href='message_detail.html?id=${item.id}'">
+                     <div class="activity-text">${title}</div>
+                     <div class="activity-time">${time} · RO1 ${cName}</div>
+                   </div>
+                 </div>`;
+              }).join('');
+           }
+        }
 
       } catch (error) {
         console.error('대시보드 데이터 로드 실패:', error);

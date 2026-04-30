@@ -291,11 +291,12 @@ export function getMessageStats(): any {
       COUNT(*) as total,
       SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
       SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) as sent,
+      SUM(CASE WHEN status = 'sent' AND strftime('%Y-%m', sent_at) = strftime('%Y-%m', 'now', 'localtime') THEN 1 ELSE 0 END) as sentThisMonth,
       SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled,
       SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed
     FROM scheduled_messages
   `);
-  return resultToObjects(results)[0] || { total: 0, pending: 0, sent: 0, cancelled: 0, failed: 0 };
+  return resultToObjects(results)[0] || { total: 0, pending: 0, sent: 0, sentThisMonth: 0, cancelled: 0, failed: 0 };
 }
 
 // ─── 운영자(Operator) 관련 쿼리 헬퍼 ──────────────────
