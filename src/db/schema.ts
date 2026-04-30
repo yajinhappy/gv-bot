@@ -7,6 +7,22 @@ dotenv.config();
 
 const DB_PATH = process.env.DATABASE_PATH ?? './data/bot.db';
 
+/**
+ * 한국시간(KST, UTC+9) 기준 현재 시각을 'YYYY-MM-DD HH:mm:ss' 형태로 반환
+ */
+export function nowKST(): string {
+  const now = new Date();
+  // UTC 시간에 9시간을 더해서 KST로 변환
+  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const yyyy = kst.getUTCFullYear();
+  const mm = String(kst.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(kst.getUTCDate()).padStart(2, '0');
+  const hh = String(kst.getUTCHours()).padStart(2, '0');
+  const mi = String(kst.getUTCMinutes()).padStart(2, '0');
+  const ss = String(kst.getUTCSeconds()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
+
 // data 디렉토리 생성
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
@@ -43,7 +59,7 @@ export async function initDatabase(): Promise<SqlJsDatabase> {
       author                 TEXT    NOT NULL DEFAULT 'admin',
       user_id                TEXT    DEFAULT NULL,
       interaction_message_id TEXT    DEFAULT NULL,
-      created_at             TEXT    NOT NULL DEFAULT (datetime('now', 'localtime')),
+      created_at             TEXT    NOT NULL DEFAULT (datetime('now', '+9 hours')),
       sent_at                TEXT    DEFAULT NULL
     );
 
@@ -63,7 +79,7 @@ export async function initDatabase(): Promise<SqlJsDatabase> {
       role                   TEXT    NOT NULL DEFAULT 'operator',
       status                 TEXT    NOT NULL DEFAULT 'pending',
       note                   TEXT    DEFAULT NULL,
-      created_at             TEXT    NOT NULL DEFAULT (datetime('now', 'localtime')),
+      created_at             TEXT    NOT NULL DEFAULT (datetime('now', '+9 hours')),
       approved_at            TEXT    DEFAULT NULL
     );
   `);
@@ -76,7 +92,7 @@ export async function initDatabase(): Promise<SqlJsDatabase> {
     const hash = bcrypt.hashSync('admin1234', 10);
     db.run(
       `INSERT INTO operators (login_id, password_hash, name, email, team, game, role, status, approved_at)
-       VALUES ('admin', ?, '슈퍼관리자', 'admin@gv.com', 'System', 'ALL', 'super_admin', 'approved', datetime('now', 'localtime'))`,
+       VALUES ('admin', ?, '슈퍼관리자', 'admin@gv.com', 'System', 'ALL', 'super_admin', 'approved', datetime('now', '+9 hours'))`,
       [hash]
     );
   }
@@ -160,7 +176,7 @@ export function getPendingMessages(): any[] {
   const results = db.exec(`
     SELECT * FROM scheduled_messages
     WHERE status = 'pending'
-      AND scheduled_at <= datetime('now', 'localtime')
+      AND scheduled_at <= '${nowKST()}'
     ORDER BY scheduled_at ASC
   `);
   return resultToObjects(results);
@@ -168,8 +184,8 @@ export function getPendingMessages(): any[] {
 
 export function markAsSent(id: number) {
   db.run(
-    `UPDATE scheduled_messages SET status = 'sent', sent_at = datetime('now', 'localtime') WHERE id = ?`,
-    [id]
+    `UPDATE scheduled_messages SET status = 'sent', sent_at = ? WHERE id = ?`,
+    [nowKST(), id]
   );
   saveDatabase();
 }
@@ -339,7 +355,7 @@ export function getAllOperators(): any[] {
 }
 
 export function updateOperatorStatus(id: number, status: string): number {
-  const approvedAt = status === 'approved' ? "datetime('now', 'localtime')" : 'NULL';
+  const approvedAt = status === 'approved' ? `'${nowKST()}'` : 'NULL';
   db.run(
     `UPDATE operators SET status = ?, approved_at = ${approvedAt} WHERE id = ?`,
     [status, id]

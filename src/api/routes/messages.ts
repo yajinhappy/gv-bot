@@ -259,7 +259,8 @@ router.post('/send-now', async (req: Request, res: Response) => {
 
   try {
     const imageUrl = saveImages(images);
-    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const { nowKST } = await import('../../db/schema');
+    const now = nowKST();
     const msgId = insertMessage({
       channelId,
       content,
