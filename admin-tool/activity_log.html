@@ -436,9 +436,9 @@
         <div class="card">
           <!-- Filters Area -->
           <div class="flex items-center justify-between mb-20" style="gap:16px;">
-            <!-- Left Side: CSV Download -->
+            <!-- Left Side: CSV Download & Unmask -->
             <div class="flex items-center gap-12">
-              <button class="btn btn-outline-primary white-space-nowrap">
+              <button class="btn btn-outline-primary white-space-nowrap" id="btnCsvDownload">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -446,6 +446,9 @@
                   <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
                 CSV 다운로드
+              </button>
+              <button class="btn btn-secondary white-space-nowrap" id="btnUnmask">
+                마스킹 해제
               </button>
             </div>
 
@@ -575,6 +578,8 @@
     let currentPage = 1;
     let totalPages = 1;
     let totalItems = 0;
+    let isMasked = true;
+    let channelMap = {}; // channelId -> channelName mapping
 
     // 유형별 뱃지 색상
     const TYPE_COLORS = {
@@ -607,6 +612,26 @@
       return str.length > len ? str.substring(0, len) + '...' : str;
     }
 
+    function maskIp(ip) {
+      if (!ip || ip === '-') return '-';
+      if (!isMasked) return ip;
+      
+      // IPv4 처리 (앞 3자리 표시, 나머지 ***)
+      const parts = ip.split('.');
+      if (parts.length === 4) {
+        return parts[0].substring(0, 3) + '.***.***.***';
+      }
+      // IPv6 등 기타 형식 (앞 3글자 + ***)
+      return ip.substring(0, 3) + '***';
+    }
+
+    // 채널 이름 변환
+    function getChannelName(idOrName) {
+      if (!idOrName || idOrName === '-') return '-';
+      // 채널 ID가 맵에 있으면 이름 반환, 아니면 그대로 표시
+      return channelMap[idOrName] ? `#${channelMap[idOrName]}` : idOrName;
+    }
+
     async function loadLogs() {
       const tbody = document.getElementById('logTableBody');
       tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:#999;">로딩 중...</td></tr>';
@@ -637,7 +662,7 @@
         let html = '';
         logs.forEach((log, idx) => {
           const no = totalItems - ((currentPage - 1) * ITEMS_PER_PAGE) - idx;
-          const channel = log.target_channel || '-';
+          const channel = getChannelName(log.target_channel);
           const detail = log.detail || '-';
           html += `<tr>
             <td class="col-no">${no}</td>
@@ -647,7 +672,7 @@
             <td>${log.target_title || '-'}</td>
             <td>${channel}</td>
             <td class="col-detail" title="${detail.replace(/"/g, '&quot;')}">${truncate(detail, 20)}</td>
-            <td>${log.ip_address || '-'}</td>
+            <td>${maskIp(log.ip_address)}</td>
             <td>${getResultHtml(log.result, log.result_detail)}</td>
           </tr>`;
         });
@@ -698,7 +723,7 @@
       loadLogs();
     }
 
-    // ─── 검색 ──────────────────────────
+    // ─── 검색 및 기능 버튼 ──────────────────────────
     document.getElementById('btnSearch').addEventListener('click', () => {
       currentPage = 1;
       loadLogs();
@@ -707,8 +732,22 @@
       if (e.key === 'Enter') { currentPage = 1; loadLogs(); }
     });
 
+    document.getElementById('btnUnmask').addEventListener('click', () => {
+      // 권한 체크: DB 상세권한이 아직 적용되지 않았으므로 임시로 관리자 이상만 허용하거나
+      // user.role 확인. (DB 상세 권한 기능이 있다면 해당 필드를 체크)
+      const user = getStoredUser();
+      // TODO: 실제 구현에서는 user.permissions.unmask 등의 권한을 체크해야 함
+      if (!user || (user.role !== 'super_admin' && user.role !== 'admin')) {
+        alert('마스킹 해제 권한이 없습니다.');
+        return;
+      }
+      isMasked = !isMasked;
+      document.getElementById('btnUnmask').textContent = isMasked ? '마스킹 해제' : '마스킹 적용';
+      loadLogs(); // 재렌더링
+    });
+
     // ─── CSV 다운로드 ──────────────────────────
-    document.querySelector('.btn-outline-primary').addEventListener('click', async () => {
+    document.getElementById('btnCsvDownload').addEventListener('click', async () => {
       try {
         const params = { page: 1, limit: 10000 };
         const filterType = document.getElementById('filterType').value;
@@ -728,9 +767,10 @@
         let csv = BOM + 'No.,활동 일시,활동 유형,아이디,대상 타이틀,대상 채널,상세,IP 주소,결과\n';
         logs.forEach((log, idx) => {
           const no = logs.length - idx;
+          const channel = getChannelName(log.target_channel);
           const detail = (log.detail || '').replace(/"/g, '""');
           const res = log.result === 'success' ? '성공' : `실패${log.result_detail ? ' (' + log.result_detail + ')' : ''}`;
-          csv += `${no},"${log.created_at}","${log.action_type}","${log.login_id}","${log.target_title || '-'}","${log.target_channel || '-'}","${detail}","${log.ip_address || '-'}","${res}"\n`;
+          csv += `${no},"${log.created_at}","${log.action_type}","${log.login_id}","${log.target_title || '-'}","${channel}","${detail}","${maskIp(log.ip_address)}","${res}"\n`;
         });
 
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -742,7 +782,14 @@
     });
 
     // ─── 초기화 ──────────────────────────
-    requireAuth().then(() => {
+    requireAuth().then(async () => {
+      try {
+        // 채널 맵 불러오기
+        const chList = await fetchChannels();
+        chList.forEach(ch => { channelMap[ch.id] = ch.name; });
+      } catch (e) {
+        console.error('채널 목록 로드 실패', e);
+      }
       loadTitleFilter();
       loadLogs();
     });
