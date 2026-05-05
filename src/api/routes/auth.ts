@@ -9,9 +9,17 @@ import {
   updateOperatorStatus,
   updateOperatorPassword,
   getOperatorById,
+  insertActivityLog,
 } from '../../db/schema';
 
 const router = Router();
+
+// IP 주소 추출 헬퍼
+function getClientIp(req: Request): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string') return forwarded.split(',')[0].trim();
+  return req.socket?.remoteAddress || '-';
+}
 
 const JWT_SECRET = process.env.JWT_SECRET ?? 'gv-jwt-secret-change-in-production';
 const JWT_EXPIRES_IN = '8h';
@@ -33,6 +41,15 @@ router.post('/login', (req: Request, res: Response) => {
   try {
     const operator = findOperatorByLoginId(loginId);
     if (!operator) {
+      insertActivityLog({
+        actionType: '로그인',
+        loginId,
+        targetTitle: '시스템',
+        detail: '존재하지 않는 아이디',
+        ipAddress: getClientIp(req),
+        result: 'fail',
+        resultDetail: '아이디 없음',
+      });
       return res.status(401).json({ success: false, error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
     }
 
@@ -42,6 +59,15 @@ router.post('/login', (req: Request, res: Response) => {
         rejected: '계정 승인이 거절되었습니다. 관리자에게 문의하세요.',
         suspended: '계정이 정지되었습니다. 관리자에게 문의하세요.',
       };
+      insertActivityLog({
+        actionType: '로그인',
+        loginId,
+        targetTitle: '시스템',
+        detail: statusMsg[operator.status] || '로그인 불가 계정',
+        ipAddress: getClientIp(req),
+        result: 'fail',
+        resultDetail: `계정 상태: ${operator.status}`,
+      });
       return res.status(403).json({
         success: false,
         error: statusMsg[operator.status] || '로그인할 수 없는 계정 상태입니다.',
@@ -50,6 +76,15 @@ router.post('/login', (req: Request, res: Response) => {
 
     const isPasswordValid = bcrypt.compareSync(password, operator.password_hash);
     if (!isPasswordValid) {
+      insertActivityLog({
+        actionType: '로그인',
+        loginId,
+        targetTitle: '시스템',
+        detail: '비밀번호 오류',
+        ipAddress: getClientIp(req),
+        result: 'fail',
+        resultDetail: '비밀번호 오류',
+      });
       return res.status(401).json({ success: false, error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
     }
 
@@ -66,6 +101,15 @@ router.post('/login', (req: Request, res: Response) => {
     );
 
     console.log(`🔐 로그인 성공: ${operator.login_id} (${operator.name})`);
+
+    insertActivityLog({
+      actionType: '로그인',
+      loginId: operator.login_id,
+      targetTitle: '시스템',
+      detail: `${operator.name} 로그인 성공`,
+      ipAddress: getClientIp(req),
+      result: 'success',
+    });
 
     res.json({
       success: true,
@@ -118,6 +162,15 @@ router.post('/signup', (req: Request, res: Response) => {
     const id = createOperator({ loginId, passwordHash, name, email, team, game, note });
 
     console.log(`📝 계정 생성 요청: ${loginId} (${name}) — 승인 대기 중`);
+
+    insertActivityLog({
+      actionType: '운영자 등록',
+      loginId,
+      targetTitle: '시스템',
+      detail: `${name} (${team}) 계정 생성 요청`,
+      ipAddress: getClientIp(req),
+      result: 'success',
+    });
 
     res.status(201).json({
       success: true,
@@ -201,6 +254,15 @@ router.post('/change-password', (req: Request, res: Response) => {
     updateOperatorPassword(operator.id, newHash);
 
     console.log(`🔑 비밀번호 변경: ${operator.login_id}`);
+
+    insertActivityLog({
+      actionType: '비밀번호 변경',
+      loginId: operator.login_id,
+      targetTitle: '시스템',
+      detail: `${operator.name} 비밀번호 변경`,
+      ipAddress: getClientIp(req),
+      result: 'success',
+    });
     res.json({ success: true, message: '비밀번호가 변경되었습니다.' });
   } catch (error) {
     res.status(500).json({ success: false, error: '비밀번호 변경 중 오류가 발생했습니다.' });
@@ -245,6 +307,25 @@ router.patch('/operators/:id/status', (req: Request, res: Response) => {
       suspended: '정지',
     };
     console.log(`👤 운영자 상태 변경 [id:${id}] → ${statusLabel[parsed.data.status]}`);
+
+    // 요청자 정보 추출
+    const authHeader2 = req.headers.authorization;
+    let requestLoginId = 'system';
+    if (authHeader2 && authHeader2.startsWith('Bearer ')) {
+      try {
+        const decoded2 = jwt.verify(authHeader2.split(' ')[1], JWT_SECRET) as any;
+        requestLoginId = decoded2.loginId || 'system';
+      } catch {}
+    }
+    const targetOp = getOperatorById(id);
+    insertActivityLog({
+      actionType: '운영자 수정',
+      loginId: requestLoginId,
+      targetTitle: '시스템',
+      detail: `${targetOp?.name || id} 상태 → ${statusLabel[parsed.data.status]}`,
+      ipAddress: getClientIp(req),
+      result: 'success',
+    });
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, error: '상태 변경에 실패했습니다.' });
@@ -276,6 +357,24 @@ router.patch('/operators/:id/game', (req: Request, res: Response) => {
     }
 
     console.log(`👤 운영자 담당 게임 변경 [id:${id}] → ${parsed.data.game}`);
+
+    const authHeader3 = req.headers.authorization;
+    let reqLoginId = 'system';
+    if (authHeader3 && authHeader3.startsWith('Bearer ')) {
+      try {
+        const decoded3 = jwt.verify(authHeader3.split(' ')[1], JWT_SECRET) as any;
+        reqLoginId = decoded3.loginId || 'system';
+      } catch {}
+    }
+    const targetOp2 = getOperatorById(id);
+    insertActivityLog({
+      actionType: '운영자 수정',
+      loginId: reqLoginId,
+      targetTitle: '시스템',
+      detail: `${targetOp2?.name || id} 담당 게임 → ${parsed.data.game}`,
+      ipAddress: getClientIp(req),
+      result: 'success',
+    });
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, error: '담당 게임 변경에 실패했습니다.' });

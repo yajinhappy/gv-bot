@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+import jwt from 'jsonwebtoken';
 import * as fs from 'fs';
 import * as path from 'path';
 import {
@@ -12,7 +13,29 @@ import {
   markAsSent,
   getMessageStats,
   nowKST,
+  insertActivityLog,
 } from '../../db/schema';
+
+const JWT_SECRET = process.env.JWT_SECRET ?? 'gv-jwt-secret-change-in-production';
+
+// IP 주소 추출 헬퍼
+function getClientIp(req: Request): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string') return forwarded.split(',')[0].trim();
+  return req.socket?.remoteAddress || '-';
+}
+
+// JWT에서 loginId 추출
+function getLoginId(req: Request): string {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET) as any;
+      return decoded.loginId || 'system';
+    } catch {}
+  }
+  return 'system';
+}
 
 const router = Router();
 
@@ -154,6 +177,16 @@ router.post('/', (req: Request, res: Response) => {
 
     console.log(`📝 예약 등록 [id:${id}] → ${channelId} @ ${scheduledAt}`);
 
+    insertActivityLog({
+      actionType: '예약 등록',
+      loginId: getLoginId(req),
+      targetTitle: author,
+      targetChannel: channelId,
+      detail: content.substring(0, 100),
+      ipAddress: getClientIp(req),
+      result: 'success',
+    });
+
     res.status(201).json({
       success: true,
       data: { id },
@@ -199,6 +232,16 @@ router.put('/:id', (req: Request, res: Response) => {
     });
 
     console.log(`✏️ 예약 수정 [id:${id}]`);
+
+    insertActivityLog({
+      actionType: '메시지 수정',
+      loginId: getLoginId(req),
+      targetTitle: existing.author,
+      targetChannel: parsed.data.channelId ?? existing.channel_id,
+      detail: `예약 ID ${id} 수정`,
+      ipAddress: getClientIp(req),
+      result: 'success',
+    });
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, error: '메시지 수정에 실패했습니다.' });
@@ -222,6 +265,17 @@ router.patch('/:id/cancel', (req: Request, res: Response) => {
   }
 
   console.log(`🚫 예약 취소 [id:${id}]`);
+
+  const cancelledMsg = getMessageById(id);
+  insertActivityLog({
+    actionType: '예약 취소',
+    loginId: getLoginId(req),
+    targetTitle: cancelledMsg?.author || '-',
+    targetChannel: cancelledMsg?.channel_id || '-',
+    detail: `예약 ID ${id} 취소`,
+    ipAddress: getClientIp(req),
+    result: 'success',
+  });
   res.json({ success: true });
 });
 
@@ -242,6 +296,15 @@ router.delete('/:id', (req: Request, res: Response) => {
   }
 
   console.log(`🗑️ 메시지 삭제 [id:${id}]`);
+
+  insertActivityLog({
+    actionType: '메시지 삭제',
+    loginId: getLoginId(req),
+    targetTitle: '-',
+    detail: `메시지 ID ${id} 삭제`,
+    ipAddress: getClientIp(req),
+    result: 'success',
+  });
   res.json({ success: true });
 });
 
@@ -298,6 +361,16 @@ router.post('/send-now', async (req: Request, res: Response) => {
 
     markAsSent(msgId);
     console.log(`⚡ 즉시 발송 완료 [id:${msgId}]`);
+
+    insertActivityLog({
+      actionType: '메시지 발송',
+      loginId: getLoginId(req),
+      targetTitle: author,
+      targetChannel: channelId,
+      detail: content.substring(0, 100),
+      ipAddress: getClientIp(req),
+      result: 'success',
+    });
 
     res.json({ success: true, data: { id: msgId } });
   } catch (error) {

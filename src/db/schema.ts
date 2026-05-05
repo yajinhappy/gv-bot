@@ -82,6 +82,19 @@ export async function initDatabase(): Promise<SqlJsDatabase> {
       created_at             TEXT    NOT NULL DEFAULT (datetime('now', '+9 hours')),
       approved_at            TEXT    DEFAULT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS activity_logs (
+      id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+      action_type            TEXT    NOT NULL,
+      login_id               TEXT    NOT NULL,
+      target_title           TEXT    DEFAULT NULL,
+      target_channel         TEXT    DEFAULT NULL,
+      detail                 TEXT    DEFAULT NULL,
+      ip_address             TEXT    DEFAULT NULL,
+      result                 TEXT    NOT NULL DEFAULT 'success',
+      result_detail          TEXT    DEFAULT NULL,
+      created_at             TEXT    NOT NULL DEFAULT (datetime('now', '+9 hours'))
+    );
   `);
 
   // 초기 슈퍼관리자 계정 (없을 때만)
@@ -374,6 +387,7 @@ export function updateOperatorPassword(id: number, passwordHash: string): number
 }
 
 export function updateOperatorGame(id: number, game: string): number {
+
   db.run('UPDATE operators SET game = ? WHERE id = ?', [game, id]);
   const changes = db.getRowsModified();
   saveDatabase();
@@ -393,4 +407,95 @@ function resultToObjects(results: any[]): any[] {
     });
     return obj;
   });
+}
+
+// ─── 활동 로그(Activity Log) 관련 쿼리 헬퍼 ──────────────────
+
+export function insertActivityLog(params: {
+  actionType: string;
+  loginId: string;
+  targetTitle?: string | null;
+  targetChannel?: string | null;
+  detail?: string | null;
+  ipAddress?: string | null;
+  result?: string;
+  resultDetail?: string | null;
+}): number {
+  db.run(
+    `INSERT INTO activity_logs (action_type, login_id, target_title, target_channel, detail, ip_address, result, result_detail, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      params.actionType,
+      params.loginId,
+      params.targetTitle ?? null,
+      params.targetChannel ?? null,
+      params.detail ?? null,
+      params.ipAddress ?? null,
+      params.result ?? 'success',
+      params.resultDetail ?? null,
+      nowKST(),
+    ]
+  );
+  const result = db.exec('SELECT last_insert_rowid() as id');
+  const id = result[0].values[0][0] as number;
+  saveDatabase();
+  return id;
+}
+
+export function getActivityLogs(params?: {
+  actionType?: string;
+  loginId?: string;
+  targetTitle?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  page?: number;
+  limit?: number;
+}): { logs: any[]; total: number } {
+  let whereClause = 'WHERE 1=1';
+  const queryParams: any[] = [];
+
+  if (params?.actionType && params.actionType !== 'all') {
+    whereClause += ' AND action_type = ?';
+    queryParams.push(params.actionType);
+  }
+
+  if (params?.loginId) {
+    whereClause += ' AND login_id LIKE ?';
+    queryParams.push(`%${params.loginId}%`);
+  }
+
+  if (params?.targetTitle && params.targetTitle !== 'all') {
+    whereClause += ' AND target_title = ?';
+    queryParams.push(params.targetTitle);
+  }
+
+  if (params?.dateFrom) {
+    whereClause += ' AND created_at >= ?';
+    queryParams.push(params.dateFrom);
+  }
+
+  if (params?.dateTo) {
+    whereClause += ' AND created_at <= ?';
+    queryParams.push(params.dateTo + ' 23:59:59');
+  }
+
+  const countResult = db.exec(`SELECT COUNT(*) as total FROM activity_logs ${whereClause}`, queryParams);
+  const total = countResult.length > 0 ? countResult[0].values[0][0] as number : 0;
+
+  const page = params?.page ?? 1;
+  const limit = params?.limit ?? 15;
+  const offset = (page - 1) * limit;
+
+  const results = db.exec(
+    `SELECT * FROM activity_logs ${whereClause} ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?`,
+    [...queryParams, limit, offset]
+  );
+
+  return { logs: resultToObjects(results), total };
+}
+
+export function getActivityLogTitles(): string[] {
+  const results = db.exec(`SELECT DISTINCT target_title FROM activity_logs WHERE target_title IS NOT NULL AND target_title != '' ORDER BY target_title`);
+  if (!results || results.length === 0) return [];
+  return results[0].values.map((row: any[]) => row[0] as string);
 }

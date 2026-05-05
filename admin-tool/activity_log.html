@@ -493,11 +493,8 @@
 
               <!-- Target Title Filter -->
               <div class="select-wrapper" style="width:160px;">
-                <select class="form-control search-select">
-                  <option>대상 타이틀: 전체</option>
-                  <option>RO1</option>
-                  <option>Ragnarok Monster Kitchen</option>
-                  <option>시스템</option>
+                <select class="form-control search-select" id="filterTitle">
+                  <option value="all">대상 타이틀: 전체</option>
                 </select>
                 <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -507,18 +504,17 @@
 
               <!-- Type Filter -->
               <div class="select-wrapper" style="width:160px;">
-                <select class="form-control search-select">
-                  <option>유형: 전체</option>
-                  <option>메시지 발송</option>
-                  <option>예약 등록</option>
-                  <option>메시지 수정</option>
-                  <option>예약 취소</option>
-                  <option>임시 저장</option>
-                  <option>운영자 등록</option>
-                  <option>운영자 수정</option>
-                  <option>운영자 삭제</option>
-                  <option>로그인</option>
-                  <option>로그아웃</option>
+                <select class="form-control search-select" id="filterType">
+                  <option value="all">유형: 전체</option>
+                  <option value="메시지 발송">메시지 발송</option>
+                  <option value="예약 등록">예약 등록</option>
+                  <option value="메시지 수정">메시지 수정</option>
+                  <option value="예약 취소">예약 취소</option>
+                  <option value="메시지 삭제">메시지 삭제</option>
+                  <option value="운영자 등록">운영자 등록</option>
+                  <option value="운영자 수정">운영자 수정</option>
+                  <option value="비밀번호 변경">비밀번호 변경</option>
+                  <option value="로그인">로그인</option>
                 </select>
                 <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -528,7 +524,7 @@
 
               <!-- ID Search -->
               <div class="search-input-wrapper" style="width:200px;">
-                <input type="text" class="form-control search-input-field" placeholder="아이디 검색">
+                <input type="text" class="form-control search-input-field" id="filterLoginId" placeholder="아이디 검색">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round" class="search-input-icon">
                   <circle cx="11" cy="11" r="8"></circle>
@@ -536,7 +532,7 @@
                 </svg>
               </div>
 
-              <button class="btn btn-primary" style="white-space:nowrap; padding:0 24px;">검색</button>
+              <button class="btn btn-primary" id="btnSearch" style="white-space:nowrap; padding:0 24px;">검색</button>
             </div>
           </div>
 
@@ -555,73 +551,8 @@
                   <th>결과</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td class="col-no">15</td>
-                  <td>2026-04-30 14:22:15</td>
-                  <td><span class="badge-role" style="background:#E0F2FE; color:#0284C7;">메시지 발송</span></td>
-                  <td>sys_op</td>
-                  <td>RO1</td>
-                  <td>#ro1-announcement</td>
-                  <td class="col-detail" title="[공지] 내일 서버 점검 안내">[공지] 내일 서버 점검 안...</td>
-                  <td>192.168.1.45</td>
-                  <td><span style="color:#16A34A; font-weight:600;">성공</span></td>
-                </tr>
-                <tr>
-                  <td class="col-no">14</td>
-                  <td>2026-04-30 13:10:05</td>
-                  <td><span class="badge-role" style="background:#FEF3C7; color:#D97706;">예약 등록</span></td>
-                  <td>event_mgr</td>
-                  <td>RO1</td>
-                  <td>#ro1-event</td>
-                  <td class="col-detail" title="[이벤트] 출석체크 이벤트 안내">[이벤트] 출석체크 이벤트...</td>
-                  <td>110.12.34.56</td>
-                  <td><span style="color:#16A34A; font-weight:600;">성공</span></td>
-                </tr>
-                <tr>
-                  <td class="col-no">13</td>
-                  <td>2026-04-30 11:05:42</td>
-                  <td><span class="badge-role" style="background:#F3E8FF; color:#9333EA;">운영자 수정</span></td>
-                  <td>admin_01</td>
-                  <td>시스템</td>
-                  <td>-</td>
-                  <td class="col-detail" title="최개발 (운영자) 정보 수정">최개발 (운영자) 정보 수정</td>
-                  <td>192.168.1.100</td>
-                  <td><span style="color:#16A34A; font-weight:600;">성공</span></td>
-                </tr>
-                <tr>
-                  <td class="col-no">12</td>
-                  <td>2026-04-30 09:30:11</td>
-                  <td><span class="badge-role" style="background:#FEE2E2; color:#DC2626;">예약 취소</span></td>
-                  <td>event_mgr</td>
-                  <td>RO1</td>
-                  <td>#ro1-general</td>
-                  <td class="col-detail" title="안녕하세요 용사님들! 오늘의 퀴즈입니다.">안녕하세요 용사님들! 오...</td>
-                  <td>110.12.34.56</td>
-                  <td><span style="color:#16A34A; font-weight:600;">성공</span></td>
-                </tr>
-                <tr>
-                  <td class="col-no">11</td>
-                  <td>2026-04-30 09:02:10</td>
-                  <td><span class="badge-role" style="background:#F1F5F9; color:#475569;">로그인</span></td>
-                  <td>admin_01</td>
-                  <td>시스템</td>
-                  <td>-</td>
-                  <td class="col-detail" title="비밀번호 연속 5회 오류">비밀번호 연속 5회 오류</td>
-                  <td>192.168.1.100</td>
-                  <td><span style="color:#DC2626; font-weight:600;">실패 (비밀번호 오류)</span></td>
-                </tr>
-                <tr>
-                  <td class="col-no">10</td>
-                  <td>2026-04-30 09:00:22</td>
-                  <td><span class="badge-role" style="background:#F1F5F9; color:#475569;">로그인</span></td>
-                  <td>event_mgr</td>
-                  <td>-</td>
-                  <td>-</td>
-                  <td class="col-detail">-</td>
-                  <td>110.12.34.56</td>
-                  <td><span style="color:#16A34A; font-weight:600;">성공</span></td>
-                </tr>
+              <tbody id="logTableBody">
+                <tr><td colspan="9" style="text-align:center; padding:40px; color:#999;">로딩 중...</td></tr>
               </tbody>
             </table>
           </div>
@@ -639,18 +570,119 @@
     let dateRangeStart = null;
     let dateRangeEnd = null;
 
-
-
-    // Mock Pagination JS
-    const paginationEl = document.getElementById('pagination');
+    // ─── 활동 로그 동적 렌더링 ────────────────────────────
+    const ITEMS_PER_PAGE = 15;
     let currentPage = 1;
-    const totalPages = 3;
+    let totalPages = 1;
+    let totalItems = 0;
+
+    // 유형별 뱃지 색상
+    const TYPE_COLORS = {
+      '메시지 발송': { bg: '#E0F2FE', color: '#0284C7' },
+      '예약 등록':   { bg: '#FEF3C7', color: '#D97706' },
+      '메시지 수정': { bg: '#DBEAFE', color: '#2563EB' },
+      '예약 취소':   { bg: '#FEE2E2', color: '#DC2626' },
+      '메시지 삭제': { bg: '#FEE2E2', color: '#DC2626' },
+      '운영자 등록': { bg: '#F0FDF4', color: '#16A34A' },
+      '운영자 수정': { bg: '#F3E8FF', color: '#9333EA' },
+      '비밀번호 변경': { bg: '#FFF7ED', color: '#EA580C' },
+      '로그인':       { bg: '#F1F5F9', color: '#475569' },
+    };
+
+    function getTypeBadge(type) {
+      const c = TYPE_COLORS[type] || { bg: '#F1F5F9', color: '#475569' };
+      return `<span class="badge-role" style="background:${c.bg}; color:${c.color};">${type}</span>`;
+    }
+
+    function getResultHtml(result, resultDetail) {
+      if (result === 'success') {
+        return `<span style="color:#16A34A; font-weight:600;">성공</span>`;
+      }
+      const detail = resultDetail ? ` (${resultDetail})` : '';
+      return `<span style="color:#DC2626; font-weight:600;">실패${detail}</span>`;
+    }
+
+    function truncate(str, len) {
+      if (!str || str === '-') return '-';
+      return str.length > len ? str.substring(0, len) + '...' : str;
+    }
+
+    async function loadLogs() {
+      const tbody = document.getElementById('logTableBody');
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:#999;">로딩 중...</td></tr>';
+
+      const params = { page: currentPage, limit: ITEMS_PER_PAGE };
+      const filterType = document.getElementById('filterType').value;
+      const filterTitle = document.getElementById('filterTitle').value;
+      const filterLoginId = document.getElementById('filterLoginId').value.trim();
+
+      if (filterType !== 'all') params.actionType = filterType;
+      if (filterTitle !== 'all') params.targetTitle = filterTitle;
+      if (filterLoginId) params.loginId = filterLoginId;
+      if (dateRangeStart) params.dateFrom = dateRangeStart;
+      if (dateRangeEnd) params.dateTo = dateRangeEnd;
+
+      try {
+        const result = await fetchActivityLogs(params);
+        const logs = result.data || [];
+        totalItems = result.pagination?.total || 0;
+        totalPages = result.pagination?.totalPages || 1;
+
+        if (logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:#999;">활동 로그가 없습니다.</td></tr>';
+          renderPagination();
+          return;
+        }
+
+        let html = '';
+        logs.forEach((log, idx) => {
+          const no = totalItems - ((currentPage - 1) * ITEMS_PER_PAGE) - idx;
+          const channel = log.target_channel || '-';
+          const detail = log.detail || '-';
+          html += `<tr>
+            <td class="col-no">${no}</td>
+            <td>${log.created_at || '-'}</td>
+            <td>${getTypeBadge(log.action_type)}</td>
+            <td>${log.login_id || '-'}</td>
+            <td>${log.target_title || '-'}</td>
+            <td>${channel}</td>
+            <td class="col-detail" title="${detail.replace(/"/g, '&quot;')}">${truncate(detail, 20)}</td>
+            <td>${log.ip_address || '-'}</td>
+            <td>${getResultHtml(log.result, log.result_detail)}</td>
+          </tr>`;
+        });
+        tbody.innerHTML = html;
+        renderPagination();
+      } catch (err) {
+        console.error('활동 로그 로드 실패:', err);
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:#DC2626;">로그 조회에 실패했습니다.</td></tr>';
+      }
+    }
+
+    // ─── 대상 타이틀 필터 동적 로드 ──────────────
+    async function loadTitleFilter() {
+      try {
+        const titles = await fetchActivityLogTitles();
+        const sel = document.getElementById('filterTitle');
+        (titles || []).forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t;
+          opt.textContent = t;
+          sel.appendChild(opt);
+        });
+      } catch {}
+    }
+
+    // ─── 페이지네이션 ──────────────────────────
+    const paginationEl = document.getElementById('pagination');
     function renderPagination() {
       let html = '';
       html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(1)"><img src="img/double-left.svg" alt="처음"></button>`;
       html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(${currentPage - 1})"><img src="img/arrow-left.svg" alt="이전"></button>`;
 
-      for (let i = 1; i <= totalPages; i++) {
+      const startPage = Math.max(1, currentPage - 2);
+      const endPage = Math.min(totalPages, startPage + 4);
+      for (let i = startPage; i <= endPage; i++) {
         html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
       }
 
@@ -663,10 +695,57 @@
     function goPage(page) {
       if (page < 1 || page > totalPages) return;
       currentPage = page;
-      renderPagination();
+      loadLogs();
     }
-    renderPagination();
 
+    // ─── 검색 ──────────────────────────
+    document.getElementById('btnSearch').addEventListener('click', () => {
+      currentPage = 1;
+      loadLogs();
+    });
+    document.getElementById('filterLoginId').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { currentPage = 1; loadLogs(); }
+    });
+
+    // ─── CSV 다운로드 ──────────────────────────
+    document.querySelector('.btn-outline-primary').addEventListener('click', async () => {
+      try {
+        const params = { page: 1, limit: 10000 };
+        const filterType = document.getElementById('filterType').value;
+        const filterTitle = document.getElementById('filterTitle').value;
+        const filterLoginId = document.getElementById('filterLoginId').value.trim();
+        if (filterType !== 'all') params.actionType = filterType;
+        if (filterTitle !== 'all') params.targetTitle = filterTitle;
+        if (filterLoginId) params.loginId = filterLoginId;
+        if (dateRangeStart) params.dateFrom = dateRangeStart;
+        if (dateRangeEnd) params.dateTo = dateRangeEnd;
+
+        const result = await fetchActivityLogs(params);
+        const logs = result.data || [];
+        if (logs.length === 0) { alert('다운로드할 데이터가 없습니다.'); return; }
+
+        const BOM = '\uFEFF';
+        let csv = BOM + 'No.,활동 일시,활동 유형,아이디,대상 타이틀,대상 채널,상세,IP 주소,결과\n';
+        logs.forEach((log, idx) => {
+          const no = logs.length - idx;
+          const detail = (log.detail || '').replace(/"/g, '""');
+          const res = log.result === 'success' ? '성공' : `실패${log.result_detail ? ' (' + log.result_detail + ')' : ''}`;
+          csv += `${no},"${log.created_at}","${log.action_type}","${log.login_id}","${log.target_title || '-'}","${log.target_channel || '-'}","${detail}","${log.ip_address || '-'}","${res}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `activity_log_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+      } catch (err) { alert('CSV 다운로드 실패: ' + err.message); }
+    });
+
+    // ─── 초기화 ──────────────────────────
+    requireAuth().then(() => {
+      loadTitleFilter();
+      loadLogs();
+    });
   </script>
 </body>
 

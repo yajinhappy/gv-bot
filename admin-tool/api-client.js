@@ -272,6 +272,25 @@ async function apiUpdateOperatorGame(id, game) {
   return result;
 }
 
+// ─── 활동 로그 API ──────────────────────────
+
+/**
+ * 활동 로그 목록 조회 (필터/검색/페이지네이션)
+ */
+async function fetchActivityLogs(params = {}) {
+  const query = new URLSearchParams(params).toString();
+  const result = await apiRequest(`/logs${query ? '?' + query : ''}`);
+  return result;
+}
+
+/**
+ * 활동 로그 대상 타이틀 목록 (필터용)
+ */
+async function fetchActivityLogTitles() {
+  const result = await apiRequest('/logs/titles');
+  return result.data;
+}
+
 // ─── API 상태 확인 ──────────────────────────
 
 /**

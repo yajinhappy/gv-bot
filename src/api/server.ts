@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import messagesRouter from './routes/messages';
 import channelsRouter from './routes/channels';
 import authRouter from './routes/auth';
+import logsRouter from './routes/logs';
 
 dotenv.config();
 
@@ -55,6 +56,7 @@ function authMiddleware(req: Request, res: Response, next: NextFunction) {
 app.use('/api/auth', authRouter);  // 인증 없이 접근 가능
 app.use('/api/messages', authMiddleware, messagesRouter);
 app.use('/api/channels', authMiddleware, channelsRouter);
+app.use('/api/logs', authMiddleware, logsRouter);
 
 // 헬스체크 (인증 불필요)
 app.get('/health', (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
