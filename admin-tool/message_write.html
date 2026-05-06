@@ -507,12 +507,6 @@
       updateDraftCount();
     });
 
-      const confirmMsg = "선택하신 채널로 발송 테스트하시겠습니까?\n'확인'을 클릭하신 경우 예약한 시간과 상관 없이 메시지가 발송됩니다.\n발송 전 채널을 다시 한 번 더 확인해주세요.";
-
-      if (confirm(confirmMsg)) {
-        showToast("메시지를 테스트 발송했습니다. 선택하신 채널에서 메시지 내용을 확인해주세요.");
-      }
-    }
 
     // 예약발송 모달 열기
     function openReservationModal() {
