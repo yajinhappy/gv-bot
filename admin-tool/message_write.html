@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>???�약 ?�성 - GV DiscordBot Admin Tool</title>
+  <title>새 예약 작성 - GV DiscordBot Admin Tool</title>
   <link rel="stylesheet" href="style.css">
   <!-- Quill WYSIWYG Editor -->
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -26,57 +26,57 @@
       <!-- Top Header -->
       <header class="top-header">
         <div class="page-title">
-          <span id="pageTitle">??메시지 보내�?/span>
+          <span id="pageTitle">새 메시지 보내기</span>
         </div>
       </header>
 
       <!-- Content Area -->
       <div class="main-content">
 
-        <!-- 메시지 ?�성 �??�약 카드 -->
+        <!-- 메시지 작성 및 예약 카드 -->
         <div class="card">
-          <h2 class="card-title" id="cardTitle">메시지 발송?�기</h2>
+          <h2 class="card-title" id="cardTitle">메시지 발송하기</h2>
           <form id="msg-form">
             <div class="form-group">
               <label class="form-label">발송 채널 <span class="required">*</span></label>
               <div class="multi-select-container" id="channelMultiSelect">
                 <div class="form-control multi-select-trigger"
                   onclick="this.nextElementSibling.classList.toggle('active')">
-                  <span class="selected-text" id="channelSelectedText">채널???�택?�세??(?�중 ?�택 가??</span>
+                  <span class="selected-text" id="channelSelectedText">채널을 선택하세요 (다중 선택 가능)</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"></polyline>
                   </svg>
                 </div>
                 <div class="multi-select-dropdown" id="channelDropdown">
-                  <div style="padding: 10px; color: #888;">채널 목록??불러?�는 �?..</div>
+                  <div style="padding: 10px; color: #888;">채널 목록을 불러오는 중...</div>
                 </div>
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">메시지 ?�용</label>
-              <!-- Quill ?�디??컨테?�너 -->
+              <label class="form-label">메시지 내용</label>
+              <!-- Quill 에디터 컨테이너 -->
               <div id="editor-container" style="height: 250px; background: var(--bg-body); border-radius: 0 0 6px 6px;">
               </div>
-              <!-- ?�제 값이 ?�?�되??hidden textarea -->
+              <!-- 실제 값이 저장되는 hidden textarea -->
               <textarea class="form-control" id="messageBody" style="display:none;"></textarea>
             </div>
 
             <div class="form-group" style="margin-bottom: 24px;">
-              <label class="form-label">?��?지 첨�?</label>
+              <label class="form-label">이미지 첨부</label>
               <div class="flex items-center gap-2 flex-wrap mb-2">
                 <input type="file" id="imageUpload" class="d-none"
                   accept="image/jpeg, image/png, image/gif, image/webp" multiple>
                 <button type="button" class="btn" onclick="document.getElementById('imageUpload').click()" style="background-color: #ffffff; color: #00549D; height: 34px; padding: 0 16px; border: solid 1px
-                  #00549D;">?�일 첨�?</button>
-                <span class="text-muted-color font-size-13" style="margin-right: 8px;">* 최�? 4개까지 첨�? 가??/span>
+                  #00549D;">파일 첨부</button>
+                <span class="text-muted-color font-size-13" style="margin-right: 8px;">* 최대 4개까지 첨부 가능</span>
                 <div id="fileListContainer" class="flex items-center gap-2 flex-wrap"></div>
               </div>
-              <small class="form-hint">지???�맷: JPG, PNG, GIF, WEBP. ?�일??최�? 25MB.</small>
+              <small class="form-hint">지원 포맷: JPG, PNG, GIF, WEBP. 파일당 최대 25MB.</small>
             </div>
             <div class="form-group" style="margin-bottom: 24px;">
-              <label class="form-label">메시지 링크 (?�택)</label>
+              <label class="form-label">메시지 링크 (선택)</label>
               <input type="url" class="form-control" id="messageLink" placeholder="https://...">
             </div>
 
@@ -89,13 +89,13 @@
                   <button type="button" class="btn btn-secondary" id="btnLoadDraft" onclick="openDraftModal()">
                     <span class="text-primary-color font-weight-700" id="draftCountBadge">0</span>
                     <span style="margin: 0 8px; color: var(--border-color);">|</span>
-                    불러?�기
+                    불러오기
                   </button>
-                  <button type="button" class="btn btn-secondary" onclick="saveDraft()">?�시 ?�??/button>
+                  <button type="button" class="btn btn-secondary" onclick="saveDraft()">임시 저장</button>
                   <button type="button" class="btn btn-secondary" onclick="openPreviewModal()">미리보기</button>
                 </div>
                 <div class="action-row-2">
-                  <button type="button" class="btn btn-outline-primary" onclick="openReservationModal()">?�약발송</button>
+                  <button type="button" class="btn btn-outline-primary" onclick="openReservationModal()">예약발송</button>
                   <button type="button" class="btn btn-primary" onclick="handleInstantSend()">즉시발송</button>
                 </div>
               </div>
@@ -108,17 +108,17 @@
 
   </div>
 
-  <!-- ?�약발송 모달 -->
+  <!-- 예약발송 모달 -->
   <div id="reservationModal" class="modal modal-overlay" style="display:none;">
     <div class="modal-content" style="max-width: 520px;">
       <div class="flex items-center justify-between mb-20">
-        <h3 class="modal-title">?�약 발송 ?�정</h3>
+        <h3 class="modal-title">예약 발송 설정</h3>
         <button type="button" onclick="document.getElementById('reservationModal').style.display='none'"
           class="modal-close">&times;</button>
       </div>
 
       <div class="form-group">
-        <label class="form-label">발송 ?�간 <span class="required">*</span></label>
+        <label class="form-label">발송 시간 <span class="required">*</span></label>
         <div class="custom-datetime-picker" id="customDatetimePicker">
           <input type="text" class="form-control" id="scheduledTime" placeholder="YYYY-MM-DD HH:mm" readonly
             style="background: white; cursor: pointer;">
@@ -134,56 +134,56 @@
                 </div>
                 <div class="calendar-grid" id="dtCalGrid"></div>
                 <div class="flex items-center justify-end mt-12">
-                  <button type="button" class="btn-text text-primary-color" id="dtToday">?�늘</button>
+                  <button type="button" class="btn-text text-primary-color" id="dtToday">오늘</button>
                 </div>
               </div>
               <div class="dt-timepicker">
                 <div class="dt-time-col" id="dtHourCol"></div>
                 <div class="dt-time-col" id="dtMinCol"></div>
                 <div class="dt-time-col" id="dtAmPmCol">
-                  <div class="dt-time-item" data-val="AM">?�전</div>
-                  <div class="dt-time-item" data-val="PM">?�후</div>
+                  <div class="dt-time-item" data-val="AM">오전</div>
+                  <div class="dt-time-item" data-val="PM">오후</div>
                 </div>
               </div>
             </div>
             <div class="daterange-footer">
-              <button type="button" class="btn btn-secondary btn-sm" id="dtReset">초기??/button>
-              <button type="button" class="btn btn-primary btn-sm" id="dtSave">?�??/button>
+              <button type="button" class="btn btn-secondary btn-sm" id="dtReset">초기화</button>
+              <button type="button" class="btn btn-primary btn-sm" id="dtSave">저장</button>
             </div>
           </div>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">기�? ?�간 <span class="required">*</span></label>
+        <label class="form-label">기준 시간 <span class="required">*</span></label>
         <div class="select-wrapper">
           <select class="form-control" id="timezoneSelect">
-            <option value="GMT-12:00">GMT -12:00 (베이�???</option>
-            <option value="GMT-11:00">GMT -11:00 (?�모??</option>
-            <option value="GMT-10:00">GMT -10:00 (?��???</option>
-            <option value="GMT-09:00">GMT -09:00 (?�래?�카)</option>
-            <option value="GMT-08:00">GMT -08:00 (로스?�젤?�스, 미국)</option>
-            <option value="GMT-07:00">GMT -07:00 (?�버, 미국)</option>
-            <option value="GMT-06:00">GMT -06:00 (?�카�? 미국)</option>
-            <option value="GMT-05:00">GMT -05:00 (?�욕, 미국)</option>
-            <option value="GMT-04:00">GMT -04:00 (카라카스, 베네?�엘??</option>
-            <option value="GMT-03:00">GMT -03:00 (?�파?�루, 브라�?</option>
-            <option value="GMT-02:00">GMT -02:00 (중�? ?�?�양)</option>
-            <option value="GMT-01:00">GMT -01:00 (?�조?�스, ?�르?�갈)</option>
-            <option value="GMT+00:00">GMT +00:00 (?�던, ?�국)</option>
-            <option value="GMT+01:00">GMT +01:00 (?�리, ?�랑??</option>
-            <option value="GMT+02:00">GMT +02:00 (카이�? ?�집??</option>
-            <option value="GMT+03:00">GMT +03:00 (모스?�바, ?�시??</option>
-            <option value="GMT+04:00">GMT +04:00 (?�바?? UAE)</option>
-            <option value="GMT+05:00">GMT +05:00 (카라�? ?�키?�탄)</option>
-            <option value="GMT+05:30">GMT +05:30 (?�리, ?�도)</option>
-            <option value="GMT+06:00">GMT +06:00 (?�카, 방�??�데??</option>
-            <option value="GMT+07:00">GMT +07:00 (방콕, ?�국)</option>
-            <option value="GMT+08:00">GMT +08:00 (베이�? 중국)</option>
-            <option value="GMT+09:00" selected>GMT +09:00 (?�울, ?�?��?�?</option>
-            <option value="GMT+10:00">GMT +10:00 (?�드?? ?�주)</option>
-            <option value="GMT+11:00">GMT +11:00 (?�로�??�도)</option>
-            <option value="GMT+12:00">GMT +12:00 (?�클?�드, ?�질?�드)</option>
+            <option value="GMT-12:00">GMT -12:00 (베이커 섬)</option>
+            <option value="GMT-11:00">GMT -11:00 (사모아)</option>
+            <option value="GMT-10:00">GMT -10:00 (하와이)</option>
+            <option value="GMT-09:00">GMT -09:00 (알래스카)</option>
+            <option value="GMT-08:00">GMT -08:00 (로스앤젤레스, 미국)</option>
+            <option value="GMT-07:00">GMT -07:00 (덴버, 미국)</option>
+            <option value="GMT-06:00">GMT -06:00 (시카고, 미국)</option>
+            <option value="GMT-05:00">GMT -05:00 (뉴욕, 미국)</option>
+            <option value="GMT-04:00">GMT -04:00 (카라카스, 베네수엘라)</option>
+            <option value="GMT-03:00">GMT -03:00 (상파울루, 브라질)</option>
+            <option value="GMT-02:00">GMT -02:00 (중부 대서양)</option>
+            <option value="GMT-01:00">GMT -01:00 (아조레스, 포르투갈)</option>
+            <option value="GMT+00:00">GMT +00:00 (런던, 영국)</option>
+            <option value="GMT+01:00">GMT +01:00 (파리, 프랑스)</option>
+            <option value="GMT+02:00">GMT +02:00 (카이로, 이집트)</option>
+            <option value="GMT+03:00">GMT +03:00 (모스크바, 러시아)</option>
+            <option value="GMT+04:00">GMT +04:00 (두바이, UAE)</option>
+            <option value="GMT+05:00">GMT +05:00 (카라치, 파키스탄)</option>
+            <option value="GMT+05:30">GMT +05:30 (델리, 인도)</option>
+            <option value="GMT+06:00">GMT +06:00 (다카, 방글라데시)</option>
+            <option value="GMT+07:00">GMT +07:00 (방콕, 태국)</option>
+            <option value="GMT+08:00">GMT +08:00 (베이징, 중국)</option>
+            <option value="GMT+09:00" selected>GMT +09:00 (서울, 대한민국)</option>
+            <option value="GMT+10:00">GMT +10:00 (시드니, 호주)</option>
+            <option value="GMT+11:00">GMT +11:00 (솔로몬 제도)</option>
+            <option value="GMT+12:00">GMT +12:00 (오클랜드, 뉴질랜드)</option>
           </select>
           <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -195,7 +195,7 @@
       <div class="flex items-center justify-end gap-2 mt-20">
         <button type="button" class="btn btn-secondary"
           onclick="document.getElementById('reservationModal').style.display='none'">취소</button>
-        <button type="button" class="btn btn-primary" onclick="confirmReservation()">?�인</button>
+        <button type="button" class="btn btn-primary" onclick="confirmReservation()">확인</button>
       </div>
     </div>
   </div>
@@ -211,36 +211,36 @@
       <div class="preview-content" id="previewModalBody" style="background: var(--bg-body); padding: 16px; border-radius: 8px; font-size: 14px; min-height: 100px; white-space: pre-wrap; line-height: 1.5; color: var(--text-main); word-break: break-all;">
       </div>
       <div class="flex items-center justify-end mt-20">
-        <button type="button" class="btn btn-primary" onclick="document.getElementById('previewModal').style.display='none'">?�인</button>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('previewModal').style.display='none'">확인</button>
       </div>
     </div>
   </div>
 
-  <!-- ?�시 ?�??목록 모달 -->
+  <!-- 임시 저장 목록 모달 -->
   <div id="draftModal" class="modal modal-overlay">
     <div class="modal-content modal-content">
       <div class="flex items-center justify-between mb-20">
-        <h3 class="modal-title">?�시 ?�??목록</h3>
+        <h3 class="modal-title">임시 저장 목록</h3>
         <button type="button" onclick="document.getElementById('draftModal').style.display='none'"
           class="modal-close">&times;</button>
       </div>
       <div class="draft-list draft-list">
 
-        <!-- Draft Item 1 (최신???�렬) -->
+        <!-- Draft Item 1 (최신순 정렬) -->
         <div class="draft-item draft-item"
-          onclick="if(confirm('기존 ?�용????��?�시겠습?�까?')) { document.getElementById('draftModal').style.display='none'; alert('불러?�습?�다.'); }">
+          onclick="if(confirm('기존 내용을 덮어쓰시겠습니까?')) { document.getElementById('draftModal').style.display='none'; alert('불러왔습니다.'); }">
           <div class="draft-title">
-            <!-- 30???�약 -->
-            5???�기 ?�데?�트 관?�하???�내 ?�립?�다. ?��? ?�간?�...
+            <!-- 30자 요약 -->
+            5월 정기 업데이트 관련하여 안내 드립니다. 점검 시간은...
           </div>
           <div class="draft-date">2026-04-28 15:30:00</div>
         </div>
 
         <!-- Draft Item 2 -->
         <div class="draft-item draft-item"
-          onclick="if(confirm('기존 ?�용????��?�시겠습?�까?')) { document.getElementById('draftModal').style.display='none'; alert('불러?�습?�다.'); }">
+          onclick="if(confirm('기존 내용을 덮어쓰시겠습니까?')) { document.getElementById('draftModal').style.display='none'; alert('불러왔습니다.'); }">
           <div class="draft-title">
-            ?�버 ?�시 ?��? ?�료 보상 ?�이??지�??�내?�니?? ?�인...
+            서버 임시 점검 완료 보상 아이템 지급 안내입니다. 확인...
           </div>
           <div class="draft-date">2026-04-27 10:15:00</div>
         </div>
@@ -259,8 +259,8 @@
     }
   </style>
   <script>
-    // 커스?� ?�중 ?�택(체크박스) 로직?� API 로드 ??초기?�됩?�다.
-    // ?��? ?�릭 ???�롭?�운 ?�기
+    // 커스텀 다중 선택(체크박스) 로직은 API 로드 후 초기화됩니다.
+    // 외부 클릭 시 드롭다운 닫기
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.multi-select-container')) {
         document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('active'));
@@ -287,7 +287,7 @@
           cb.addEventListener('change', () => {
             const checked = Array.from(checkboxes).filter(i => i.checked).map(i => i.nextSibling.textContent.trim());
             if (checked.length === 0) {
-              selectedTextEl.textContent = '채널???�택?�세??(?�중 ?�택 가??';
+              selectedTextEl.textContent = '채널을 선택하세요 (다중 선택 가능)';
               selectedTextEl.style.color = 'var(--text-muted)';
             } else {
               selectedTextEl.textContent = checked.join(', ');
@@ -296,11 +296,11 @@
           });
         });
       } catch (err) {
-        document.getElementById('channelDropdown').innerHTML = '<div style="padding: 10px; color: red;">채널 목록??불러?��? 못했?�니?? �??�버가 켜져?�는지 ?�인?�주?�요.</div>';
+        document.getElementById('channelDropdown').innerHTML = '<div style="padding: 10px; color: red;">채널 목록을 불러오지 못했습니다. 봇 서버가 켜져있는지 확인해주세요.</div>';
       }
     }
 
-    // 첨�??�일 ?�장??검�?�??�중 ?�일 관�?로직
+    // 첨부파일 확장자 검증 및 다중 파일 관리 로직
     const imageUpload = document.getElementById('imageUpload');
     const fileListContainer = document.getElementById('fileListContainer');
     let selectedFiles = [];
@@ -314,25 +314,26 @@
         for (let file of newFiles) {
           const extension = file.name.split('.').pop().toLowerCase();
           if (!allowedExtensions.includes(extension)) {
-            alert(file.name + '?�(?? 지?�하지 ?�는 ?�맷?�니??');
+            alert(file.name + '은(는) 지원하지 않는 포맷입니다.');
             continue;
           }
           if (file.size > 25 * 1024 * 1024) {
-            alert(file.name + '???�량??25MB�?초과?�니??');
+            alert(file.name + '의 용량이 25MB를 초과합니다.');
             continue;
           }
           validFiles.push(file);
         }
 
         if (selectedFiles.length + validFiles.length > 4) {
-          alert('최�? 4개까지�?첨�? 가?�합?�다.');
+          alert('최대 4개까지만 첨부 가능합니다.');
           validFiles = validFiles.slice(0, 4 - selectedFiles.length);
         }
 
         selectedFiles = [...selectedFiles, ...validFiles];
         renderFileList();
 
-        this.value = ''; // 같�? ?�일???�시 ?�택?????�도�?초기??      });
+        this.value = ''; // 같은 파일을 다시 선택할 수 있도록 초기화
+      });
     }
 
     function renderFileList() {
@@ -363,14 +364,16 @@
       });
     }
 
-    // Quill WYSIWYG ?�디??초기??    let quillEditor;
+    // Quill WYSIWYG 에디터 초기화
+    let quillEditor;
     let turndownService;
     document.addEventListener("DOMContentLoaded", function () {
-      // 마크?�운 변?�기 초기??      turndownService = new TurndownService({
+      // 마크다운 변환기 초기화
+      turndownService = new TurndownService({
         headingStyle: 'atx',
         codeBlockStyle: 'fenced'
       });
-      // ?�스코드 취소??strikethrough) 커스?� 규칙
+      // 디스코드 취소선(strikethrough) 커스텀 규칙
       turndownService.addRule('strikethrough', {
         filter: ['s', 'strike', 'del'],
         replacement: function (content) {
@@ -380,7 +383,7 @@
 
       quillEditor = new Quill('#editor-container', {
         theme: 'snow',
-        placeholder: "메시지�??�성?�세??..",
+        placeholder: "메시지를 작성하세요...",
         modules: {
           toolbar: [
             ['bold', 'italic', 'strike'],
@@ -388,21 +391,23 @@
             ['blockquote', 'code-block'],
             [{ 'list': 'ordered' }, { 'list': 'bullet' }],
             ['link'],
-            ['clean'] // ?�맷 초기??          ]
+            ['clean'] // 포맷 초기화
+          ]
         }
       });
 
-      // ?�디???�용??바�??�마??hidden textarea??마크?�운?�로 변?�하???�??      quillEditor.on('text-change', function () {
+      // 에디터 내용이 바뀔 때마다 hidden textarea에 마크다운으로 변환하여 저장
+      quillEditor.on('text-change', function () {
         const html = quillEditor.root.innerHTML;
         const markdown = turndownService.turndown(html);
         document.getElementById('messageBody').value = markdown;
       });
 
-      // API�??�해 채널 목록 불러?�기
+      // API를 통해 채널 목록 불러오기
       loadChannels();
     });
 
-    // 발송 ?�스??�??�스???�림 로직
+    // 발송 테스트 및 토스트 알림 로직
     function showToast(message) {
       let container = document.getElementById('toastContainer');
       if (!container) {
@@ -432,7 +437,7 @@
     function openPreviewModal() {
       const content = document.getElementById('messageBody').value;
       if (!content || !content.trim()) {
-        alert('?�용???�습?�다.');
+        alert('내용이 없습니다.');
         return;
       }
       let htmlContent = content.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/~~(.*?)~~/g, '<del>$1</del>');
@@ -440,7 +445,8 @@
       document.getElementById('previewModal').style.display = 'flex';
     }
 
-    // ?�시 ?�??관??    function updateDraftCount() {
+    // 임시 저장 관련
+    function updateDraftCount() {
       const drafts = JSON.parse(localStorage.getItem('gv_drafts') || '[]');
       const badge = document.getElementById('draftCountBadge');
       const btn = document.getElementById('btnLoadDraft');
@@ -459,14 +465,14 @@
     function saveDraft() {
       const content = document.getElementById('messageBody').value;
       if (!content || !content.trim()) {
-        alert('?�시 ?�?�할 ?�용???�습?�다.');
+        alert('임시 저장할 내용이 없습니다.');
         return;
       }
       const drafts = JSON.parse(localStorage.getItem('gv_drafts') || '[]');
       const summary = content.replace(/\n/g, ' ').substring(0, 30) + '...';
       drafts.unshift({ content, summary, date: new Date().toISOString() });
       localStorage.setItem('gv_drafts', JSON.stringify(drafts));
-      alert('?�성 중인 ?�용???�시 ?�?�되?�습?�다.');
+      alert('작성 중인 내용이 임시 저장되었습니다.');
       updateDraftCount();
     }
 
@@ -475,18 +481,18 @@
       const listEl = document.querySelector('.draft-list');
       listEl.innerHTML = '';
       if (drafts.length === 0) {
-        listEl.innerHTML = '<div style="padding: 40px; text-align:center; color:var(--text-muted);">?�시 ?�?�된 메시지가 ?�습?�다.</div>';
+        listEl.innerHTML = '<div style="padding: 40px; text-align:center; color:var(--text-muted);">임시 저장된 메시지가 없습니다.</div>';
       } else {
         drafts.forEach((draft, idx) => {
           const item = document.createElement('div');
           item.className = 'draft-item';
           item.onclick = () => {
-            if(confirm('기존 ?�용????��?�시겠습?�까?')) {
+            if(confirm('기존 내용을 덮어쓰시겠습니까?')) {
               document.getElementById('draftModal').style.display = 'none';
               if (quillEditor) {
                 quillEditor.clipboard.dangerouslyPasteHTML(draft.content.replace(/\n/g, '<br>'));
               }
-              alert('불러?�습?�다.');
+              alert('불러왔습니다.');
             }
           };
           const ymdhm = draft.date.substring(0, 16).replace('T', ' ');
@@ -502,17 +508,17 @@
     });
 
 
-    // ?�약발송 모달 ?�기
+    // 예약발송 모달 열기
     function openReservationModal() {
       const checkedChannels = document.querySelectorAll('.channel-checkbox:checked');
       if (checkedChannels.length === 0) {
-        alert("발송??채널??먼�? ?�택?�주?�요.");
+        alert("발송할 채널을 먼저 선택해주세요.");
         return;
       }
       document.getElementById('reservationModal').style.display = 'flex';
     }
 
-    // ?�일?�을 Base64�?변?�하???�틸 ?�수
+    // 파일들을 Base64로 변환하는 유틸 함수
     async function getImagesBase64() {
       const images = [];
       for (const file of selectedFiles) {
@@ -526,11 +532,11 @@
       return images;
     }
 
-    // ?�약발송 ?�인
+    // 예약발송 확인
     async function confirmReservation() {
       const scheduledTime = document.getElementById('scheduledTime').value;
       if (!scheduledTime) {
-        alert("발송 ?�간???�택?�주?�요.");
+        alert("발송 시간을 선택해주세요.");
         return;
       }
       const timezoneSelect = document.getElementById('timezoneSelect');
@@ -538,13 +544,13 @@
 
       const checkedChannels = Array.from(document.querySelectorAll('.channel-checkbox:checked')).map(cb => cb.value);
       if (checkedChannels.length === 0) {
-        alert("발송??채널??먼�? ?�택?�주?�요.");
+        alert("발송할 채널을 먼저 선택해주세요.");
         return;
       }
 
       const content = document.getElementById('messageBody').value;
       if (!content || !content.trim()) {
-        alert("메시지 ?�용???�력?�주?�요.");
+        alert("메시지 내용을 입력해주세요.");
         return;
       }
 
@@ -552,13 +558,13 @@
 
       document.getElementById('reservationModal').style.display = 'none';
       const submitBtn = document.querySelector('#reservationModal .btn-primary');
-      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '처리 �?..'; }
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '처리 중...'; }
 
       try {
         const editId = new URLSearchParams(window.location.search).get('edit');
 
         if (editId) {
-          // ?�정 모드
+          // 수정 모드
           await updateMessage(editId, {
             channelId: checkedChannels.join(','),
             content: content,
@@ -566,9 +572,9 @@
             scheduledAt: scheduledTime,
             timezone: timezone,
           });
-          showToast("메시지가 ?�정?�었?�니??");
+          showToast("메시지가 수정되었습니다.");
         } else {
-          // ?�규 ?�록 모드
+          // 신규 등록 모드
           const images = await getImagesBase64();
           await createMessage({
             channelId: checkedChannels.join(','),
@@ -580,11 +586,11 @@
             author: (getStoredUser() && getStoredUser().loginId) ? getStoredUser().loginId : '관리자',
             title: new URLSearchParams(window.location.search).get('title') || 'RO1'
           });
-          showToast("?�택?�신 채널??메시지가 ?�약발송 ?�록?�었?�니??");
+          showToast("선택하신 채널에 메시지가 예약발송 등록되었습니다.");
         }
         setTimeout(() => window.location.href = 'msg-mgmt.html', 1500);
       } catch (error) {
-        alert("?�약 ?�록 ?�패: " + error.message);
+        alert("예약 등록 실패: " + error.message);
       }
     }
 
@@ -592,19 +598,19 @@
     async function handleInstantSend() {
       const checkedChannels = Array.from(document.querySelectorAll('.channel-checkbox:checked')).map(cb => cb.value);
       if (checkedChannels.length === 0) {
-        alert("발송??채널??먼�? ?�택?�주?�요.");
+        alert("발송할 채널을 먼저 선택해주세요.");
         return;
       }
 
       const content = document.getElementById('messageBody').value;
       if (!content || !content.trim()) {
-        alert("메시지 ?�용???�력?�주?�요.");
+        alert("메시지 내용을 입력해주세요.");
         return;
       }
 
       const link = document.getElementById('messageLink').value;
 
-      if (confirm("즉시발송???�택?�셨?�니?? 지�??�스코드 메시지�?발송?�시겠습?�까?")) {
+      if (confirm("즉시발송을 선택하셨습니다. 지금 디스코드 메시지를 발송하시겠습니까?")) {
         try {
           const images = await getImagesBase64();
           await sendMessageNow({
@@ -615,15 +621,15 @@
             author: (getStoredUser() && getStoredUser().loginId) ? getStoredUser().loginId : '관리자',
             title: new URLSearchParams(window.location.search).get('title') || 'RO1'
           });
-          showToast("?�택?�신 채널??메시지가 발송?�었?�니??");
+          showToast("선택하신 채널에 메시지가 발송되었습니다.");
           setTimeout(() => window.location.href = 'msg-mgmt.html', 1500);
         } catch (error) {
-          alert("즉시 발송 ?�패: " + error.message);
+          alert("즉시 발송 실패: " + error.message);
         }
       }
     }
 
-    // 커스?� 발송 ?�간 ?�커 로직
+    // 커스텀 발송 시간 피커 로직
     const dtInput = document.getElementById('scheduledTime');
     const dtDropdown = document.getElementById('dtDropdown');
     const dtCalGrid = document.getElementById('dtCalGrid');
@@ -687,9 +693,9 @@
       dtCalGrid.innerHTML = '';
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
-      dtCalTitle.textContent = `${year}??${String(month + 1).padStart(2, '0')}????;
+      dtCalTitle.textContent = `${year}년 ${String(month + 1).padStart(2, '0')}월 ▾`;
 
-      const weekdays = ['??, '??, '??, '??, '�?, '�?, '??];
+      const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
       weekdays.forEach(day => {
         const div = document.createElement('div');
         div.className = 'cal-weekday';
@@ -751,7 +757,7 @@
     };
     document.getElementById('dtSave').onclick = () => {
       if (!selectedDate) {
-        alert('?�짜�??�택?�주?�요.');
+        alert('날짜를 선택해주세요.');
         return;
       }
       let h = parseInt(selectedHour);
@@ -759,7 +765,7 @@
       if (selectedAmPm === 'AM' && h === 12) h = 0;
       const targetTime = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), h, parseInt(selectedMin));
       if (targetTime < new Date()) {
-        alert('과거 ?�간?�로 ?�약?????�습?�다.');
+        alert('과거 시간으로 예약할 수 없습니다.');
         return;
       }
       updateInput();
@@ -781,24 +787,26 @@
     renderTimeCols();
     renderCalendar();
 
-    // ?�정 모드: ?edit=ID ?�라미터가 ?�으�??�제 API?�서 ?�이??로드
+    // 수정 모드: ?edit=ID 파라미터가 있으면 실제 API에서 데이터 로드
     (async function () {
       const urlParams = new URLSearchParams(window.location.search);
       const editId = urlParams.get('edit');
       if (!editId) return;
 
-      // ?�이지 ?�?��? 변�?      document.title = '메시지 ?�정 - GV DiscordBot Admin Tool';
-      document.getElementById('pageTitle').textContent = '메시지 ?�정';
-      document.getElementById('cardTitle').textContent = '메시지 ?�정';
+      // 페이지 타이틀 변경
+      document.title = '메시지 수정 - GV DiscordBot Admin Tool';
+      document.getElementById('pageTitle').textContent = '메시지 수정';
+      document.getElementById('cardTitle').textContent = '메시지 수정';
 
       try {
-        // API?�서 ?�제 메시지 ?�이??가?�오�?        const msg = await fetchMessageById(editId);
+        // API에서 실제 메시지 데이터 가져오기
+        const msg = await fetchMessageById(editId);
         if (!msg) {
-          alert('?�당 메시지�?찾을 ???�습?�다.');
+          alert('해당 메시지를 찾을 수 없습니다.');
           return;
         }
 
-        // 채널 체크박스 ?�택 (채널 목록 로드 ?�료�?기다�?
+        // 채널 체크박스 선택 (채널 목록 로드 완료를 기다림)
         const waitForChannels = () => new Promise((resolve) => {
           const check = () => {
             const checkboxes = document.querySelectorAll('.channel-checkbox');
@@ -819,7 +827,7 @@
             cb.checked = true;
           }
         });
-        // ?�택 ?�스???�데?�트
+        // 선택 텍스트 업데이트
         const checked = Array.from(checkboxes).filter(i => i.checked).map(i => i.nextSibling.textContent.trim());
         const selectedTextEl = document.getElementById('channelSelectedText');
         if (checked.length > 0) {
@@ -827,14 +835,14 @@
           selectedTextEl.style.color = 'var(--text-main)';
         }
 
-        // 메시지 링크 ?�팅
+        // 메시지 링크 셋팅
         if (msg.link) {
           document.getElementById('messageLink').value = msg.link;
         }
 
-        // ?�약 ?�간 ?�싱 �??�팅
+        // 예약 시간 파싱 및 셋팅
         if (msg.scheduled_at) {
-          // scheduled_at ?�식: "2026-04-30 10:00" ?�는 "2026-04-30T10:00"
+          // scheduled_at 형식: "2026-04-30 10:00" 또는 "2026-04-30T10:00"
           const normalized = msg.scheduled_at.replace('T', ' ');
           const [datePart, timePart] = normalized.split(' ');
           if (datePart && timePart) {
@@ -854,7 +862,7 @@
           }
         }
 
-        // Quill ?�디?�에 본문 ?�용 ?�입
+        // Quill 에디터에 본문 내용 삽입
         const waitForQuill = () => new Promise((resolve) => {
           const check = () => {
             if (quillEditor) {
@@ -871,7 +879,7 @@
           quillEditor.clipboard.dangerouslyPasteHTML(msg.content.replace(/\n/g, '<br>'));
         }
 
-        // 기존 첨�? ?��?지 ?�시
+        // 기존 첨부 이미지 표시
         if (msg.image_url) {
           let baseUrl = '';
           if (window.API_CONFIG && window.API_CONFIG.BASE_URL) {
@@ -907,8 +915,8 @@
         }
 
       } catch (error) {
-        console.error('메시지 로드 ?�패:', error);
-        alert('메시지 ?�보�?불러?�는 ???�패?�습?�다: ' + error.message);
+        console.error('메시지 로드 실패:', error);
+        alert('메시지 정보를 불러오는 데 실패했습니다: ' + error.message);
       }
     })();
   </script>
