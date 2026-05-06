@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -190,7 +190,7 @@
       const start=(currentPage-1)*ITEMS_PER_PAGE,pd=filteredData.slice(start,start+ITEMS_PER_PAGE);
       const ct='총 '+filteredData.length+'건';if(listCountMEl)listCountMEl.textContent=ct;
       if(!pd.length){mobileCardBody.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-muted);">검색 결과가 없습니다.</div>';return;}
-      mobileCardBody.innerHTML=pd.map(m=>{const ii=m.images>0?'<span class="img-icon">🖼</span>':'';const ah=m.status==='예약 대기'?`<a href="message_write.html?edit=${m.no}" class="btn btn-secondary btn-sm" onclick="event.stopPropagation();">수정</a>`:'';return`<div class="msg-card-item" onclick="location.href='message_detail.html?id=${m.no}'"><div class="msg-card-row"><span class="msg-card-channel">${chPrev(m.channel)}</span><span class="msg-card-status ${stCss(m.status)}">${m.status}</span></div><div class="msg-card-preview">${ii}${bodyPrev(m.body)}</div><div class="msg-card-row"><span class="msg-card-date">${shortDate(m.scheduledAt)} 발송</span><span class="msg-card-manage">${ah}</span></div></div>`;}).join('');
+      mobileCardBody.innerHTML=pd.map(m=>{const ii=m.images>0?'<img src="img/img.svg" class="img-icon" style="width:14px;height:14px;vertical-align:middle;margin-bottom:2px;opacity:0.6;">':'';const ah=m.status==='예약 대기'?`<a href="message_write.html?edit=${m.no}" class="btn btn-secondary btn-sm" onclick="event.stopPropagation();">수정</a>`:'';return`<div class="msg-card-item" onclick="location.href='message_detail.html?id=${m.no}'"><div class="msg-card-row"><span class="msg-card-channel">${chPrev(m.channel)}</span><span class="msg-card-status ${stCss(m.status)}">${m.status}</span></div><div class="msg-card-preview">${ii} ${bodyPrev(m.body)}</div><div class="msg-card-row"><span class="msg-card-date">${shortDate(m.scheduledAt)} 발송</span><span class="msg-card-manage">${ah}</span></div></div>`;}).join('');
     }
 
     function renderPagination(){

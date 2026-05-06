@@ -1836,7 +1836,7 @@ td .btn {
   .msg-filter-date-input {
     flex: 1; padding: 10px 12px; border: 1px solid var(--border-color);
     border-radius: 6px; font-size: 13px; color: var(--text-main);
-    background: #fff; cursor: pointer; text-align: center;
+    background: #fff; cursor: pointer; font-family: 'Pretendard', sans-serif;
   }
   .msg-filter-date-input:focus { border-color: var(--primary-color); outline: none; }
 
