@@ -113,7 +113,7 @@
           <div class="nav-section-title">시스템 공통 관리</div>
           <ul class="nav-menu">
             <li class="nav-item">
-              <a href="operator_mgmt.html" class="nav-link${isOperator ? ' active' : ''}">운영자 관리</a>
+              <a href="operator_mgmt.html" class="nav-link${isOperator ? ' active' : ''}">설정</a>
             </li>
             <li class="nav-item">
               <a href="activity_log.html" class="nav-link${isLog ? ' active' : ''}">활동 로그</a>
