@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -25,61 +25,32 @@
 
       <!-- Content Area -->
       <div class="main-content">
-
-        <!-- 예약 게시물 목록 카드 -->
         <div class="card">
-          <div class="flex items-center justify-between mb-20">
+          <!-- ===== 데스크톱 필터 (모바일 숨김) ===== -->
+          <div class="flex items-center justify-between mb-20 msg-desktop-filters">
             <div class="flex items-center gap-4">
-              <h2 class="card-title mb-0">목록 <span class="list-count">총 15건</span></h2>
+              <h2 class="card-title mb-0">목록 <span class="list-count">총 0건</span></h2>
             </div>
             <div class="flex items-center gap-3">
               <div class="d-flex gap-8 align-center">
                 <div class="search-input-wrapper">
                   <input type="text" class="form-control search-input-field" placeholder="메시지 검색">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" class="search-input-icon">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                </div>
-
-                <div class="select-wrapper">
-                  <select class="form-control search-select" id="channelFilter">
-                    <option>발송채널: 전체</option>
-                    <option># 공지사항</option>
-                    <option># 이벤트안내</option>
-                    <option># 업데이트</option>
-                    <option># 일반-수다</option>
-                  </select>
-                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-input-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </div>
                 <div class="select-wrapper">
-                  <select class="form-control search-select" id="statusFilter">
-                    <option>상태: 전체</option>
-                    <option>예약 대기</option>
-                    <option>발송 완료</option>
-                    <option>예약 취소</option>
-                  </select>
-                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
+                  <select class="form-control search-select" id="channelFilter"><option value="전체">발송채널: 전체</option></select>
+                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="select-wrapper">
+                  <select class="form-control search-select" id="statusFilter"><option>상태: 전체</option><option>예약 대기</option><option>발송 완료</option><option>예약 취소</option></select>
+                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
               </div>
               <div class="flex items-center gap-8">
                 <div class="daterange-picker" id="daterangePicker">
                   <div class="daterange-trigger" id="daterangeTrigger">
                     <span class="daterange-trigger-text" id="daterangeLabel">기간: 전체</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                      <line x1="16" y1="2" x2="16" y2="6"></line>
-                      <line x1="8" y1="2" x2="8" y2="6"></line>
-                      <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                   </div>
                   <div class="daterange-dropdown" id="daterangeDropdown">
                     <div class="daterange-calendars">
@@ -87,15 +58,13 @@
                         <div class="calendar-header">
                           <button type="button" class="cal-nav-btn" id="prevYear" title="이전 연도">«</button>
                           <button type="button" class="cal-nav-btn" id="prevMonth" title="이전 달">‹</button>
-                          <span class="calendar-title" id="calLeftTitle"></span>
-                          <span class="flex-1"></span>
+                          <span class="calendar-title" id="calLeftTitle"></span><span class="flex-1"></span>
                         </div>
                         <div class="calendar-grid" id="calLeftGrid"></div>
                       </div>
                       <div class="daterange-calendar" id="calendarRight">
                         <div class="calendar-header">
-                          <span class="flex-1"></span>
-                          <span class="calendar-title" id="calRightTitle"></span>
+                          <span class="flex-1"></span><span class="calendar-title" id="calRightTitle"></span>
                           <button type="button" class="cal-nav-btn" id="nextMonth" title="다음 달">›</button>
                           <button type="button" class="cal-nav-btn" id="nextYear" title="다음 연도">»</button>
                         </div>
@@ -108,449 +77,176 @@
                     </div>
                   </div>
                 </div>
-                <a href="message_write.html" class="btn btn-primary white-space-nowrap">새 메시지</a>
+                <a href="message_write.html" class="btn btn-primary white-space-nowrap msg-desktop-write-btn">새 메시지</a>
               </div>
             </div>
           </div>
-          <div class="table-container">
+
+          <!-- ===== 모바일 헤더 (데스크톱 숨김) ===== -->
+          <div class="msg-mobile-header" style="display:none;">
+            <h2 class="card-title mb-0">목록 <span class="list-count-m">총 0건</span></h2>
+            <button class="msg-filter-btn" id="mobileFilterBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+              필터
+            </button>
+          </div>
+
+          <!-- 데스크톱 테이블 -->
+          <div class="table-container msg-desktop-table">
             <table class="data-table">
-              <thead>
-                <tr>
-                  <th class="col-no">No.</th>
-                  <th class="col-channel">발송 채널</th>
-                  <th class="col-preview">메시지 미리보기</th>
-                  <th class="col-img">이미지</th>
-                  <th class="col-time">예약(발송) 시간</th>
-                  <th class="col-author">등록(발송)자</th>
-                  <th class="col-date">등록일</th>
-                  <th class="col-status">상태</th>
-                  <th class="col-action">관리</th>
-                </tr>
-              </thead>
-              <tbody id="messageTableBody">
-                <!-- JS로 동적 렌더링 -->
-              </tbody>
+              <thead><tr>
+                <th class="col-no">No.</th><th class="col-channel">발송 채널</th><th class="col-preview">메시지 미리보기</th>
+                <th class="col-img">이미지</th><th class="col-time">예약(발송) 시간</th><th class="col-author">등록(발송)자</th>
+                <th class="col-date">등록일</th><th class="col-status">상태</th><th class="col-action">관리</th>
+              </tr></thead>
+              <tbody id="messageTableBody"></tbody>
             </table>
           </div>
 
-          <!-- 페이지네이션 -->
-          <div class="pagination" id="pagination">
+          <!-- 모바일 카드 리스트 -->
+          <div class="msg-mobile-list" id="mobileCardList" style="display:none;">
+            <div class="msg-card-list" id="mobileCardListBody"></div>
           </div>
-        </div>
 
+          <div class="pagination" id="pagination"></div>
+        </div>
       </div>
     </main>
 
+    <!-- 모바일 FAB -->
+    <a href="message_write.html" class="msg-fab" style="display:none;text-decoration:none;">+</a>
+  </div>
+
+  <!-- 모바일 필터 오버레이 -->
+  <div class="msg-filter-overlay" id="mobileFilterOverlay">
+    <div class="msg-filter-panel">
+      <div class="msg-filter-panel-header"><h3>필터</h3><button class="msg-filter-panel-close" id="mobileFilterClose">&times;</button></div>
+      <div class="msg-filter-panel-body">
+        <div class="msg-filter-section">
+          <div class="search-input-wrapper" style="width:100%;">
+            <input type="text" class="form-control search-input-field" id="mFilterSearch" placeholder="메시지 검색">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-input-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+        </div>
+        <div class="msg-filter-section">
+          <div class="msg-filter-section-label">발송채널</div>
+          <div class="select-wrapper" style="width:100%;">
+            <select class="form-control search-select" id="mFilterChannel"><option value="전체">발송채널: 전체</option></select>
+            <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="msg-filter-section">
+          <div class="msg-filter-section-label">발송 상태</div>
+          <div class="msg-status-switches" id="mFilterStatusSwitches">
+            <button class="msg-status-sw active" data-val="all">전체</button>
+            <button class="msg-status-sw" data-val="예약 대기">예약 대기</button>
+            <button class="msg-status-sw" data-val="발송 완료">발송 완료</button>
+            <button class="msg-status-sw" data-val="예약 취소">예약 취소</button>
+          </div>
+        </div>
+        <div class="msg-filter-section">
+          <div class="msg-filter-section-label">발송 시간</div>
+          <div class="msg-filter-dates">
+            <input type="date" class="msg-filter-date-input" id="mFilterDateStart" placeholder="시작일">
+            <input type="date" class="msg-filter-date-input" id="mFilterDateEnd" placeholder="종료일">
+          </div>
+        </div>
+      </div>
+      <div class="msg-filter-panel-footer"><button class="btn btn-primary" id="mFilterApply">조회하기</button></div>
+    </div>
   </div>
 
   <script src="lnb.js"></script>
   <script src="api-client.js"></script>
   <script src="script.js"></script>
   <script>
-    // =============================================
-    //  메시지 목록 관리 (검색, 필터, 페이지네이션)
-    // =============================================
-
     const ITEMS_PER_PAGE = 15;
     let currentPage = 1;
     let originalData = [];
     let filteredData = [];
-
-    // DOM 참조
-    const searchInput = document.querySelector('.search-input-field');
+    const searchInput = document.querySelector('.msg-desktop-filters .search-input-field');
     const channelFilter = document.getElementById('channelFilter');
     const statusFilter = document.getElementById('statusFilter');
     const tableBody = document.getElementById('messageTableBody');
     const paginationEl = document.getElementById('pagination');
     const listCountEl = document.querySelector('.list-count');
+    const listCountMEl = document.querySelector('.list-count-m');
+    const mobileCardBody = document.getElementById('mobileCardListBody');
+    function isMobile(){return window.innerWidth<=1100;}
+    function chPrev(s){const p=s.split(', ');return p.length===1?p[0]:p[0]+' 외 '+(p.length-1);}
+    function bodyPrev(b){const t=b.replace(/\n/g,' ').replace(/\*\*/g,'');return t.length>50?t.substring(0,50)+'...':t;}
+    function shortDate(d){return d?d.substring(0,16):'-';}
+    function stClass(s){if(s==='예약 대기')return'text-primary-color font-weight-500';if(s==='발송 완료')return'text-main-color font-weight-500';if(s==='예약 취소')return'text-muted-color font-weight-500';return'';}
+    function stCss(s){if(s==='예약 대기')return'pending';if(s==='발송 완료')return'sent';if(s==='예약 취소')return'cancelled';if(s==='발송 실패')return'failed';return'';}
 
-    // ---- 채널 미리보기 텍스트 ----
-    function channelPreview(channelStr) {
-      const parts = channelStr.split(', ');
-      if (parts.length === 1) return parts[0];
-      return parts[0] + ' 외 ' + (parts.length - 1);
+    function renderTable(){
+      const start=(currentPage-1)*ITEMS_PER_PAGE,pd=filteredData.slice(start,start+ITEMS_PER_PAGE);
+      const ct='총 '+filteredData.length+'건';listCountEl.textContent=ct;if(listCountMEl)listCountMEl.textContent=ct;
+      if(!pd.length){tableBody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);">검색 결과가 없습니다.</td></tr>';return;}
+      tableBody.innerHTML=pd.map(m=>{const mut=m.status==='예약 취소';const pc=mut?'col-preview text-muted-color':'col-preview';const lc=mut?'text-muted-color':'';const it=m.images>0?'📎 '+m.images:'-';const ah=m.status==='예약 대기'?'<a href="message_write.html?edit='+m.no+'" class="btn btn-secondary btn-sm">수정</a>':'<span class="text-muted-color font-size-12">-</span>';return`<tr><td class="col-no">${m.no}</td><td class="col-channel">${chPrev(m.channel)}</td><td class="${pc}"><a href="message_detail.html?id=${m.no}" class="${lc}">${bodyPrev(m.body)}</a></td><td class="col-img">${it}</td><td class="col-time">${shortDate(m.scheduledAt)}</td><td class="col-author">${m.author}</td><td class="col-date">${shortDate(m.createdAt)}</td><td class="col-status ${stClass(m.status)}">${m.status}</td><td class="col-action">${ah}</td></tr>`;}).join('');
     }
 
-    // ---- 메시지 본문 미리보기 (최대 50자) ----
-    function bodyPreview(body) {
-      const text = body.replace(/\n/g, ' ').replace(/\*\*/g, '');
-      return text.length > 50 ? text.substring(0, 50) + '...' : text;
+    function renderMobileCards(){
+      const start=(currentPage-1)*ITEMS_PER_PAGE,pd=filteredData.slice(start,start+ITEMS_PER_PAGE);
+      const ct='총 '+filteredData.length+'건';if(listCountMEl)listCountMEl.textContent=ct;
+      if(!pd.length){mobileCardBody.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-muted);">검색 결과가 없습니다.</div>';return;}
+      mobileCardBody.innerHTML=pd.map(m=>{const ii=m.images>0?'<span class="img-icon">🖼</span>':'';const ah=m.status==='예약 대기'?`<a href="message_write.html?edit=${m.no}" class="btn btn-secondary btn-sm" onclick="event.stopPropagation();">수정</a>`:'';return`<div class="msg-card-item" onclick="location.href='message_detail.html?id=${m.no}'"><div class="msg-card-row"><span class="msg-card-channel">${chPrev(m.channel)}</span><span class="msg-card-status ${stCss(m.status)}">${m.status}</span></div><div class="msg-card-preview">${ii}${bodyPrev(m.body)}</div><div class="msg-card-row"><span class="msg-card-date">${shortDate(m.scheduledAt)} 발송</span><span class="msg-card-manage">${ah}</span></div></div>`;}).join('');
     }
 
-    // ---- 날짜 포맷 (초 제거) ----
-    function shortDate(dateStr) {
-      if (!dateStr) return '-';
-      return dateStr.substring(0, 16);
+    function renderPagination(){
+      const tp=Math.max(1,Math.ceil(filteredData.length/ITEMS_PER_PAGE));if(currentPage>tp)currentPage=tp;
+      const mv=isMobile()?5:10;let sp=Math.max(1,currentPage-Math.floor(mv/2)),ep=Math.min(tp,sp+mv-1);if(ep-sp<mv-1)sp=Math.max(1,ep-mv+1);
+      let h='';h+=`<button class="page-btn" ${currentPage===1?'disabled':''} onclick="goPage(1)"><img src="img/double-left.svg" alt="처음"></button>`;h+=`<button class="page-btn" ${currentPage===1?'disabled':''} onclick="goPage(${currentPage-1})"><img src="img/arrow-left.svg" alt="이전"></button>`;
+      for(let i=sp;i<=ep;i++)h+=`<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+      h+=`<button class="page-btn" ${currentPage===tp?'disabled':''} onclick="goPage(${currentPage+1})"><img src="img/arrow-right.svg" alt="다음"></button>`;h+=`<button class="page-btn" ${currentPage===tp?'disabled':''} onclick="goPage(${tp})"><img src="img/double-right.svg" alt="끝"></button>`;
+      paginationEl.innerHTML=h;
     }
+    function goPage(p){const tp=Math.max(1,Math.ceil(filteredData.length/ITEMS_PER_PAGE));if(p<1||p>tp)return;currentPage=p;renderAll();}
+    function renderAll(){renderTable();renderMobileCards();renderPagination();}
 
-    // ---- 상태별 클래스 ----
-    function statusClass(status) {
-      if (status === '예약 대기') return 'text-primary-color font-weight-500';
-      if (status === '발송 완료') return 'text-main-color font-weight-500';
-      if (status === '예약 취소') return 'text-muted-color font-weight-500';
-      return '';
+    let dateRangeStart=null,dateRangeEnd=null;
+    function applyFilters(){
+      const kw=searchInput.value.trim().toLowerCase(),cv=channelFilter.value,sv=statusFilter.value;
+      filteredData=originalData.filter(m=>{if(kw){const h=(m.body+' '+m.channel+' '+m.author).toLowerCase();if(!h.includes(kw))return false;}if(cv!=='전체'){if(!m.channel.includes(cv))return false;}if(sv!=='상태: 전체'){if(m.status!==sv)return false;}if(dateRangeStart&&dateRangeEnd){const d=new Date(m.scheduledAt.replace(' ','T')),s=new Date(dateRangeStart),e=new Date(dateRangeEnd);e.setHours(23,59,59,999);if(d<s||d>e)return false;}return true;});
+      currentPage=1;renderAll();
     }
+    searchInput.addEventListener('input',applyFilters);channelFilter.addEventListener('change',applyFilters);statusFilter.addEventListener('change',applyFilters);
 
-    // ---- 테이블 렌더링 ----
-    function renderTable() {
-      const start = (currentPage - 1) * ITEMS_PER_PAGE;
-      const end = start + ITEMS_PER_PAGE;
-      const pageData = filteredData.slice(start, end);
+    // ---- 모바일 필터 ----
+    const fOvl=document.getElementById('mobileFilterOverlay');
+    document.getElementById('mobileFilterBtn').addEventListener('click',()=>{fOvl.classList.add('show');document.body.style.overflow='hidden';});
+    function closeFP(){fOvl.classList.remove('show');document.body.style.overflow='';}
+    document.getElementById('mobileFilterClose').addEventListener('click',closeFP);
+    fOvl.addEventListener('click',e=>{if(e.target===fOvl)closeFP();});
+    document.getElementById('mFilterStatusSwitches').addEventListener('click',e=>{const b=e.target.closest('.msg-status-sw');if(!b)return;document.querySelectorAll('#mFilterStatusSwitches .msg-status-sw').forEach(x=>x.classList.remove('active'));b.classList.add('active');});
+    document.getElementById('mFilterApply').addEventListener('click',()=>{
+      searchInput.value=document.getElementById('mFilterSearch').value;
+      channelFilter.value=document.getElementById('mFilterChannel').value;
+      const ms=document.querySelector('#mFilterStatusSwitches .msg-status-sw.active')?.dataset.val||'all';
+      statusFilter.value=ms==='all'?'상태: 전체':ms;
+      dateRangeStart=document.getElementById('mFilterDateStart').value||null;
+      dateRangeEnd=document.getElementById('mFilterDateEnd').value||null;
+      closeFP();applyFilters();
+    });
 
-      listCountEl.textContent = '총 ' + filteredData.length + '건';
+    // ---- 데스크톱 달력 ----
+    (function(){const tr=document.getElementById('daterangeTrigger'),dd=document.getElementById('daterangeDropdown'),lb=document.getElementById('daterangeLabel'),cb=document.getElementById('daterangeConfirm'),rb=document.getElementById('daterangeReset');let ld=new Date(),rd=new Date(ld.getFullYear(),ld.getMonth()+1,1),ss=null,se=null;tr.addEventListener('click',()=>{const h=dd.style.display==='none'||dd.style.display==='';dd.style.display=h?'block':'none';tr.classList.toggle('active');});document.addEventListener('click',e=>{if(!e.target.closest('#daterangePicker')){dd.style.display='none';tr.classList.remove('active');}});document.getElementById('prevMonth').onclick=()=>{ld.setMonth(ld.getMonth()-1);rd.setMonth(rd.getMonth()-1);rc();};document.getElementById('nextMonth').onclick=()=>{ld.setMonth(ld.getMonth()+1);rd.setMonth(rd.getMonth()+1);rc();};document.getElementById('prevYear').onclick=()=>{ld.setFullYear(ld.getFullYear()-1);rd.setFullYear(rd.getFullYear()-1);rc();};document.getElementById('nextYear').onclick=()=>{ld.setFullYear(ld.getFullYear()+1);rd.setFullYear(rd.getFullYear()+1);rc();};rb.onclick=()=>{ss=null;se=null;dateRangeStart=null;dateRangeEnd=null;lb.textContent='기간: 전체';cb.disabled=true;rc();applyFilters();};cb.onclick=()=>{if(ss&&se){dateRangeStart=fm(ss);dateRangeEnd=fm(se);lb.textContent=dateRangeStart+' ~ '+dateRangeEnd;dd.style.display='none';tr.classList.remove('active');applyFilters();}};function fm(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}function odc(d){if(!ss||(ss&&se)){ss=d;se=null;}else{if(d<ss){se=ss;ss=d;}else{se=d;}}cb.disabled=!(ss&&se);rc();}function rc(){rco('calLeftGrid','calLeftTitle',ld);rco('calRightGrid','calRightTitle',rd);}function rco(gi,ti,ref){const g=document.getElementById(gi),t=document.getElementById(ti),y=ref.getFullYear(),mo=ref.getMonth();t.textContent=y+'년 '+String(mo+1).padStart(2,'0')+'월';g.innerHTML='';['일','월','화','수','목','금','토'].forEach(d=>{const e=document.createElement('div');e.className='cal-weekday';e.textContent=d;g.appendChild(e);});const fd=new Date(y,mo,1).getDay(),di=new Date(y,mo+1,0).getDate(),dp=new Date(y,mo,0).getDate();for(let i=0;i<fd;i++){const e=document.createElement('div');e.className='cal-day other-month';e.textContent=dp-fd+i+1;g.appendChild(e);}for(let i=1;i<=di;i++){const e=document.createElement('div'),td=new Date(y,mo,i);let c='cal-day';if(ss&&se){if(td.getTime()===ss.getTime())c+=' range-start selected';else if(td.getTime()===se.getTime())c+=' range-end selected';else if(td>ss&&td<se)c+=' in-range';}else if(ss&&td.getTime()===ss.getTime())c+=' selected';const now=new Date();if(td.getFullYear()===now.getFullYear()&&td.getMonth()===now.getMonth()&&td.getDate()===now.getDate())c+=' today';e.className=c;e.textContent=i;e.onclick=()=>odc(new Date(y,mo,i));g.appendChild(e);}}rc();})();
 
-      if (pageData.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:var(--text-muted);">검색 결과가 없습니다.</td></tr>';
-        return;
-      }
-
-      tableBody.innerHTML = pageData.map(msg => {
-        const isMuted = msg.status === '예약 취소';
-        const previewClass = isMuted ? 'col-preview text-muted-color' : 'col-preview';
-        const linkClass = isMuted ? 'text-muted-color' : '';
-        const imgText = msg.images > 0 ? '📎 ' + msg.images : '-';
-        const actionHtml = msg.status === '예약 대기'
-          ? '<a href="message_write.html?edit=' + msg.no + '" class="btn btn-secondary btn-sm">수정</a>'
-          : '<span class="text-muted-color font-size-12">-</span>';
-
-        return `<tr>
-          <td class="col-no">${msg.no}</td>
-          <td class="col-channel">${channelPreview(msg.channel)}</td>
-          <td class="${previewClass}">
-            <a href="message_detail.html?id=${msg.no}" class="${linkClass}">${bodyPreview(msg.body)}</a>
-          </td>
-          <td class="col-img">${imgText}</td>
-          <td class="col-time">${shortDate(msg.scheduledAt)}</td>
-          <td class="col-author">${msg.author}</td>
-          <td class="col-date">${shortDate(msg.createdAt)}</td>
-          <td class="col-status ${statusClass(msg.status)}">${msg.status}</td>
-          <td class="col-action">${actionHtml}</td>
-        </tr>`;
-      }).join('');
+    // ---- 초기화 ----
+    let channelMap={};
+    async function init(){
+      const up=new URLSearchParams(window.location.search),at=up.get('title')||'RO1';
+      document.querySelector('.page-title').textContent=`${at} - 메시지 예약/관리`;
+      const ct=JSON.parse(localStorage.getItem('configuredTitles')||'["RO1"]');
+      if(!ct.includes(at)){tableBody.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:100px 0;color:#666;"><div style="font-size:15px;margin-bottom:16px;">연동된 서버가 없습니다.</div><button class="btn btn-primary" onclick="location.href='title_settings.html?title=${encodeURIComponent(at)}'">설정으로 이동</button></td></tr>`;mobileCardBody.innerHTML='<div style="text-align:center;padding:60px 16px;color:#666;">연동된 서버가 없습니다.</div>';listCountEl.textContent='총 0건';if(listCountMEl)listCountMEl.textContent='총 0건';return;}
+      try{
+        try{const chs=await fetchChannels();channelFilter.innerHTML='<option value="전체">발송채널: 전체</option>';const mCh=document.getElementById('mFilterChannel');mCh.innerHTML='<option value="전체">발송채널: 전체</option>';chs.forEach(ch=>{channelMap[ch.id]=ch.name;const o1=document.createElement('option');o1.value=ch.name;o1.textContent='# '+ch.name;channelFilter.appendChild(o1);mCh.appendChild(o1.cloneNode(true));});}catch(e){console.error("채널 로드 실패:",e);}
+        const resp=await fetchMessages({limit:1000}),items=resp.data||[];
+        originalData=items.map(it=>{let sk=it.status;if(sk==='pending')sk='예약 대기';else if(sk==='sent')sk='발송 완료';else if(sk==='cancelled')sk='예약 취소';else if(sk==='failed')sk='발송 실패';let cd=it.channel_id;if(cd){const ids=cd.toString().split(',').map(i=>i.trim());cd=ids.map(i=>channelMap[i]?'#'+channelMap[i]:i).join(', ');}return{no:it.id,channel:cd,body:it.content,images:it.image_url?it.image_url.split(',').length:0,scheduledAt:it.scheduled_at,createdAt:it.created_at,author:it.author||'알 수 없음',status:sk};});
+        filteredData=[...originalData];renderAll();
+      }catch(e){console.error(e);tableBody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;color:red;">데이터를 불러오는데 실패했습니다.</td></tr>';}
     }
-
-    // ---- 페이지네이션 렌더링 ----
-    function renderPagination() {
-      const totalPages = Math.max(1, Math.ceil(filteredData.length / ITEMS_PER_PAGE));
-      if (currentPage > totalPages) currentPage = totalPages;
-
-      let html = '';
-      html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(1)"><img src="img/double-left.svg" alt="처음"></button>`;
-      html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(${currentPage - 1})"><img src="img/arrow-left.svg" alt="이전"></button>`;
-
-      let startPage = Math.max(1, currentPage - 4);
-      let endPage = Math.min(totalPages, startPage + 9);
-      if (endPage - startPage < 9) startPage = Math.max(1, endPage - 9);
-
-      for (let i = startPage; i <= endPage; i++) {
-        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
-      }
-
-      html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goPage(${currentPage + 1})"><img src="img/arrow-right.svg" alt="다음"></button>`;
-      html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goPage(${totalPages})"><img src="img/double-right.svg" alt="끝"></button>`;
-
-      paginationEl.innerHTML = html;
-    }
-
-    function goPage(page) {
-      const totalPages = Math.max(1, Math.ceil(filteredData.length / ITEMS_PER_PAGE));
-      if (page < 1 || page > totalPages) return;
-      currentPage = page;
-      renderTable();
-      renderPagination();
-    }
-
-    // ---- 필터 적용 ----
-    function applyFilters() {
-      const keyword = searchInput.value.trim().toLowerCase();
-      const channelVal = channelFilter.value;
-      const statusVal = statusFilter.value;
-
-      filteredData = originalData.filter(msg => {
-        // 키워드 검색 (본문 + 채널 + 작성자)
-        if (keyword) {
-          const haystack = (msg.body + ' ' + msg.channel + ' ' + msg.author).toLowerCase();
-          if (!haystack.includes(keyword)) return false;
-        }
-
-        // 채널 필터
-        if (channelVal !== '전체') {
-          if (!msg.channel.includes(channelVal)) return false;
-        }
-
-        // 상태 필터
-        if (statusVal !== '상태: 전체') {
-          if (msg.status !== statusVal) return false;
-        }
-
-        // 기간 필터
-        if (dateRangeStart && dateRangeEnd) {
-          const msgDate = new Date(msg.scheduledAt.replace(' ', 'T'));
-          const start = new Date(dateRangeStart);
-          const end = new Date(dateRangeEnd);
-          end.setHours(23, 59, 59, 999);
-          if (msgDate < start || msgDate > end) return false;
-        }
-
-        return true;
-      });
-
-      currentPage = 1;
-      renderTable();
-      renderPagination();
-    }
-
-    // ---- 이벤트 바인딩 ----
-    searchInput.addEventListener('input', applyFilters);
-    channelFilter.addEventListener('change', applyFilters);
-    statusFilter.addEventListener('change', applyFilters);
-
-    // ---- 기간 검색 변수 ----
-    let dateRangeStart = null;
-    let dateRangeEnd = null;
-
-    // ---- 기간 검색 달력 로직 ----
-    (function () {
-      const trigger = document.getElementById('daterangeTrigger');
-      const dropdown = document.getElementById('daterangeDropdown');
-      const label = document.getElementById('daterangeLabel');
-      const confirmBtn = document.getElementById('daterangeConfirm');
-      const resetBtn = document.getElementById('daterangeReset');
-
-      let leftDate = new Date();
-      let rightDate = new Date(leftDate.getFullYear(), leftDate.getMonth() + 1, 1);
-      let selStart = null;
-      let selEnd = null;
-
-      trigger.addEventListener('click', () => {
-        const isHidden = dropdown.style.display === 'none' || dropdown.style.display === '';
-        dropdown.style.display = isHidden ? 'block' : 'none';
-        trigger.classList.toggle('active');
-      });
-
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('#daterangePicker')) {
-          dropdown.style.display = 'none';
-          trigger.classList.remove('active');
-        }
-      });
-
-      document.getElementById('prevMonth').onclick = () => { leftDate.setMonth(leftDate.getMonth() - 1); rightDate.setMonth(rightDate.getMonth() - 1); renderCalendars(); };
-      document.getElementById('nextMonth').onclick = () => { leftDate.setMonth(leftDate.getMonth() + 1); rightDate.setMonth(rightDate.getMonth() + 1); renderCalendars(); };
-      document.getElementById('prevYear').onclick = () => { leftDate.setFullYear(leftDate.getFullYear() - 1); rightDate.setFullYear(rightDate.getFullYear() - 1); renderCalendars(); };
-      document.getElementById('nextYear').onclick = () => { leftDate.setFullYear(leftDate.getFullYear() + 1); rightDate.setFullYear(rightDate.getFullYear() + 1); renderCalendars(); };
-
-      resetBtn.onclick = () => {
-        selStart = null;
-        selEnd = null;
-        dateRangeStart = null;
-        dateRangeEnd = null;
-        label.textContent = '기간: 전체';
-        confirmBtn.disabled = true;
-        renderCalendars();
-        applyFilters();
-      };
-
-      confirmBtn.onclick = () => {
-        if (selStart && selEnd) {
-          dateRangeStart = formatDateStr(selStart);
-          dateRangeEnd = formatDateStr(selEnd);
-          label.textContent = dateRangeStart + ' ~ ' + dateRangeEnd;
-          dropdown.style.display = 'none';
-          trigger.classList.remove('active');
-          applyFilters();
-        }
-      };
-
-      function formatDateStr(d) {
-        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-      }
-
-      function onDayClick(date) {
-        if (!selStart || (selStart && selEnd)) {
-          selStart = date;
-          selEnd = null;
-        } else {
-          if (date < selStart) {
-            selEnd = selStart;
-            selStart = date;
-          } else {
-            selEnd = date;
-          }
-        }
-        confirmBtn.disabled = !(selStart && selEnd);
-        renderCalendars();
-      }
-
-      function renderCalendars() {
-        renderOneCalendar('calLeftGrid', 'calLeftTitle', leftDate);
-        renderOneCalendar('calRightGrid', 'calRightTitle', rightDate);
-      }
-
-      function renderOneCalendar(gridId, titleId, refDate) {
-        const grid = document.getElementById(gridId);
-        const title = document.getElementById(titleId);
-        const year = refDate.getFullYear();
-        const month = refDate.getMonth();
-        title.textContent = year + '년 ' + String(month + 1).padStart(2, '0') + '월';
-
-        grid.innerHTML = '';
-        const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-        weekdays.forEach(d => {
-          const el = document.createElement('div');
-          el.className = 'cal-weekday';
-          el.textContent = d;
-          grid.appendChild(el);
-        });
-
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const daysInPrevMonth = new Date(year, month, 0).getDate();
-
-        for (let i = 0; i < firstDay; i++) {
-          const el = document.createElement('div');
-          el.className = 'cal-day other-month';
-          el.textContent = daysInPrevMonth - firstDay + i + 1;
-          grid.appendChild(el);
-        }
-
-        for (let i = 1; i <= daysInMonth; i++) {
-          const el = document.createElement('div');
-          const thisDate = new Date(year, month, i);
-          let cls = 'cal-day';
-
-          if (selStart && selEnd) {
-            if (thisDate.getTime() === selStart.getTime()) cls += ' range-start selected';
-            else if (thisDate.getTime() === selEnd.getTime()) cls += ' range-end selected';
-            else if (thisDate > selStart && thisDate < selEnd) cls += ' in-range';
-          } else if (selStart && thisDate.getTime() === selStart.getTime()) {
-            cls += ' selected';
-          }
-
-          const today = new Date();
-          if (thisDate.getFullYear() === today.getFullYear() && thisDate.getMonth() === today.getMonth() && thisDate.getDate() === today.getDate()) {
-            cls += ' today';
-          }
-
-          el.className = cls;
-          el.textContent = i;
-          el.onclick = () => onDayClick(new Date(year, month, i));
-          grid.appendChild(el);
-        }
-      }
-
-      renderCalendars();
-    })();
-
-    let channelMap = {};
-
-    async function init() {
-      // URL 파라미터에서 현재 타이틀 확인
-      const urlParams = new URLSearchParams(window.location.search);
-      const activeTitle = urlParams.get('title') || 'RO1'; // 기본값 RO1
-
-      // 페이지 타이틀 변경
-      document.querySelector('.page-title').textContent = `${activeTitle} - 메시지 예약/관리`;
-
-      // 연동 완료된 타이틀 목록 확인 (RO1은 기본 연동)
-      const configuredTitles = JSON.parse(localStorage.getItem('configuredTitles') || '["RO1"]');
-      const isConfigured = configuredTitles.includes(activeTitle);
-
-      // 서버 연동이 안 된 타이틀 처리
-      if (!isConfigured) {
-        // 전역 tableBody 변수 사용 (id="messageTableBody")
-        tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:100px 0; color:#666;">
-          <div style="font-size:15px; margin-bottom:16px; color:#555;">연동된 서버가 없습니다. 기능 사용을 위해 타이틀별 설정을 먼저 진행해 주세요.</div>
-          <button class="btn btn-primary" onclick="location.href='title_settings.html?title=${encodeURIComponent(activeTitle)}'">설정으로 이동</button>
-        </td></tr>`;
-
-        // 검색 필터 및 새 메시지 버튼 비활성화
-        document.querySelector('.search-input-field').disabled = true;
-        document.getElementById('channelFilter').disabled = true;
-        document.getElementById('statusFilter').disabled = true;
-
-        const daterangeTrigger = document.getElementById('daterangeTrigger');
-        if (daterangeTrigger) {
-          daterangeTrigger.style.pointerEvents = 'none';
-          daterangeTrigger.style.opacity = '0.5';
-        }
-
-        const writeBtn = document.querySelector('a[href="message_write.html"]');
-        if (writeBtn) {
-          writeBtn.classList.add('disabled');
-          writeBtn.style.pointerEvents = 'none';
-          writeBtn.style.opacity = '0.5';
-          writeBtn.title = '타이틀별 설정을 먼저 완료해 주세요.';
-          writeBtn.removeAttribute('href'); // 링크 속성 완전 제거
-        }
-
-        // 페이지네이션 제거
-        const paginationEl = document.getElementById('pagination');
-        if (paginationEl) paginationEl.innerHTML = '';
-
-        document.querySelector('.list-count').textContent = '총 0건';
-        return; // 데이터 통신 중단
-      }
-
-      try {
-        // 채널 목록 가져오기 및 맵핑
-        try {
-          const channels = await fetchChannels();
-          const filterSelect = document.getElementById('channelFilter');
-
-          // 기존 하드코딩된 옵션 제거 및 동적 생성
-          filterSelect.innerHTML = '<option value="전체">발송채널: 전체</option>';
-
-          channels.forEach(ch => {
-            channelMap[ch.id] = ch.name;
-            const option = document.createElement('option');
-            option.value = ch.name;
-            option.textContent = '# ' + ch.name;
-            filterSelect.appendChild(option);
-          });
-        } catch (err) {
-          console.error("채널 목록 로드 실패:", err);
-        }
-
-        const response = await fetchMessages({ limit: 1000 });
-        const items = response.data || [];
-        originalData = items.map(item => {
-          // 상태 문자열 변환
-          let statusKor = item.status;
-          if (item.status === 'pending') statusKor = '예약 대기';
-          else if (item.status === 'sent') statusKor = '발송 완료';
-          else if (item.status === 'cancelled') statusKor = '예약 취소';
-          else if (item.status === 'failed') statusKor = '발송 실패';
-
-          // 채널명 변환
-          let channelDisplay = item.channel_id;
-          if (item.channel_id) {
-            const ids = item.channel_id.toString().split(',').map(id => id.trim());
-            channelDisplay = ids.map(id => channelMap[id] ? '#' + channelMap[id] : id).join(', ');
-          }
-
-          return {
-            no: item.id,
-            channel: channelDisplay,
-            body: item.content,
-            images: item.image_url ? item.image_url.split(',').length : 0,
-            scheduledAt: item.scheduled_at,
-            createdAt: item.created_at,
-            author: item.author || '알 수 없음',
-            status: statusKor
-          };
-        });
-        filteredData = [...originalData];
-        renderTable();
-        renderPagination();
-      } catch (err) {
-        console.error(err);
-        tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:red;">데이터를 불러오는데 실패했습니다. 봇 서버가 실행 중인지 확인하세요.</td></tr>';
-      }
-    }
-
     init();
   </script>
 </body>
-
 </html>
