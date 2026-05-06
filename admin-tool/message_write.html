@@ -577,7 +577,8 @@
             images: images.length > 0 ? images : undefined,
             scheduledAt: scheduledTime,
             timezone: timezone,
-            author: (getStoredUser() && getStoredUser().loginId) ? getStoredUser().loginId : '관리자', title: document.querySelector('.lnb-menu-item.active .lnb-menu-text') ? document.querySelector('.lnb-menu-item.active .lnb-menu-text').textContent : '-', title: document.querySelector('.lnb-menu-item.active .lnb-menu-text') ? document.querySelector('.lnb-menu-item.active .lnb-menu-text').textContent : '-'
+            author: (getStoredUser() && getStoredUser().loginId) ? getStoredUser().loginId : '관리자',
+            title: new URLSearchParams(window.location.search).get('title') || 'RO1'
           });
           showToast("?�택?�신 채널??메시지가 ?�약발송 ?�록?�었?�니??");
         }
@@ -611,7 +612,8 @@
             content: content,
             link: link || "",
             images: images.length > 0 ? images : undefined,
-            author: (getStoredUser() && getStoredUser().loginId) ? getStoredUser().loginId : '관리자', title: document.querySelector('.lnb-menu-item.active .lnb-menu-text') ? document.querySelector('.lnb-menu-item.active .lnb-menu-text').textContent : '-', title: document.querySelector('.lnb-menu-item.active .lnb-menu-text') ? document.querySelector('.lnb-menu-item.active .lnb-menu-text').textContent : '-'
+            author: (getStoredUser() && getStoredUser().loginId) ? getStoredUser().loginId : '관리자',
+            title: new URLSearchParams(window.location.search).get('title') || 'RO1'
           });
           showToast("?�택?�신 채널??메시지가 발송?�었?�니??");
           setTimeout(() => window.location.href = 'msg-mgmt.html', 1500);
