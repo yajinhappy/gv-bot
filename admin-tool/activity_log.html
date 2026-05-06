@@ -655,133 +655,137 @@
     const ITEMS_PER_PAGE = 15;
     let currentPage = 1, totalPages = 1, totalItems = 0, isMasked = true, channelMap = {};
     const TYPE_COLORS = {
-      '메시지 발송': {bg:'#E0F2FE',color:'#0284C7'},'예약 등록': {bg:'#FEF3C7',color:'#D97706'},
-      '메시지 수정': {bg:'#DBEAFE',color:'#2563EB'},'예약 취소': {bg:'#FEE2E2',color:'#DC2626'},
-      '메시지 삭제': {bg:'#FEE2E2',color:'#DC2626'},'운영자 등록': {bg:'#F0FDF4',color:'#16A34A'},
-      '운영자 수정': {bg:'#F3E8FF',color:'#9333EA'},'비밀번호 변경': {bg:'#FFF7ED',color:'#EA580C'},
-      '로그인': {bg:'#F1F5F9',color:'#475569'},
+      '메시지 발송': { bg: '#E0F2FE', color: '#0284C7' }, '예약 등록': { bg: '#FEF3C7', color: '#D97706' },
+      '메시지 수정': { bg: '#DBEAFE', color: '#2563EB' }, '예약 취소': { bg: '#FEE2E2', color: '#DC2626' },
+      '메시지 삭제': { bg: '#FEE2E2', color: '#DC2626' }, '운영자 등록': { bg: '#F0FDF4', color: '#16A34A' },
+      '운영자 수정': { bg: '#F3E8FF', color: '#9333EA' }, '비밀번호 변경': { bg: '#FFF7ED', color: '#EA580C' },
+      '로그인': { bg: '#F1F5F9', color: '#475569' },
     };
-    function getTypeBadge(t){const c=TYPE_COLORS[t]||{bg:'#F1F5F9',color:'#475569'};return `<span class="badge-role" style="background:${c.bg};color:${c.color};">${t}</span>`;}
-    function getResultHtml(r,d){if(r==='success')return '<span style="color:#16A34A;font-weight:600;">성공</span>';return `<span style="color:#DC2626;font-weight:600;">실패${d?' ('+d+')':''}</span>`;}
-    function truncate(s,l){if(!s||s==='-')return '-';return s.length>l?s.substring(0,l)+'...':s;}
-    function maskIp(ip){if(!ip||ip==='-')return '-';if(!isMasked)return ip;const p=ip.split('.');if(p.length===4)return p[0].substring(0,3)+'.***.***.***';return ip.substring(0,3)+'***';}
-    function getChannelName(id){if(!id||id==='-')return '-';return channelMap[id]?'#'+channelMap[id]:id;}
-    function isMobile(){return window.innerWidth<=1100;}
+    function getTypeBadge(t) { const c = TYPE_COLORS[t] || { bg: '#F1F5F9', color: '#475569' }; return `<span class="badge-role" style="background:${c.bg};color:${c.color};">${t}</span>`; }
+    function getResultHtml(r, d) { if (r === 'success') return '<span style="color:#16A34A;font-weight:600;">성공</span>'; return `<span style="color:#DC2626;font-weight:600;">실패${d ? ' (' + d + ')' : ''}</span>`; }
+    function truncate(s, l) { if (!s || s === '-') return '-'; return s.length > l ? s.substring(0, l) + '...' : s; }
+    function maskIp(ip) { if (!ip || ip === '-') return '-'; if (!isMasked) return ip; const p = ip.split('.'); if (p.length === 4) return p[0].substring(0, 3) + '.***.***.***'; return ip.substring(0, 3) + '***'; }
+    function getChannelName(id) { if (!id || id === '-') return '-'; return channelMap[id] ? '#' + channelMap[id] : id; }
+    function isMobile() { return window.innerWidth <= 1100; }
 
-    async function loadLogs(){
-      const tbody=document.getElementById('logTableBody');
-      tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;color:#999;">로딩 중...</td></tr>';
-      const params={page:currentPage,limit:ITEMS_PER_PAGE};
-      const fType=document.getElementById('filterType').value;
-      const fTitle=document.getElementById('filterTitle').value;
-      const fLogin=document.getElementById('filterLoginId').value.trim();
-      if(fType!=='all')params.actionType=fType;
-      if(fTitle!=='all')params.targetTitle=fTitle;
-      if(fLogin)params.loginId=fLogin;
-      if(dateRangeStart)params.dateFrom=dateRangeStart;
-      if(dateRangeEnd)params.dateTo=dateRangeEnd;
-      try{
-        const result=await fetchActivityLogs(params);
-        const logs=result.data||[];
-        totalItems=result.pagination?.total||0;
-        totalPages=result.pagination?.totalPages||1;
-        const mBody=document.getElementById('logMobileCardListBody');
-        if(logs.length===0){
-          tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;color:#999;">활동 로그가 없습니다.</td></tr>';
-          if(mBody)mBody.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-muted);">활동 로그가 없습니다.</div>';
-          renderPagination();return;
+    async function loadLogs() {
+      const tbody = document.getElementById('logTableBody');
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#999;">로딩 중...</td></tr>';
+      const params = { page: currentPage, limit: ITEMS_PER_PAGE };
+      const fType = document.getElementById('filterType').value;
+      const fTitle = document.getElementById('filterTitle').value;
+      const fLogin = document.getElementById('filterLoginId').value.trim();
+      if (fType !== 'all') params.actionType = fType;
+      if (fTitle !== 'all') params.targetTitle = fTitle;
+      if (fLogin) params.loginId = fLogin;
+      if (dateRangeStart) params.dateFrom = dateRangeStart;
+      if (dateRangeEnd) params.dateTo = dateRangeEnd;
+      try {
+        const result = await fetchActivityLogs(params);
+        const logs = result.data || [];
+        totalItems = result.pagination?.total || 0;
+        totalPages = result.pagination?.totalPages || 1;
+        const mBody = document.getElementById('logMobileCardListBody');
+        if (logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#999;">활동 로그가 없습니다.</td></tr>';
+          if (mBody) mBody.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">활동 로그가 없습니다.</div>';
+          renderPagination(); return;
         }
-        let html='',mHtml='';
-        logs.forEach((log,idx)=>{
-          const no=totalItems-((currentPage-1)*ITEMS_PER_PAGE)-idx;
-          const ch=getChannelName(log.target_channel);
-          const dt=log.detail||'-';
-          const dtSafe=dt.replace(/"/g,'&quot;');
-          html+=`<tr><td class="col-no">${no}</td><td>${log.created_at||'-'}</td><td>${getTypeBadge(log.action_type)}</td><td>${log.login_id||'-'}</td><td>${log.target_title||'-'}</td><td>${ch}</td><td class="col-detail" title="${dtSafe}">${truncate(dt,20)}</td><td>${maskIp(log.ip_address)}</td><td>${getResultHtml(log.result,log.result_detail)}</td></tr>`;
-          mHtml+=`<div class="msg-card-item" style="cursor:default;">
-            <div class="msg-card-row"><span class="msg-card-channel">${log.target_title||'-'}</span></div>
-            <div style="font-size:13px;color:var(--text-main);margin:2px 0;">${ch}</div>
-            <div style="font-size:13px;color:var(--text-main);margin:4px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${dtSafe}">${truncate(dt,40)}</div>
-            <div class="msg-card-row" style="margin-top:4px;"><span>${getTypeBadge(log.action_type)}</span><span>${getResultHtml(log.result,log.result_detail)}</span></div>
-            <div class="msg-card-row" style="margin-top:4px;"><span class="msg-card-date">${log.login_id||'-'}</span><span class="msg-card-date">${maskIp(log.ip_address)}</span></div>
-            <div class="msg-card-date" style="margin-top:4px;">${log.created_at||'-'}</div>
+        let html = '', mHtml = '';
+        logs.forEach((log, idx) => {
+          const no = totalItems - ((currentPage - 1) * ITEMS_PER_PAGE) - idx;
+          const ch = getChannelName(log.target_channel);
+          const dt = log.detail || '-';
+          const dtSafe = dt.replace(/"/g, '&quot;');
+          html += `<tr><td class="col-no">${no}</td><td>${log.created_at || '-'}</td><td>${getTypeBadge(log.action_type)}</td><td>${log.login_id || '-'}</td><td>${log.target_title || '-'}</td><td>${ch}</td><td class="col-detail" title="${dtSafe}">${truncate(dt, 20)}</td><td>${maskIp(log.ip_address)}</td><td>${getResultHtml(log.result, log.result_detail)}</td></tr>`;
+          mHtml += `<div class="msg-card-item" style="cursor:default;">
+            <div class="msg-card-row"><span class="msg-card-channel">${log.target_title || '-'}</span></div>
+            <div style="font-size:12px;color:var(--text-main);margin:2px 0;">${ch}</div>
+            <div style="font-size:14px;color:var(--text-main);margin:4px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${dtSafe}">${truncate(dt, 40)}</div>
+            <div class="msg-card-row" style="margin-top:4px;"><span>${getTypeBadge(log.action_type)}</span><span>${getResultHtml(log.result, log.result_detail)}</span></div>
+            <div class="msg-card-row" style="margin-top:4px;"><span class="msg-card-date">${log.login_id || '-'}</span><span class="msg-card-date">${maskIp(log.ip_address)}</span></div>
+            <div class="msg-card-date" style="margin-top:4px;">${log.created_at || '-'}</div>
           </div>`;
         });
-        tbody.innerHTML=html;
-        if(mBody)mBody.innerHTML=mHtml;
+        tbody.innerHTML = html;
+        if (mBody) mBody.innerHTML = mHtml;
         renderPagination();
-      }catch(err){
-        console.error('활동 로그 로드 실패:',err);
-        tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;color:#DC2626;">로그 조회에 실패했습니다.</td></tr>';
+      } catch (err) {
+        console.error('활동 로그 로드 실패:', err);
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#DC2626;">로그 조회에 실패했습니다.</td></tr>';
       }
     }
 
-    function loadTitleFilter(){
-      const titles=['RO1','Ragnarok Monster Kitchen',...JSON.parse(localStorage.getItem('customTitles')||'[]')];
-      const s1=document.getElementById('filterTitle'),s2=document.getElementById('mLogFilterTitle');
-      titles.forEach(t=>{
-        const o1=document.createElement('option');o1.value=t;o1.textContent=t;s1.appendChild(o1);
-        if(s2){const o2=document.createElement('option');o2.value=t;o2.textContent=t;s2.appendChild(o2);}
+    function loadTitleFilter() {
+      const titles = ['RO1', 'Ragnarok Monster Kitchen', ...JSON.parse(localStorage.getItem('customTitles') || '[]')];
+      const s1 = document.getElementById('filterTitle'), s2 = document.getElementById('mLogFilterTitle');
+      titles.forEach(t => {
+        const o1 = document.createElement('option'); o1.value = t; o1.textContent = t; s1.appendChild(o1);
+        if (s2) { const o2 = document.createElement('option'); o2.value = t; o2.textContent = t; s2.appendChild(o2); }
       });
     }
 
-    const paginationEl=document.getElementById('pagination');
-    function renderPagination(){
-      const mv=isMobile()?5:10;let sp=Math.max(1,currentPage-Math.floor(mv/2));let ep=Math.min(totalPages,sp+mv-1);if(ep-sp<mv-1)sp=Math.max(1,ep-mv+1);
-      let h='';h+=`<button class="page-btn" ${currentPage===1?'disabled':''} onclick="goPage(1)"><img src="img/double-left.svg" alt="처음"></button>`;
-      h+=`<button class="page-btn" ${currentPage===1?'disabled':''} onclick="goPage(${currentPage-1})"><img src="img/arrow-left.svg" alt="이전"></button>`;
-      for(let i=sp;i<=ep;i++)h+=`<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
-      h+=`<button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="goPage(${currentPage+1})"><img src="img/arrow-right.svg" alt="다음"></button>`;
-      h+=`<button class="page-btn" ${currentPage===totalPages?'disabled':''} onclick="goPage(${totalPages})"><img src="img/double-right.svg" alt="끝"></button>`;
-      if(paginationEl)paginationEl.innerHTML=h;
+    const paginationEl = document.getElementById('pagination');
+    function renderPagination() {
+      const mv = isMobile() ? 5 : 10; let sp = Math.max(1, currentPage - Math.floor(mv / 2)); let ep = Math.min(totalPages, sp + mv - 1); if (ep - sp < mv - 1) sp = Math.max(1, ep - mv + 1);
+      let h = ''; h += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(1)"><img src="img/double-left.svg" alt="처음"></button>`;
+      h += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(${currentPage - 1})"><img src="img/arrow-left.svg" alt="이전"></button>`;
+      for (let i = sp; i <= ep; i++)h += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+      h += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goPage(${currentPage + 1})"><img src="img/arrow-right.svg" alt="다음"></button>`;
+      h += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goPage(${totalPages})"><img src="img/double-right.svg" alt="끝"></button>`;
+      if (paginationEl) paginationEl.innerHTML = h;
     }
-    function goPage(p){if(p<1||p>totalPages)return;currentPage=p;loadLogs();}
+    function goPage(p) { if (p < 1 || p > totalPages) return; currentPage = p; loadLogs(); }
 
-    document.getElementById('btnSearch').addEventListener('click',()=>{currentPage=1;loadLogs();});
-    document.getElementById('filterLoginId').addEventListener('keydown',e=>{if(e.key==='Enter'){currentPage=1;loadLogs();}});
+    document.getElementById('btnSearch').addEventListener('click', () => { currentPage = 1; loadLogs(); });
+    document.getElementById('filterLoginId').addEventListener('keydown', e => { if (e.key === 'Enter') { currentPage = 1; loadLogs(); } });
 
-    function toggleMask(){
-      const u=getStoredUser();if(!u||(u.role!=='super_admin'&&u.role!=='admin')){alert('마스킹 해제 권한이 없습니다.');return;}
-      isMasked=!isMasked;const lb=isMasked?'마스킹 해제':'마스킹 적용';
-      document.getElementById('btnUnmask').textContent=lb;
-      const mBtn=document.getElementById('btnUnmaskM');if(mBtn)mBtn.textContent=lb;
+    function toggleMask() {
+      const u = getStoredUser(); if (!u || (u.role !== 'super_admin' && u.role !== 'admin')) { alert('마스킹 해제 권한이 없습니다.'); return; }
+      isMasked = !isMasked; const lb = isMasked ? '마스킹 해제' : '마스킹 적용';
+      document.getElementById('btnUnmask').textContent = lb;
+      const mBtn = document.getElementById('btnUnmaskM'); if (mBtn) mBtn.textContent = lb;
       loadLogs();
     }
-    document.getElementById('btnUnmask').addEventListener('click',toggleMask);
-    document.getElementById('btnUnmaskM')?.addEventListener('click',toggleMask);
+    document.getElementById('btnUnmask').addEventListener('click', toggleMask);
+    document.getElementById('btnUnmaskM')?.addEventListener('click', toggleMask);
 
-    async function downloadCsv(){
-      try{const params={page:1,limit:10000};const fT=document.getElementById('filterType').value;const fTi=document.getElementById('filterTitle').value;const fL=document.getElementById('filterLoginId').value.trim();
-      if(fT!=='all')params.actionType=fT;if(fTi!=='all')params.targetTitle=fTi;if(fL)params.loginId=fL;if(dateRangeStart)params.dateFrom=dateRangeStart;if(dateRangeEnd)params.dateTo=dateRangeEnd;
-      const result=await fetchActivityLogs(params);const logs=result.data||[];if(logs.length===0){alert('다운로드할 데이터가 없습니다.');return;}
-      let csv='\uFEFF'+'No.,활동 일시,활동 유형,아이디,대상 타이틀,대상 채널,상세,IP 주소,결과\n';
-      logs.forEach((log,idx)=>{const no=logs.length-idx;const ch=getChannelName(log.target_channel);const dt=(log.detail||'').replace(/"/g,'""');const res=log.result==='success'?'성공':`실패${log.result_detail?' ('+log.result_detail+')':''}`;
-      csv+=`${no},"${log.created_at}","${log.action_type}","${log.login_id}","${log.target_title||'-'}","${ch}","${dt}","${maskIp(log.ip_address)}","${res}"\n`;});
-      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`activity_log_${new Date().toISOString().slice(0,10)}.csv`;a.click();
-      }catch(err){alert('CSV 다운로드 실패: '+err.message);}
+    async function downloadCsv() {
+      try {
+        const params = { page: 1, limit: 10000 }; const fT = document.getElementById('filterType').value; const fTi = document.getElementById('filterTitle').value; const fL = document.getElementById('filterLoginId').value.trim();
+        if (fT !== 'all') params.actionType = fT; if (fTi !== 'all') params.targetTitle = fTi; if (fL) params.loginId = fL; if (dateRangeStart) params.dateFrom = dateRangeStart; if (dateRangeEnd) params.dateTo = dateRangeEnd;
+        const result = await fetchActivityLogs(params); const logs = result.data || []; if (logs.length === 0) { alert('다운로드할 데이터가 없습니다.'); return; }
+        let csv = '\uFEFF' + 'No.,활동 일시,활동 유형,아이디,대상 타이틀,대상 채널,상세,IP 주소,결과\n';
+        logs.forEach((log, idx) => {
+          const no = logs.length - idx; const ch = getChannelName(log.target_channel); const dt = (log.detail || '').replace(/"/g, '""'); const res = log.result === 'success' ? '성공' : `실패${log.result_detail ? ' (' + log.result_detail + ')' : ''}`;
+          csv += `${no},"${log.created_at}","${log.action_type}","${log.login_id}","${log.target_title || '-'}","${ch}","${dt}","${maskIp(log.ip_address)}","${res}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `activity_log_${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+      } catch (err) { alert('CSV 다운로드 실패: ' + err.message); }
     }
-    document.getElementById('btnCsvDownload').addEventListener('click',downloadCsv);
-    document.getElementById('btnCsvDownloadM')?.addEventListener('click',downloadCsv);
+    document.getElementById('btnCsvDownload').addEventListener('click', downloadCsv);
+    document.getElementById('btnCsvDownloadM')?.addEventListener('click', downloadCsv);
 
     // 모바일 필터 오버레이
-    const logFOvl=document.getElementById('logMobileFilterOverlay');
-    document.getElementById('logMobileFilterBtn')?.addEventListener('click',()=>{logFOvl.classList.add('show');document.body.style.overflow='hidden';});
-    function closeLogFP(){logFOvl.classList.remove('show');document.body.style.overflow='';}
-    document.getElementById('logMobileFilterClose')?.addEventListener('click',closeLogFP);
-    logFOvl?.addEventListener('click',e=>{if(e.target===logFOvl)closeLogFP();});
-    document.getElementById('mLogFilterApply')?.addEventListener('click',()=>{
-      document.getElementById('filterLoginId').value=document.getElementById('mLogFilterLoginId').value;
-      document.getElementById('filterTitle').value=document.getElementById('mLogFilterTitle').value;
-      document.getElementById('filterType').value=document.getElementById('mLogFilterType').value;
-      dateRangeStart=document.getElementById('mLogFilterDateStart').value||null;
-      dateRangeEnd=document.getElementById('mLogFilterDateEnd').value||null;
-      closeLogFP();currentPage=1;loadLogs();
+    const logFOvl = document.getElementById('logMobileFilterOverlay');
+    document.getElementById('logMobileFilterBtn')?.addEventListener('click', () => { logFOvl.classList.add('show'); document.body.style.overflow = 'hidden'; });
+    function closeLogFP() { logFOvl.classList.remove('show'); document.body.style.overflow = ''; }
+    document.getElementById('logMobileFilterClose')?.addEventListener('click', closeLogFP);
+    logFOvl?.addEventListener('click', e => { if (e.target === logFOvl) closeLogFP(); });
+    document.getElementById('mLogFilterApply')?.addEventListener('click', () => {
+      document.getElementById('filterLoginId').value = document.getElementById('mLogFilterLoginId').value;
+      document.getElementById('filterTitle').value = document.getElementById('mLogFilterTitle').value;
+      document.getElementById('filterType').value = document.getElementById('mLogFilterType').value;
+      dateRangeStart = document.getElementById('mLogFilterDateStart').value || null;
+      dateRangeEnd = document.getElementById('mLogFilterDateEnd').value || null;
+      closeLogFP(); currentPage = 1; loadLogs();
     });
 
-    requireAuth().then(async()=>{
-      try{const chList=await fetchChannels();chList.forEach(ch=>{channelMap[ch.id]=ch.name;});}catch(e){console.error('채널 목록 로드 실패',e);}
-      loadTitleFilter();loadLogs();
+    requireAuth().then(async () => {
+      try { const chList = await fetchChannels(); chList.forEach(ch => { channelMap[ch.id] = ch.name; }); } catch (e) { console.error('채널 목록 로드 실패', e); }
+      loadTitleFilter(); loadLogs();
     });
   </script>
 </body>
+
 </html>
