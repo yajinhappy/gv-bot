@@ -2047,7 +2047,7 @@ td .btn {
 /* Info Grid */
 .detail-info-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0;
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -2343,4 +2343,78 @@ select.form-control {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+}
+
+
+/* =========================================
+   Mobile Write Actions & Datetime Picker
+========================================= */
+
+.msg-write-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.msg-write-actions .right-btns {
+  display: flex;
+  gap: 8px;
+}
+.msg-write-actions .action-row-1, .msg-write-actions .action-row-2 {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 1100px) {
+  .msg-write-actions {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .msg-write-actions .right-btns {
+    width: 100%;
+    flex-direction: column;
+    order: 1;
+  }
+  .msg-write-actions .action-row-1, .msg-write-actions .action-row-2 {
+    width: 100%;
+  }
+  .msg-write-actions .btn {
+    flex: 1;
+    justify-content: center;
+    padding: 0 8px;
+  }
+  .msg-write-actions .list-btn-container {
+    order: 2;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .msg-write-actions .list-btn-container .btn {
+    flex: none;
+    width: auto;
+    min-width: 120px;
+  }
+
+  /* 모바일에서 달력 모달 깨짐 수정 */
+  .datetime-dropdown {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90% !important;
+    max-width: 360px !important;
+    z-index: 9999 !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important;
+  }
+  .dt-content-row {
+    flex-direction: column;
+  }
+  .dt-timepicker {
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+    padding-left: 0;
+    padding-top: 16px;
+    height: auto;
+    min-height: 150px;
+  }
 }

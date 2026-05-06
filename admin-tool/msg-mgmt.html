@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -35,22 +35,45 @@
               <div class="d-flex gap-8 align-center">
                 <div class="search-input-wrapper">
                   <input type="text" class="form-control search-input-field" placeholder="메시지 검색">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-input-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" class="search-input-icon">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
                 </div>
                 <div class="select-wrapper">
-                  <select class="form-control search-select" id="channelFilter"><option value="전체">발송채널: 전체</option></select>
-                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  <select class="form-control search-select" id="channelFilter">
+                    <option value="전체">발송채널: 전체</option>
+                  </select>
+                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
                 </div>
                 <div class="select-wrapper">
-                  <select class="form-control search-select" id="statusFilter"><option>상태: 전체</option><option>예약 대기</option><option>발송 완료</option><option>예약 취소</option></select>
-                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  <select class="form-control search-select" id="statusFilter">
+                    <option>상태: 전체</option>
+                    <option>예약 대기</option>
+                    <option>발송 완료</option>
+                    <option>예약 취소</option>
+                  </select>
+                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
                 </div>
               </div>
               <div class="flex items-center gap-8">
                 <div class="daterange-picker" id="daterangePicker">
                   <div class="daterange-trigger" id="daterangeTrigger">
                     <span class="daterange-trigger-text" id="daterangeLabel">기간: 전체</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
                   </div>
                   <div class="daterange-dropdown" id="daterangeDropdown">
                     <div class="daterange-calendars">
@@ -86,7 +109,11 @@
           <div class="msg-mobile-header" style="display:none;">
             <h2 class="card-title mb-0">목록 <span class="list-count-m">총 0건</span></h2>
             <button class="msg-filter-btn" id="mobileFilterBtn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="4" y1="6" x2="20" y2="6" />
+                <line x1="7" y1="12" x2="17" y2="12" />
+                <line x1="10" y1="18" x2="14" y2="18" />
+              </svg>
               필터
             </button>
           </div>
@@ -94,11 +121,19 @@
           <!-- 데스크톱 테이블 -->
           <div class="table-container msg-desktop-table">
             <table class="data-table">
-              <thead><tr>
-                <th class="col-no">No.</th><th class="col-channel">발송 채널</th><th class="col-preview">메시지 미리보기</th>
-                <th class="col-img">이미지</th><th class="col-time">예약(발송) 시간</th><th class="col-author">등록(발송)자</th>
-                <th class="col-date">등록일</th><th class="col-status">상태</th><th class="col-action">관리</th>
-              </tr></thead>
+              <thead>
+                <tr>
+                  <th class="col-no">No.</th>
+                  <th class="col-channel">발송 채널</th>
+                  <th class="col-preview">메시지 미리보기</th>
+                  <th class="col-img">이미지</th>
+                  <th class="col-time">발송 시간</th>
+                  <th class="col-author">발송자</th>
+                  <th class="col-date">등록일</th>
+                  <th class="col-status">상태</th>
+                  <th class="col-action">관리</th>
+                </tr>
+              </thead>
               <tbody id="messageTableBody"></tbody>
             </table>
           </div>
@@ -120,19 +155,30 @@
   <!-- 모바일 필터 오버레이 -->
   <div class="msg-filter-overlay" id="mobileFilterOverlay">
     <div class="msg-filter-panel">
-      <div class="msg-filter-panel-header"><h3>필터</h3><button class="msg-filter-panel-close" id="mobileFilterClose">&times;</button></div>
+      <div class="msg-filter-panel-header">
+        <h3>필터</h3><button class="msg-filter-panel-close" id="mobileFilterClose">&times;</button>
+      </div>
       <div class="msg-filter-panel-body">
         <div class="msg-filter-section">
           <div class="search-input-wrapper" style="width:100%;">
             <input type="text" class="form-control search-input-field" id="mFilterSearch" placeholder="메시지 검색">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-input-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" class="search-input-icon">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
           </div>
         </div>
         <div class="msg-filter-section">
           <div class="msg-filter-section-label">발송채널</div>
           <div class="select-wrapper" style="width:100%;">
-            <select class="form-control search-select" id="mFilterChannel"><option value="전체">발송채널: 전체</option></select>
-            <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <select class="form-control search-select" id="mFilterChannel">
+              <option value="전체">발송채널: 전체</option>
+            </select>
+            <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
           </div>
         </div>
         <div class="msg-filter-section">
@@ -172,81 +218,82 @@
     const listCountEl = document.querySelector('.list-count');
     const listCountMEl = document.querySelector('.list-count-m');
     const mobileCardBody = document.getElementById('mobileCardListBody');
-    function isMobile(){return window.innerWidth<=1100;}
-    function chPrev(s){const p=s.split(', ');return p.length===1?p[0]:p[0]+' 외 '+(p.length-1);}
-    function bodyPrev(b){const t=b.replace(/\n/g,' ').replace(/\*\*/g,'');return t.length>50?t.substring(0,50)+'...':t;}
-    function shortDate(d){return d?d.substring(0,16):'-';}
-    function stClass(s){if(s==='예약 대기')return'text-primary-color font-weight-500';if(s==='발송 완료')return'text-main-color font-weight-500';if(s==='예약 취소')return'text-muted-color font-weight-500';return'';}
-    function stCss(s){if(s==='예약 대기')return'pending';if(s==='발송 완료')return'sent';if(s==='예약 취소')return'cancelled';if(s==='발송 실패')return'failed';return'';}
+    function isMobile() { return window.innerWidth <= 1100; }
+    function chPrev(s) { const p = s.split(', '); return p.length === 1 ? p[0] : p[0] + ' 외 ' + (p.length - 1); }
+    function bodyPrev(b) { const t = b.replace(/\n/g, ' ').replace(/\*\*/g, ''); return t.length > 50 ? t.substring(0, 50) + '...' : t; }
+    function shortDate(d) { return d ? d.substring(0, 16) : '-'; }
+    function stClass(s) { if (s === '예약 대기') return 'text-primary-color font-weight-500'; if (s === '발송 완료') return 'text-main-color font-weight-500'; if (s === '예약 취소') return 'text-muted-color font-weight-500'; return ''; }
+    function stCss(s) { if (s === '예약 대기') return 'pending'; if (s === '발송 완료') return 'sent'; if (s === '예약 취소') return 'cancelled'; if (s === '발송 실패') return 'failed'; return ''; }
 
-    function renderTable(){
-      const start=(currentPage-1)*ITEMS_PER_PAGE,pd=filteredData.slice(start,start+ITEMS_PER_PAGE);
-      const ct='총 '+filteredData.length+'건';listCountEl.textContent=ct;if(listCountMEl)listCountMEl.textContent=ct;
-      if(!pd.length){tableBody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);">검색 결과가 없습니다.</td></tr>';return;}
-      tableBody.innerHTML=pd.map(m=>{const mut=m.status==='예약 취소';const pc=mut?'col-preview text-muted-color':'col-preview';const lc=mut?'text-muted-color':'';const it=m.images>0?'📎 '+m.images:'-';const ah=m.status==='예약 대기'?'<a href="message_write.html?edit='+m.no+'" class="btn btn-secondary btn-sm">수정</a>':'<span class="text-muted-color font-size-12">-</span>';return`<tr><td class="col-no">${m.no}</td><td class="col-channel">${chPrev(m.channel)}</td><td class="${pc}"><a href="message_detail.html?id=${m.no}" class="${lc}">${bodyPrev(m.body)}</a></td><td class="col-img">${it}</td><td class="col-time">${shortDate(m.scheduledAt)}</td><td class="col-author">${m.author}</td><td class="col-date">${shortDate(m.createdAt)}</td><td class="col-status ${stClass(m.status)}">${m.status}</td><td class="col-action">${ah}</td></tr>`;}).join('');
+    function renderTable() {
+      const start = (currentPage - 1) * ITEMS_PER_PAGE, pd = filteredData.slice(start, start + ITEMS_PER_PAGE);
+      const ct = '총 ' + filteredData.length + '건'; listCountEl.textContent = ct; if (listCountMEl) listCountMEl.textContent = ct;
+      if (!pd.length) { tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);">검색 결과가 없습니다.</td></tr>'; return; }
+      tableBody.innerHTML = pd.map(m => { const mut = m.status === '예약 취소'; const pc = mut ? 'col-preview text-muted-color' : 'col-preview'; const lc = mut ? 'text-muted-color' : ''; const it = m.images > 0 ? '📎 ' + m.images : '-'; const ah = m.status === '예약 대기' ? '<a href="message_write.html?edit=' + m.no + '" class="btn btn-secondary btn-sm">수정</a>' : '<span class="text-muted-color font-size-12">-</span>'; return `<tr><td class="col-no">${m.no}</td><td class="col-channel">${chPrev(m.channel)}</td><td class="${pc}"><a href="message_detail.html?id=${m.no}" class="${lc}">${bodyPrev(m.body)}</a></td><td class="col-img">${it}</td><td class="col-time">${shortDate(m.scheduledAt)}</td><td class="col-author">${m.author}</td><td class="col-date">${shortDate(m.createdAt)}</td><td class="col-status ${stClass(m.status)}">${m.status}</td><td class="col-action">${ah}</td></tr>`; }).join('');
     }
 
-    function renderMobileCards(){
-      const start=(currentPage-1)*ITEMS_PER_PAGE,pd=filteredData.slice(start,start+ITEMS_PER_PAGE);
-      const ct='총 '+filteredData.length+'건';if(listCountMEl)listCountMEl.textContent=ct;
-      if(!pd.length){mobileCardBody.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-muted);">검색 결과가 없습니다.</div>';return;}
-      mobileCardBody.innerHTML=pd.map(m=>{const ii=m.images>0?'<img src="img/img.svg" class="img-icon" alt="img">':'';const ah=m.status==='예약 대기'?`<a href="message_write.html?edit=${m.no}" class="btn btn-secondary btn-sm" onclick="event.stopPropagation();">수정</a>`:'';return`<div class="msg-card-item" onclick="location.href='message_detail.html?id=${m.no}'"><div class="msg-card-row"><span class="msg-card-channel">${chPrev(m.channel)}</span><span class="msg-card-status ${stCss(m.status)}">${m.status}</span></div><div class="msg-card-preview">${ii} ${bodyPrev(m.body)}</div><div class="msg-card-row"><span class="msg-card-date">${shortDate(m.scheduledAt)} 발송</span><span class="msg-card-manage">${ah}</span></div></div>`;}).join('');
+    function renderMobileCards() {
+      const start = (currentPage - 1) * ITEMS_PER_PAGE, pd = filteredData.slice(start, start + ITEMS_PER_PAGE);
+      const ct = '총 ' + filteredData.length + '건'; if (listCountMEl) listCountMEl.textContent = ct;
+      if (!pd.length) { mobileCardBody.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">검색 결과가 없습니다.</div>'; return; }
+      mobileCardBody.innerHTML = pd.map(m => { const ii = m.images > 0 ? '<img src="img/img.svg" class="img-icon" alt="img">' : ''; const ah = m.status === '예약 대기' ? `<a href="message_write.html?edit=${m.no}" class="btn btn-secondary btn-sm" onclick="event.stopPropagation();">수정</a>` : ''; return `<div class="msg-card-item" onclick="location.href='message_detail.html?id=${m.no}'"><div class="msg-card-row"><span class="msg-card-channel">${chPrev(m.channel)}</span><span class="msg-card-status ${stCss(m.status)}">${m.status}</span></div><div class="msg-card-preview">${ii} ${bodyPrev(m.body)}</div><div class="msg-card-row"><span class="msg-card-date">${shortDate(m.scheduledAt)} 발송</span><span class="msg-card-manage">${ah}</span></div></div>`; }).join('');
     }
 
-    function renderPagination(){
-      const tp=Math.max(1,Math.ceil(filteredData.length/ITEMS_PER_PAGE));if(currentPage>tp)currentPage=tp;
-      const mv=isMobile()?5:10;let sp=Math.max(1,currentPage-Math.floor(mv/2)),ep=Math.min(tp,sp+mv-1);if(ep-sp<mv-1)sp=Math.max(1,ep-mv+1);
-      let h='';h+=`<button class="page-btn" ${currentPage===1?'disabled':''} onclick="goPage(1)"><img src="img/double-left.svg" alt="처음"></button>`;h+=`<button class="page-btn" ${currentPage===1?'disabled':''} onclick="goPage(${currentPage-1})"><img src="img/arrow-left.svg" alt="이전"></button>`;
-      for(let i=sp;i<=ep;i++)h+=`<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
-      h+=`<button class="page-btn" ${currentPage===tp?'disabled':''} onclick="goPage(${currentPage+1})"><img src="img/arrow-right.svg" alt="다음"></button>`;h+=`<button class="page-btn" ${currentPage===tp?'disabled':''} onclick="goPage(${tp})"><img src="img/double-right.svg" alt="끝"></button>`;
-      paginationEl.innerHTML=h;
+    function renderPagination() {
+      const tp = Math.max(1, Math.ceil(filteredData.length / ITEMS_PER_PAGE)); if (currentPage > tp) currentPage = tp;
+      const mv = isMobile() ? 5 : 10; let sp = Math.max(1, currentPage - Math.floor(mv / 2)), ep = Math.min(tp, sp + mv - 1); if (ep - sp < mv - 1) sp = Math.max(1, ep - mv + 1);
+      let h = ''; h += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(1)"><img src="img/double-left.svg" alt="처음"></button>`; h += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(${currentPage - 1})"><img src="img/arrow-left.svg" alt="이전"></button>`;
+      for (let i = sp; i <= ep; i++)h += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+      h += `<button class="page-btn" ${currentPage === tp ? 'disabled' : ''} onclick="goPage(${currentPage + 1})"><img src="img/arrow-right.svg" alt="다음"></button>`; h += `<button class="page-btn" ${currentPage === tp ? 'disabled' : ''} onclick="goPage(${tp})"><img src="img/double-right.svg" alt="끝"></button>`;
+      paginationEl.innerHTML = h;
     }
-    function goPage(p){const tp=Math.max(1,Math.ceil(filteredData.length/ITEMS_PER_PAGE));if(p<1||p>tp)return;currentPage=p;renderAll();}
-    function renderAll(){renderTable();renderMobileCards();renderPagination();}
+    function goPage(p) { const tp = Math.max(1, Math.ceil(filteredData.length / ITEMS_PER_PAGE)); if (p < 1 || p > tp) return; currentPage = p; renderAll(); }
+    function renderAll() { renderTable(); renderMobileCards(); renderPagination(); }
 
-    let dateRangeStart=null,dateRangeEnd=null;
-    function applyFilters(){
-      const kw=searchInput.value.trim().toLowerCase(),cv=channelFilter.value,sv=statusFilter.value;
-      filteredData=originalData.filter(m=>{if(kw){const h=(m.body+' '+m.channel+' '+m.author).toLowerCase();if(!h.includes(kw))return false;}if(cv!=='전체'){if(!m.channel.includes(cv))return false;}if(sv!=='상태: 전체'){if(m.status!==sv)return false;}if(dateRangeStart&&dateRangeEnd){const d=new Date(m.scheduledAt.replace(' ','T')),s=new Date(dateRangeStart),e=new Date(dateRangeEnd);e.setHours(23,59,59,999);if(d<s||d>e)return false;}return true;});
-      currentPage=1;renderAll();
+    let dateRangeStart = null, dateRangeEnd = null;
+    function applyFilters() {
+      const kw = searchInput.value.trim().toLowerCase(), cv = channelFilter.value, sv = statusFilter.value;
+      filteredData = originalData.filter(m => { if (kw) { const h = (m.body + ' ' + m.channel + ' ' + m.author).toLowerCase(); if (!h.includes(kw)) return false; } if (cv !== '전체') { if (!m.channel.includes(cv)) return false; } if (sv !== '상태: 전체') { if (m.status !== sv) return false; } if (dateRangeStart && dateRangeEnd) { const d = new Date(m.scheduledAt.replace(' ', 'T')), s = new Date(dateRangeStart), e = new Date(dateRangeEnd); e.setHours(23, 59, 59, 999); if (d < s || d > e) return false; } return true; });
+      currentPage = 1; renderAll();
     }
-    searchInput.addEventListener('input',applyFilters);channelFilter.addEventListener('change',applyFilters);statusFilter.addEventListener('change',applyFilters);
+    searchInput.addEventListener('input', applyFilters); channelFilter.addEventListener('change', applyFilters); statusFilter.addEventListener('change', applyFilters);
 
     // ---- 모바일 필터 ----
-    const fOvl=document.getElementById('mobileFilterOverlay');
-    document.getElementById('mobileFilterBtn').addEventListener('click',()=>{fOvl.classList.add('show');document.body.style.overflow='hidden';});
-    function closeFP(){fOvl.classList.remove('show');document.body.style.overflow='';}
-    document.getElementById('mobileFilterClose').addEventListener('click',closeFP);
-    fOvl.addEventListener('click',e=>{if(e.target===fOvl)closeFP();});
-    document.getElementById('mFilterStatusSwitches').addEventListener('click',e=>{const b=e.target.closest('.msg-status-sw');if(!b)return;document.querySelectorAll('#mFilterStatusSwitches .msg-status-sw').forEach(x=>x.classList.remove('active'));b.classList.add('active');});
-    document.getElementById('mFilterApply').addEventListener('click',()=>{
-      searchInput.value=document.getElementById('mFilterSearch').value;
-      channelFilter.value=document.getElementById('mFilterChannel').value;
-      const ms=document.querySelector('#mFilterStatusSwitches .msg-status-sw.active')?.dataset.val||'all';
-      statusFilter.value=ms==='all'?'상태: 전체':ms;
-      dateRangeStart=document.getElementById('mFilterDateStart').value||null;
-      dateRangeEnd=document.getElementById('mFilterDateEnd').value||null;
-      closeFP();applyFilters();
+    const fOvl = document.getElementById('mobileFilterOverlay');
+    document.getElementById('mobileFilterBtn').addEventListener('click', () => { fOvl.classList.add('show'); document.body.style.overflow = 'hidden'; });
+    function closeFP() { fOvl.classList.remove('show'); document.body.style.overflow = ''; }
+    document.getElementById('mobileFilterClose').addEventListener('click', closeFP);
+    fOvl.addEventListener('click', e => { if (e.target === fOvl) closeFP(); });
+    document.getElementById('mFilterStatusSwitches').addEventListener('click', e => { const b = e.target.closest('.msg-status-sw'); if (!b) return; document.querySelectorAll('#mFilterStatusSwitches .msg-status-sw').forEach(x => x.classList.remove('active')); b.classList.add('active'); });
+    document.getElementById('mFilterApply').addEventListener('click', () => {
+      searchInput.value = document.getElementById('mFilterSearch').value;
+      channelFilter.value = document.getElementById('mFilterChannel').value;
+      const ms = document.querySelector('#mFilterStatusSwitches .msg-status-sw.active')?.dataset.val || 'all';
+      statusFilter.value = ms === 'all' ? '상태: 전체' : ms;
+      dateRangeStart = document.getElementById('mFilterDateStart').value || null;
+      dateRangeEnd = document.getElementById('mFilterDateEnd').value || null;
+      closeFP(); applyFilters();
     });
 
     // ---- 데스크톱 달력 ----
-    (function(){const tr=document.getElementById('daterangeTrigger'),dd=document.getElementById('daterangeDropdown'),lb=document.getElementById('daterangeLabel'),cb=document.getElementById('daterangeConfirm'),rb=document.getElementById('daterangeReset');let ld=new Date(),rd=new Date(ld.getFullYear(),ld.getMonth()+1,1),ss=null,se=null;tr.addEventListener('click',()=>{const h=dd.style.display==='none'||dd.style.display==='';dd.style.display=h?'block':'none';tr.classList.toggle('active');});document.addEventListener('click',e=>{if(!e.target.closest('#daterangePicker')){dd.style.display='none';tr.classList.remove('active');}});document.getElementById('prevMonth').onclick=()=>{ld.setMonth(ld.getMonth()-1);rd.setMonth(rd.getMonth()-1);rc();};document.getElementById('nextMonth').onclick=()=>{ld.setMonth(ld.getMonth()+1);rd.setMonth(rd.getMonth()+1);rc();};document.getElementById('prevYear').onclick=()=>{ld.setFullYear(ld.getFullYear()-1);rd.setFullYear(rd.getFullYear()-1);rc();};document.getElementById('nextYear').onclick=()=>{ld.setFullYear(ld.getFullYear()+1);rd.setFullYear(rd.getFullYear()+1);rc();};rb.onclick=()=>{ss=null;se=null;dateRangeStart=null;dateRangeEnd=null;lb.textContent='기간: 전체';cb.disabled=true;rc();applyFilters();};cb.onclick=()=>{if(ss&&se){dateRangeStart=fm(ss);dateRangeEnd=fm(se);lb.textContent=dateRangeStart+' ~ '+dateRangeEnd;dd.style.display='none';tr.classList.remove('active');applyFilters();}};function fm(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}function odc(d){if(!ss||(ss&&se)){ss=d;se=null;}else{if(d<ss){se=ss;ss=d;}else{se=d;}}cb.disabled=!(ss&&se);rc();}function rc(){rco('calLeftGrid','calLeftTitle',ld);rco('calRightGrid','calRightTitle',rd);}function rco(gi,ti,ref){const g=document.getElementById(gi),t=document.getElementById(ti),y=ref.getFullYear(),mo=ref.getMonth();t.textContent=y+'년 '+String(mo+1).padStart(2,'0')+'월';g.innerHTML='';['일','월','화','수','목','금','토'].forEach(d=>{const e=document.createElement('div');e.className='cal-weekday';e.textContent=d;g.appendChild(e);});const fd=new Date(y,mo,1).getDay(),di=new Date(y,mo+1,0).getDate(),dp=new Date(y,mo,0).getDate();for(let i=0;i<fd;i++){const e=document.createElement('div');e.className='cal-day other-month';e.textContent=dp-fd+i+1;g.appendChild(e);}for(let i=1;i<=di;i++){const e=document.createElement('div'),td=new Date(y,mo,i);let c='cal-day';if(ss&&se){if(td.getTime()===ss.getTime())c+=' range-start selected';else if(td.getTime()===se.getTime())c+=' range-end selected';else if(td>ss&&td<se)c+=' in-range';}else if(ss&&td.getTime()===ss.getTime())c+=' selected';const now=new Date();if(td.getFullYear()===now.getFullYear()&&td.getMonth()===now.getMonth()&&td.getDate()===now.getDate())c+=' today';e.className=c;e.textContent=i;e.onclick=()=>odc(new Date(y,mo,i));g.appendChild(e);}}rc();})();
+    (function () { const tr = document.getElementById('daterangeTrigger'), dd = document.getElementById('daterangeDropdown'), lb = document.getElementById('daterangeLabel'), cb = document.getElementById('daterangeConfirm'), rb = document.getElementById('daterangeReset'); let ld = new Date(), rd = new Date(ld.getFullYear(), ld.getMonth() + 1, 1), ss = null, se = null; tr.addEventListener('click', () => { const h = dd.style.display === 'none' || dd.style.display === ''; dd.style.display = h ? 'block' : 'none'; tr.classList.toggle('active'); }); document.addEventListener('click', e => { if (!e.target.closest('#daterangePicker')) { dd.style.display = 'none'; tr.classList.remove('active'); } }); document.getElementById('prevMonth').onclick = () => { ld.setMonth(ld.getMonth() - 1); rd.setMonth(rd.getMonth() - 1); rc(); }; document.getElementById('nextMonth').onclick = () => { ld.setMonth(ld.getMonth() + 1); rd.setMonth(rd.getMonth() + 1); rc(); }; document.getElementById('prevYear').onclick = () => { ld.setFullYear(ld.getFullYear() - 1); rd.setFullYear(rd.getFullYear() - 1); rc(); }; document.getElementById('nextYear').onclick = () => { ld.setFullYear(ld.getFullYear() + 1); rd.setFullYear(rd.getFullYear() + 1); rc(); }; rb.onclick = () => { ss = null; se = null; dateRangeStart = null; dateRangeEnd = null; lb.textContent = '기간: 전체'; cb.disabled = true; rc(); applyFilters(); }; cb.onclick = () => { if (ss && se) { dateRangeStart = fm(ss); dateRangeEnd = fm(se); lb.textContent = dateRangeStart + ' ~ ' + dateRangeEnd; dd.style.display = 'none'; tr.classList.remove('active'); applyFilters(); } }; function fm(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); } function odc(d) { if (!ss || (ss && se)) { ss = d; se = null; } else { if (d < ss) { se = ss; ss = d; } else { se = d; } } cb.disabled = !(ss && se); rc(); } function rc() { rco('calLeftGrid', 'calLeftTitle', ld); rco('calRightGrid', 'calRightTitle', rd); } function rco(gi, ti, ref) { const g = document.getElementById(gi), t = document.getElementById(ti), y = ref.getFullYear(), mo = ref.getMonth(); t.textContent = y + '년 ' + String(mo + 1).padStart(2, '0') + '월'; g.innerHTML = '';['일', '월', '화', '수', '목', '금', '토'].forEach(d => { const e = document.createElement('div'); e.className = 'cal-weekday'; e.textContent = d; g.appendChild(e); }); const fd = new Date(y, mo, 1).getDay(), di = new Date(y, mo + 1, 0).getDate(), dp = new Date(y, mo, 0).getDate(); for (let i = 0; i < fd; i++) { const e = document.createElement('div'); e.className = 'cal-day other-month'; e.textContent = dp - fd + i + 1; g.appendChild(e); } for (let i = 1; i <= di; i++) { const e = document.createElement('div'), td = new Date(y, mo, i); let c = 'cal-day'; if (ss && se) { if (td.getTime() === ss.getTime()) c += ' range-start selected'; else if (td.getTime() === se.getTime()) c += ' range-end selected'; else if (td > ss && td < se) c += ' in-range'; } else if (ss && td.getTime() === ss.getTime()) c += ' selected'; const now = new Date(); if (td.getFullYear() === now.getFullYear() && td.getMonth() === now.getMonth() && td.getDate() === now.getDate()) c += ' today'; e.className = c; e.textContent = i; e.onclick = () => odc(new Date(y, mo, i)); g.appendChild(e); } } rc(); })();
 
     // ---- 초기화 ----
-    let channelMap={};
-    async function init(){
-      const up=new URLSearchParams(window.location.search),at=up.get('title')||'RO1';
-      document.querySelector('.page-title').textContent=`${at} - 메시지 예약/관리`;
-      const ct=JSON.parse(localStorage.getItem('configuredTitles')||'["RO1"]');
-      if(!ct.includes(at)){tableBody.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:100px 0;color:#666;"><div style="font-size:15px;margin-bottom:16px;">연동된 서버가 없습니다.</div><button class="btn btn-primary" onclick="location.href='title_settings.html?title=${encodeURIComponent(at)}'">설정으로 이동</button></td></tr>`;mobileCardBody.innerHTML='<div style="text-align:center;padding:60px 16px;color:#666;">연동된 서버가 없습니다.</div>';listCountEl.textContent='총 0건';if(listCountMEl)listCountMEl.textContent='총 0건';return;}
-      try{
-        try{const chs=await fetchChannels();channelFilter.innerHTML='<option value="전체">발송채널: 전체</option>';const mCh=document.getElementById('mFilterChannel');mCh.innerHTML='<option value="전체">발송채널: 전체</option>';chs.forEach(ch=>{channelMap[ch.id]=ch.name;const o1=document.createElement('option');o1.value=ch.name;o1.textContent='# '+ch.name;channelFilter.appendChild(o1);mCh.appendChild(o1.cloneNode(true));});}catch(e){console.error("채널 로드 실패:",e);}
-        const resp=await fetchMessages({limit:1000}),items=resp.data||[];
-        originalData=items.map(it=>{let sk=it.status;if(sk==='pending')sk='예약 대기';else if(sk==='sent')sk='발송 완료';else if(sk==='cancelled')sk='예약 취소';else if(sk==='failed')sk='발송 실패';let cd=it.channel_id;if(cd){const ids=cd.toString().split(',').map(i=>i.trim());cd=ids.map(i=>channelMap[i]?'#'+channelMap[i]:i).join(', ');}return{no:it.id,channel:cd,body:it.content,images:it.image_url?it.image_url.split(',').length:0,scheduledAt:it.scheduled_at,createdAt:it.created_at,author:it.author||'알 수 없음',status:sk};});
-        filteredData=[...originalData];renderAll();
-      }catch(e){console.error(e);tableBody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;color:red;">데이터를 불러오는데 실패했습니다.</td></tr>';}
+    let channelMap = {};
+    async function init() {
+      const up = new URLSearchParams(window.location.search), at = up.get('title') || 'RO1';
+      document.querySelector('.page-title').textContent = `${at} - 메시지 예약/관리`;
+      const ct = JSON.parse(localStorage.getItem('configuredTitles') || '["RO1"]');
+      if (!ct.includes(at)) { tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:100px 0;color:#666;"><div style="font-size:15px;margin-bottom:16px;">연동된 서버가 없습니다.</div><button class="btn btn-primary" onclick="location.href='title_settings.html?title=${encodeURIComponent(at)}'">설정으로 이동</button></td></tr>`; mobileCardBody.innerHTML = '<div style="text-align:center;padding:60px 16px;color:#666;">연동된 서버가 없습니다.</div>'; listCountEl.textContent = '총 0건'; if (listCountMEl) listCountMEl.textContent = '총 0건'; return; }
+      try {
+        try { const chs = await fetchChannels(); channelFilter.innerHTML = '<option value="전체">발송채널: 전체</option>'; const mCh = document.getElementById('mFilterChannel'); mCh.innerHTML = '<option value="전체">발송채널: 전체</option>'; chs.forEach(ch => { channelMap[ch.id] = ch.name; const o1 = document.createElement('option'); o1.value = ch.name; o1.textContent = '# ' + ch.name; channelFilter.appendChild(o1); mCh.appendChild(o1.cloneNode(true)); }); } catch (e) { console.error("채널 로드 실패:", e); }
+        const resp = await fetchMessages({ limit: 1000 }), items = resp.data || [];
+        originalData = items.map(it => { let sk = it.status; if (sk === 'pending') sk = '예약 대기'; else if (sk === 'sent') sk = '발송 완료'; else if (sk === 'cancelled') sk = '예약 취소'; else if (sk === 'failed') sk = '발송 실패'; let cd = it.channel_id; if (cd) { const ids = cd.toString().split(',').map(i => i.trim()); cd = ids.map(i => channelMap[i] ? '#' + channelMap[i] : i).join(', '); } return { no: it.id, channel: cd, body: it.content, images: it.image_url ? it.image_url.split(',').length : 0, scheduledAt: it.scheduled_at, createdAt: it.created_at, author: it.author || '알 수 없음', status: sk }; });
+        filteredData = [...originalData]; renderAll();
+      } catch (e) { console.error(e); tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:red;">데이터를 불러오는데 실패했습니다.</td></tr>'; }
     }
     init();
   </script>
 </body>
+
 </html>
