@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+﻿import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
 import * as fs from 'fs';
@@ -68,7 +68,7 @@ const CreateMessageSchema = z.object({
   images: z.array(z.object({ name: z.string(), data: z.string() })).optional(),
   scheduledAt: z.string().min(1, '예약 시간을 설정해주세요'),
   timezone: z.string().default('GMT+09:00'),
-  author: z.string().default('admin'),
+  author: z.string().default('admin'), title: z.string().optional(),
 });
 
 const SendNowSchema = z.object({
@@ -76,7 +76,7 @@ const SendNowSchema = z.object({
   content: z.string().min(1, '메시지 내용을 입력해주세요').max(4000, '메시지가 너무 깁니다'),
   link: z.string().url().optional().or(z.literal('')),
   images: z.array(z.object({ name: z.string(), data: z.string() })).optional(),
-  author: z.string().default('admin'),
+  author: z.string().default('admin'), title: z.string().optional(),
 });
 
 const UpdateMessageSchema = z.object({
@@ -160,7 +160,7 @@ router.post('/', (req: Request, res: Response) => {
     });
   }
 
-  const { channelId, content, link, images, scheduledAt, timezone, author } = parsed.data;
+  const { channelId, content, link, images, scheduledAt, timezone, author, title } = parsed.data;
 
   try {
     const imageUrl = saveImages(images);
@@ -180,7 +180,7 @@ router.post('/', (req: Request, res: Response) => {
     insertActivityLog({
       actionType: '예약 등록',
       loginId: getLoginId(req),
-      targetTitle: author,
+      targetTitle: title || author,
       targetChannel: channelId,
       detail: content.substring(0, 100),
       ipAddress: getClientIp(req),
@@ -236,7 +236,7 @@ router.put('/:id', (req: Request, res: Response) => {
     insertActivityLog({
       actionType: '메시지 수정',
       loginId: getLoginId(req),
-      targetTitle: existing.author,
+      targetTitle: req.body.title || existing.author,
       targetChannel: parsed.data.channelId ?? existing.channel_id,
       detail: `예약 ID ${id} 수정`,
       ipAddress: getClientIp(req),
@@ -319,7 +319,7 @@ router.post('/send-now', async (req: Request, res: Response) => {
     });
   }
 
-  const { channelId, content, link, images, author } = parsed.data;
+  const { channelId, content, link, images, author, title } = parsed.data;
 
   try {
     const imageUrl = saveImages(images);
@@ -365,7 +365,7 @@ router.post('/send-now', async (req: Request, res: Response) => {
     insertActivityLog({
       actionType: '메시지 발송',
       loginId: getLoginId(req),
-      targetTitle: author,
+      targetTitle: title || author,
       targetChannel: channelId,
       detail: content.substring(0, 100),
       ipAddress: getClientIp(req),
