@@ -1739,6 +1739,12 @@ td .btn {
   .msg-fab { display: flex !important; }
   .msg-desktop-write-btn { display: none !important; }
 
+  /* ── activity_log 모바일 ── */
+  .log-desktop-filters { display: none !important; }
+  .log-desktop-table { display: none !important; }
+  .log-mobile-list { display: block !important; }
+  .log-mobile-header { display: flex !important; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+
   /* 모바일 목록 헤더 (목록 총 XX건 + 필터 버튼) */
   .msg-mobile-header {
     align-items: center;
