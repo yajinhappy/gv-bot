@@ -52,17 +52,6 @@ const command: SlashCommand = {
     const evt: any = {};
     cols.forEach((c: string, i: number) => { evt[c] = row[i]; });
 
-    // 참여 키워드 검증 (command_name이 /로 시작하지 않으면 키워드로 처리)
-    const keyword = (evt.command_name || '').trim();
-    if (keyword && !keyword.startsWith('/')) {
-      if (content.trim().toLowerCase() !== keyword.toLowerCase()) {
-        await interaction.editReply(
-          `❌ 참여 키워드가 올바르지 않습니다.\n올바른 키워드를 **내용** 항목에 입력해 주세요.`
-        );
-        return;
-      }
-    }
-
     // 데일리 반복 시간 체크
     if (evt.daily === 'on') {
       const nowTime = now.slice(11, 16); // HH:mm
