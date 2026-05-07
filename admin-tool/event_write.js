@@ -117,6 +117,7 @@
           cpnCode: e.cpn_code,
           cpnStock: e.cpn_stock,
           cpnStockLimit: e.cpn_stock_limit,
+          cpnCodesPool: e.cpn_codes_pool || null,
           memo: e.memo,
           status: e.status
         };
@@ -293,11 +294,33 @@
         document.getElementById('singleStockLimit').value = editEvt.cpnStockLimit || '';
       }
     } else {
-      if (editEvt.cpnCodes && editEvt.cpnCodes.length > 0) {
-        uploadedCodes = editEvt.cpnCodes;
-        document.getElementById('cpnFileInfo').style.display = 'flex';
-        document.getElementById('cpnFileName').textContent = '기존 업로드 파일 (' + uploadedCodes.length + '개 코드 유지됨)';
-        document.getElementById('cpnFileCount').textContent = '새 파일 업로드 시 대체됨';
+      // 수정 모드: 업로드 영역 숨기고 다운로드 영역 표시
+      document.getElementById('cpnUploadArea').style.display = 'none';
+      document.getElementById('cpnFileInfo').style.display = 'none';
+      const dlArea = document.getElementById('cpnDownloadArea');
+      dlArea.style.display = 'flex';
+
+      if (editEvt.cpnCodesPool) {
+        try {
+          const pool = JSON.parse(editEvt.cpnCodesPool);
+          document.getElementById('cpnDownloadName').textContent = '등록된 쿠폰 코드 파일';
+          document.getElementById('cpnDownloadCount').textContent = '잔여 ' + pool.length + '개 코드';
+          document.getElementById('cpnDownloadBtn').onclick = function () {
+            const blob = new Blob([pool.join('\n')], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'coupon_codes_' + (editEvt.title || 'event') + '.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+          };
+        } catch (e) {
+          document.getElementById('cpnDownloadCount').textContent = '코드 데이터 없음';
+          document.getElementById('cpnDownloadBtn').disabled = true;
+        }
+      } else {
+        document.getElementById('cpnDownloadCount').textContent = '등록된 코드 없음';
+        document.getElementById('cpnDownloadBtn').disabled = true;
       }
     }
     document.getElementById('evtMemo').value = editEvt.memo || '';

@@ -207,6 +207,18 @@
                 <span class="cpn-file-count" id="cpnFileCount"></span>
                 <button type="button" class="cpn-file-remove" id="cpnFileRemove">&times;</button>
               </div>
+              <!-- 수정 모드: 등록된 코드 다운로드 영역 -->
+              <div id="cpnDownloadArea" style="display:none; align-items:center; gap:10px; padding:10px 14px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2" style="flex-shrink:0;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13px; font-weight:600; color:var(--text-main);" id="cpnDownloadName">쿠폰 코드 파일</div>
+                  <div style="font-size:12px; color:var(--text-muted);" id="cpnDownloadCount"></div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="cpnDownloadBtn" style="flex-shrink:0;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  다운로드
+                </button>
+              </div>
               <small class="form-hint" style="margin-top:8px; display:block;">* 업로드된 수량 소진 시 발급 자동 중단 · 잔여 10% 미만 시 관리자 알림</small>
             </div>
 
