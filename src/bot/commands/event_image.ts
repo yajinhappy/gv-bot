@@ -9,12 +9,12 @@ import { getDb, saveDatabase, nowKST } from '../../db/schema';
 const command: SlashCommand = {
   data: new SlashCommandBuilder()
     .setName('이미지인증이벤트')
-    .setDescription('이미지 인증 이벤트에 참여합니다. (이미지 첨부 필수)')
+    .setDescription('이미지 인증 이벤트에 참여합니다.')
     .addStringOption(opt =>
       opt
         .setName('내용')
         .setDescription('참여 내용을 입력해주세요')
-        .setRequired(false)
+        .setRequired(true)
     )
     .addAttachmentOption(opt =>
       opt
@@ -35,7 +35,6 @@ const command: SlashCommand = {
     const attachment = interaction.options.getAttachment('이미지', true);
     const now = nowKST();
     const nowIso = now.replace(' ', 'T');
-    const todayDate = now.slice(0, 10);
 
     // 이미지 파일 체크
     if (!attachment.contentType || !attachment.contentType.startsWith('image/')) {
