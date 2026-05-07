@@ -13,8 +13,8 @@ const command: SlashCommand = {
     .addStringOption(opt =>
       opt
         .setName('내용')
-        .setDescription('참여 메시지 (선택)')
-        .setRequired(false)
+        .setDescription('참여 메시지')
+        .setRequired(true)
     ) as SlashCommandBuilder,
 
   async execute(interaction: ChatInputCommandInteraction) {
@@ -25,7 +25,7 @@ const command: SlashCommand = {
     const userId = interaction.user.id;
     const userTag = interaction.user.tag;
     const userName = interaction.user.displayName || interaction.user.username;
-    const content = interaction.options.getString('내용') || '';
+    const content = interaction.options.getString('내용', true);
     const now = nowKST();
     const nowIso = now.replace(' ', 'T');
     const todayDate = now.slice(0, 10);
@@ -114,7 +114,7 @@ const command: SlashCommand = {
     db.run(
       `INSERT INTO event_participants (event_id, user_id, user_tag, user_name, content, joined_at, status)
        VALUES (?, ?, ?, ?, ?, ?, '대기')`,
-      [evt.id, userId, userTag, userName, content || '참여 완료!', now]
+      [evt.id, userId, userTag, userName, content, now]
     );
     const ptcIdRes = db.exec('SELECT last_insert_rowid()');
     const ptcId = ptcIdRes[0].values[0][0] as number;
