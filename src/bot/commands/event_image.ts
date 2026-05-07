@@ -77,7 +77,7 @@ const command: SlashCommand = {
     // 참여 기록 저장
     db.run(
       `INSERT INTO event_participants (event_id, user_id, user_tag, user_name, content, image_url, joined_at, status)
-       VALUES (?, ?, ?, ?, '', ?, ?, '대기')`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, '대기')`,
       [evt.id, userId, userTag, userName, content, attachment.url, now]
     );
     saveDatabase();
