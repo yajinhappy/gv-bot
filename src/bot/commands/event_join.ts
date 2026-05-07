@@ -127,14 +127,20 @@ const command: SlashCommand = {
     if (evt.coupon_method === 'auto') {
       if (evt.cpn_type === 'single' && evt.cpn_code) {
         couponCode = evt.cpn_code;
-      } else if (evt.cpn_type === 'individual' && evt.cpn_codes_pool) {
-        try {
-          const pool: string[] = JSON.parse(evt.cpn_codes_pool);
-          if (pool.length > 0) {
-            couponCode = pool.shift()!;
-            db.run('UPDATE events SET cpn_codes_pool = ? WHERE id = ?', [JSON.stringify(pool), evt.id]);
+      } else if (evt.cpn_type === 'individual') {
+        console.log(`[이벤트 ${evt.id}] cpn_codes_pool:`, evt.cpn_codes_pool);
+        if (evt.cpn_codes_pool) {
+          try {
+            const pool: string[] = JSON.parse(evt.cpn_codes_pool);
+            console.log(`[이벤트 ${evt.id}] 풀 잔여 코드 수:`, pool.length);
+            if (pool.length > 0) {
+              couponCode = pool.shift()!;
+              db.run('UPDATE events SET cpn_codes_pool = ? WHERE id = ?', [JSON.stringify(pool), evt.id]);
+            }
+          } catch (e) {
+            console.error(`[이벤트 ${evt.id}] pool 파싱 오류:`, e);
           }
-        } catch { /* pool 파싱 오류 무시 */ }
+        }
       }
     }
 
@@ -182,6 +188,8 @@ const command: SlashCommand = {
 
     if (evt.coupon_method === 'auto' && couponCode && !dmSent) {
       embed.addFields({ name: '⚠️ 쿠폰 DM', value: 'DM 발송에 실패했습니다. Discord 설정에서 DM 허용 여부를 확인해 주세요.' });
+    } else if (evt.coupon_method === 'auto' && !couponCode && evt.cpn_type === 'individual') {
+      embed.addFields({ name: '⚠️ 쿠폰 DM', value: '등록된 쿠폰 코드가 없습니다. 이벤트를 다시 등록해 주세요.' });
     }
 
     await interaction.editReply({ embeds: [embed] });
