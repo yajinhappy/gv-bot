@@ -185,7 +185,8 @@ async function processEventEndNotifications() {
   const results = db.exec(`
     SELECT * FROM events
     WHERE status = 'active'
-      AND announce_message_id IS NOT NULL
+      AND announce_msg IS NOT NULL
+      AND announce_msg != ''
       AND end_notified = 0
       AND end_date < ?
   `, [isoStr]);
@@ -206,7 +207,9 @@ async function processEventEndNotifications() {
       const channelId = e.channel_id.split(',')[0].trim();
       const channel = await client.channels.fetch(channelId);
       if (channel && channel instanceof TextChannel) {
-        const announceMsg = await channel.messages.fetch(e.announce_message_id).catch(() => null);
+        const announceMsg = e.announce_message_id
+          ? await channel.messages.fetch(e.announce_message_id).catch(() => null)
+          : null;
         if (announceMsg) {
           await announceMsg.reply(`❌ **${e.title}** 이벤트가 종료되었습니다.`);
         } else {

@@ -5,7 +5,7 @@
   'use strict';
   const PER_PAGE = 15;
   let evt = null, allPtc = [], filteredPtc = [], ptcPage = 1;
-  let evtId = null, pageTitle = '';
+  let evtId = null, pageTitle = '', channelMap = {};
 
   function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
@@ -62,10 +62,15 @@
     }
 
     try {
-      const [evtRes, ptcRes] = await Promise.all([
+      const [evtRes, ptcRes, chRes] = await Promise.all([
         fetch(apiBase() + '/events/' + evtId, { headers: authHeaders() }).then(r => r.json()),
-        fetch(apiBase() + '/events/' + evtId + '/participants', { headers: authHeaders() }).then(r => r.json())
+        fetch(apiBase() + '/events/' + evtId + '/participants', { headers: authHeaders() }).then(r => r.json()),
+        fetch(apiBase() + '/channels', { headers: authHeaders() }).then(r => r.json()).catch(() => ({ success: false }))
       ]);
+
+      if (chRes.success && Array.isArray(chRes.data)) {
+        chRes.data.forEach(function (ch) { channelMap[ch.id] = ch.name; });
+      }
 
       if (!evtRes.success || !evtRes.event) {
         document.getElementById('evtDetailGrid').innerHTML = '<p>이벤트를 찾을 수 없습니다.</p>';
@@ -116,7 +121,11 @@
     let rows = '';
     rows += row('이벤트 유형', typeLabel);
     rows += row('상태', stLabel);
-    rows += row('채널', esc(evt.channel_id || '-'));
+    const channelDisplay = (evt.channel_id || '-').split(',').map(function (id) {
+      const trimmed = id.trim();
+      return channelMap[trimmed] ? '#' + channelMap[trimmed] : trimmed;
+    }).join(', ');
+    rows += row('채널', esc(channelDisplay));
     rows += row('슬래시 커맨드', '<code style="background:#f1f5f9;padding:2px 8px;border-radius:4px;">' + esc(evt.command_name || '-') + '</code>');
     rows += row('기간', (evt.start_date || '').replace('T', ' ') + ' ~ ' + (evt.end_date || '').replace('T', ' '));
     rows += row('데일리 반복', dailyLabel);

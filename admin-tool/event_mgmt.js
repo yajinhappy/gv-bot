@@ -6,7 +6,7 @@
   const EVT_KEY = 'gv_events';
   const PTC_KEY = 'gv_participants';
   const PER_PAGE = 15;
-  let allEvents = [], filtered = [], allPtc = [];
+  let allEvents = [], filtered = [];
   let currentPage = 1, statusFilter = 'all', dateStart = '', dateEnd = '';
 
   function S(n) { return String(n).padStart(2,'0'); }
@@ -69,9 +69,9 @@
         memo: e.memo,
         status: e.status,
         author: e.author,
-        createdAt: e.created_at
+        createdAt: e.created_at,
+        participantCount: e.participant_count || 0
       }));
-      allPtc = [];
 
       bindFilters();
       bindMobileFilter();
@@ -80,7 +80,6 @@
     .catch(err => {
       console.error(err);
       allEvents = [];
-      allPtc = [];
       bindFilters();
       bindMobileFilter();
       applyFilters();
@@ -135,7 +134,7 @@
     
     const encTitle = encodeURIComponent(new URLSearchParams(location.search).get('title')||'RO1');
     tb.innerHTML = page.map((e, i) => {
-      const ptcCnt = allPtc.filter(p => p.eventId === e.id && p.status !== '삭제됨').length;
+      const ptcCnt = e.participantCount || 0;
       const cpnTxt = e.couponMethod === 'auto' ? '자동 발송' : '수동 발송';
       const createdStr = e.createdAt.substring(0, 16);
       
@@ -163,7 +162,7 @@
     
     const encTitle = encodeURIComponent(new URLSearchParams(location.search).get('title')||'RO1');
     body.innerHTML = page.map(e => {
-      const ptcCnt = allPtc.filter(p => p.eventId === e.id && p.status !== '삭제됨').length;
+      const ptcCnt = e.participantCount || 0;
       const stCls = e._status === 'running' ? 'sent' : e._status === 'upcoming' ? 'pending' : 'cancelled';
       const stTxt = e._status === 'running' ? '진행 중' : e._status === 'upcoming' ? '예정' : '종료';
       const createdStr = e.createdAt.substring(0, 16);

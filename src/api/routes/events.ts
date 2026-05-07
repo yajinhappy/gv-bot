@@ -90,7 +90,12 @@ router.post('/send-coupon-dm', async (req: Request, res: Response) => {
 router.get('/', (req: Request, res: Response) => {
   try {
     const db = getDb();
-    const results = db.exec('SELECT * FROM events ORDER BY created_at DESC');
+    const results = db.exec(`
+      SELECT e.*,
+        (SELECT COUNT(*) FROM event_participants WHERE event_id = e.id AND status != '삭제됨') as participant_count
+      FROM events e
+      ORDER BY e.created_at DESC
+    `);
     if (!results || results.length === 0) {
       return res.json({ success: true, events: [] });
     }
