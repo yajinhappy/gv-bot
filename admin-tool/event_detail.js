@@ -342,7 +342,7 @@
       await fetch(apiBase() + '/events/' + evtId + '/participants/status', {
         method: 'PATCH',
         headers: authHeaders(),
-        body: JSON.stringify({ ptcIds, status: '발송 완료', couponCodes })
+        body: JSON.stringify({ ptcIds, status: '발송 완료', couponCodes, targetTitle: pageTitle })
       });
 
       // 로컬 데이터 갱신

@@ -349,6 +349,7 @@
     
     const evtData = {
       type: document.querySelector('input[name="evtType"]:checked').value,
+      targetTitle: new URLSearchParams(location.search).get('title') || 'RO1',
       title: t,
       description: document.getElementById('evtDesc').value.trim(),
       announceMsg: announceMsg,

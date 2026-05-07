@@ -1,7 +1,27 @@
 import { Router, Request, Response } from 'express';
 import { client } from '../../bot/client';
 import { EmbedBuilder } from 'discord.js';
-import { getDb, saveDatabase, nowKST } from '../../db/schema';
+import { getDb, saveDatabase, nowKST, insertActivityLog } from '../../db/schema';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET ?? 'gv-jwt-secret-change-in-production';
+
+function getClientIp(req: Request): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string') return forwarded.split(',')[0].trim();
+  return req.socket?.remoteAddress || '-';
+}
+
+function getLoginId(req: Request): string {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET) as any;
+      return decoded.loginId || 'system';
+    } catch {}
+  }
+  return 'system';
+}
 
 const router = Router();
 
@@ -122,7 +142,18 @@ router.post('/', (req: Request, res: Response) => {
     );
     saveDatabase();
     const result = db.exec('SELECT last_insert_rowid() as id');
-    const id = result[0].values[0][0];
+    const id = result[0].values[0][0] as number;
+
+    insertActivityLog({
+      actionType: '이벤트',
+      loginId: getLoginId(req),
+      targetTitle: e.targetTitle || 'RO1',
+      targetChannel: e.channelId || '-',
+      detail: `이벤트 등록 [ID:${id}] - ${e.title}`,
+      ipAddress: getClientIp(req),
+      result: 'success',
+    });
+
     return res.json({ success: true, id });
   } catch (err: any) {
     return res.json({ success: false, error: err.message });
@@ -186,6 +217,17 @@ router.patch('/:id/participants/status', (req: Request, res: Response) => {
     const issued = (issuedRes[0]?.values[0]?.[0] as number) || 0;
     db.run('UPDATE events SET cpn_issued = ? WHERE id = ?', [issued, req.params.id]);
     saveDatabase();
+
+    insertActivityLog({
+      actionType: '이벤트',
+      loginId: getLoginId(req),
+      targetTitle: req.body.targetTitle || '-',
+      targetChannel: '-',
+      detail: `이벤트 [ID:${req.params.id}] 쿠폰 발송 / 상태 변경 (${ptcIds.length}명) -> ${status}`,
+      ipAddress: getClientIp(req),
+      result: 'success',
+    });
+
     return res.json({ success: true });
   } catch (err: any) {
     return res.json({ success: false, error: err.message });
@@ -217,6 +259,17 @@ router.put('/:id', (req: Request, res: Response) => {
       ]
     );
     saveDatabase();
+
+    insertActivityLog({
+      actionType: '이벤트',
+      loginId: getLoginId(req),
+      targetTitle: e.targetTitle || 'RO1',
+      targetChannel: '-',
+      detail: `이벤트 수정 [ID:${id}] - ${e.title}`,
+      ipAddress: getClientIp(req),
+      result: 'success',
+    });
+
     return res.json({ success: true });
   } catch (err: any) {
     return res.json({ success: false, error: err.message });
