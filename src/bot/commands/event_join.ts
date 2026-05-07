@@ -90,15 +90,21 @@ const command: SlashCommand = {
 
     // 재고 체크
     if (evt.cpn_type === 'individual') {
-      const pool: string[] = evt.cpn_codes_pool ? JSON.parse(evt.cpn_codes_pool) : [];
-      if (pool.length === 0) {
-        await interaction.editReply('❌ 이벤트 쿠폰이 모두 소진되었습니다.');
-        return;
+      // pool이 실제로 저장된 경우에만 소진 여부 확인 (null이면 무제한으로 처리)
+      if (evt.cpn_codes_pool != null) {
+        try {
+          const pool: string[] = JSON.parse(evt.cpn_codes_pool);
+          if (pool.length === 0) {
+            await interaction.editReply('❌ 이벤트 쿠폰이 모두 소진되었습니다.');
+            return;
+          }
+        } catch { /* 파싱 오류 시 소진 체크 건너뜀 */ }
       }
     } else if (evt.cpn_stock === 'limited') {
       const issued = evt.cpn_issued || 0;
       const limit = evt.cpn_stock_limit || 0;
-      if (issued >= limit) {
+      // limit이 0이면 설정 안 된 것으로 간주, 소진 체크 생략
+      if (limit > 0 && issued >= limit) {
         await interaction.editReply('❌ 이벤트 쿠폰이 모두 소진되었습니다.');
         return;
       }
