@@ -25,16 +25,12 @@ const command: SlashCommand = {
     const userId = interaction.user.id;
     const userTag = interaction.user.tag;
     const userName = interaction.user.displayName || interaction.user.username;
-    const content = interaction.options.getString('내용') || '참여 완료!';
-    const now = nowKST(); // YYYY-MM-DD HH:mm:ss
-    // datetime-local input is formatted as YYYY-MM-DDTHH:mm
-    // To properly compare, convert now to match the 'T' format.
-    const nowIso = now.replace(' ', 'T'); 
+    const content = interaction.options.getString('내용') || '';
+    const now = nowKST();
+    const nowIso = now.replace(' ', 'T');
     const todayDate = now.slice(0, 10);
 
-    const commandUsed = '/' + interaction.commandName;
-
-    // 현재 채널에서 진행 중인 텍스트 이벤트 검색 (커맨드명 일치 포함)
+    // 현재 채널에서 진행 중인 텍스트 이벤트 검색
     const evtResults = db.exec(
       `SELECT * FROM events
        WHERE type = 'text'
@@ -42,26 +38,12 @@ const command: SlashCommand = {
          AND status = 'active'
          AND start_date <= ?
          AND end_date >= ?
-         AND (command_name IS NULL OR command_name = '' OR command_name = ?)
        ORDER BY created_at DESC LIMIT 1`,
-      [channelId, nowIso, nowIso, commandUsed]
+      [channelId, nowIso, nowIso]
     );
 
     if (!evtResults || evtResults.length === 0 || evtResults[0].values.length === 0) {
-      // 커맨드명이 달라서 못 찾은 건지 확인
-      const anyEvt = db.exec(
-        `SELECT command_name FROM events
-         WHERE type = 'text' AND channel_id = ? AND status = 'active'
-           AND start_date <= ? AND end_date >= ?
-         ORDER BY created_at DESC LIMIT 1`,
-        [channelId, nowIso, nowIso]
-      );
-      if (anyEvt?.length && anyEvt[0].values.length) {
-        const correctCmd = anyEvt[0].values[0][0] || '/이벤트';
-        await interaction.editReply(`❌ 올바른 커맨드가 아닙니다.\n이벤트 참여 커맨드: **${correctCmd}**`);
-      } else {
-        await interaction.editReply('❌ 이 채널에서 진행 중인 이벤트가 없습니다.');
-      }
+      await interaction.editReply('❌ 이 채널에서 진행 중인 이벤트가 없습니다.');
       return;
     }
 
@@ -69,6 +51,17 @@ const command: SlashCommand = {
     const row = evtResults[0].values[0];
     const evt: any = {};
     cols.forEach((c: string, i: number) => { evt[c] = row[i]; });
+
+    // 참여 키워드 검증 (command_name이 /로 시작하지 않으면 키워드로 처리)
+    const keyword = (evt.command_name || '').trim();
+    if (keyword && !keyword.startsWith('/')) {
+      if (content.trim().toLowerCase() !== keyword.toLowerCase()) {
+        await interaction.editReply(
+          `❌ 참여 키워드가 올바르지 않습니다.\n올바른 키워드를 **내용** 항목에 입력해 주세요.`
+        );
+        return;
+      }
+    }
 
     // 데일리 반복 시간 체크
     if (evt.daily === 'on') {
@@ -126,7 +119,7 @@ const command: SlashCommand = {
     db.run(
       `INSERT INTO event_participants (event_id, user_id, user_tag, user_name, content, joined_at, status)
        VALUES (?, ?, ?, ?, ?, ?, '대기')`,
-      [evt.id, userId, userTag, userName, content, now]
+      [evt.id, userId, userTag, userName, content || '참여 완료!', now]
     );
     const ptcIdRes = db.exec('SELECT last_insert_rowid()');
     const ptcId = ptcIdRes[0].values[0][0] as number;
