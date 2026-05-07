@@ -95,7 +95,52 @@ export async function initDatabase(): Promise<SqlJsDatabase> {
       result_detail          TEXT    DEFAULT NULL,
       created_at             TEXT    NOT NULL DEFAULT (datetime('now', '+9 hours'))
     );
+
+    CREATE TABLE IF NOT EXISTS events (
+      id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+      type                   TEXT    NOT NULL DEFAULT 'text',
+      title                  TEXT    NOT NULL,
+      description            TEXT    DEFAULT NULL,
+      announce_msg           TEXT    DEFAULT NULL,
+      start_date             TEXT    NOT NULL,
+      end_date               TEXT    NOT NULL,
+      channel_id             TEXT    NOT NULL,
+      command_name           TEXT    NOT NULL,
+      daily                  TEXT    NOT NULL DEFAULT 'off',
+      daily_start            TEXT    DEFAULT NULL,
+      daily_end              TEXT    DEFAULT NULL,
+      coupon_method          TEXT    NOT NULL DEFAULT 'auto',
+      cpn_type               TEXT    NOT NULL DEFAULT 'single',
+      cpn_code               TEXT    DEFAULT NULL,
+      cpn_stock              TEXT    NOT NULL DEFAULT 'unlimited',
+      cpn_stock_limit        INTEGER DEFAULT 0,
+      cpn_issued             INTEGER DEFAULT 0,
+      memo                   TEXT    DEFAULT NULL,
+      status                 TEXT    NOT NULL DEFAULT 'active',
+      author                 TEXT    NOT NULL DEFAULT 'admin',
+      created_at             TEXT    NOT NULL DEFAULT (datetime('now', '+9 hours'))
+    );
+
+    CREATE TABLE IF NOT EXISTS event_participants (
+      id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+      event_id               INTEGER NOT NULL,
+      user_id                TEXT    NOT NULL,
+      user_tag               TEXT    DEFAULT NULL,
+      user_name              TEXT    NOT NULL,
+      content                TEXT    DEFAULT NULL,
+      image_url              TEXT    DEFAULT NULL,
+      coupon_code            TEXT    DEFAULT NULL,
+      joined_at              TEXT    NOT NULL DEFAULT (datetime('now', '+9 hours')),
+      status                 TEXT    NOT NULL DEFAULT '대기',
+      FOREIGN KEY (event_id) REFERENCES events(id)
+    );
   `);
+
+  try {
+    db.exec(`ALTER TABLE events ADD COLUMN announce_msg TEXT DEFAULT NULL;`);
+  } catch (e) {
+    // Already exists
+  }
 
   // 초기 슈퍼관리자 계정 (없을 때만)
   const adminCheck = db.exec("SELECT COUNT(*) FROM operators WHERE login_id = 'admin'");

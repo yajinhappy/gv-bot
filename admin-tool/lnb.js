@@ -47,7 +47,7 @@
           <div class="nav-section">
             <ul class="nav-menu">
               <li class="nav-item"><a href="msg-mgmt.html?title=${enc}" class="nav-link" data-page="msg-mgmt.html">메시지 예약/관리</a></li>
-              <li class="nav-item"><a href="#" class="nav-link phase2-item">이벤트 관리 <span class="badge-p2">WIP</span></a></li>
+              <li class="nav-item"><a href="event_mgmt.html?title=${enc}" class="nav-link" data-page="event_mgmt.html">이벤트 관리</a></li>
               <li class="nav-item"><a href="#" class="nav-link phase2-item">SNS 미러링 관리 <span class="badge-p2">WIP</span></a></li>
               <li class="nav-item"><a href="#" class="nav-link phase2-item">FAQ 자동응답 <span class="badge-p2">WIP</span></a></li>
             </ul>
@@ -75,7 +75,7 @@
     ];
 
     // 타이틀별 페이지라면 해당 타이틀 아코디언을 활성화
-    const titlePages = ['msg-mgmt.html', 'title_settings.html', 'message_write.html', 'message_detail.html'];
+    const titlePages = ['msg-mgmt.html', 'title_settings.html', 'message_write.html', 'message_detail.html', 'event_mgmt.html', 'event_write.html', 'event_detail.html'];
     const isTitlePage = titlePages.includes(currentPage);
 
     let accordionsHTML = '';
@@ -123,16 +123,40 @@
       </div>
 
       <!-- Sidebar Footer User Profile -->
-      <div class="sidebar-footer">
-        <a href="mypage.html" class="user-info text-decoration-none">
+      <div class="sidebar-footer" style="position: relative; display: flex; align-items: center; justify-content: flex-end; gap: 4px; padding: 12px;">
+        <!-- Notification Dropdown -->
+        <div id="notiDropdown" class="noti-dropdown" style="display: none;">
+          <div class="noti-header">
+            <h4>알림 (1)</h4>
+          </div>
+          <div class="noti-tabs">
+            <div class="noti-tab active">전체</div>
+            <div class="noti-tab">읽지않음(0)</div>
+            <div class="noti-read-all">모두 읽기</div>
+          </div>
+          <div class="noti-list">
+            <!-- 동적으로 생성됩니다 -->
+          </div>
+          <div class="noti-footer">
+            알림은 최근 30일까지만 보관됩니다.
+          </div>
+        </div>
+
+        <button id="notiToggleBtn" class="noti-toggle-btn" title="알림" style="margin-right:0;">
+          <img src="img/notification.svg" alt="알림" style="width:20px; height:20px;">
+          <span class="noti-badge-dot"></span>
+        </button>
+
+        <a href="mypage.html" class="user-info text-decoration-none" style="display:flex; align-items:center; gap:8px;">
           <div class="user-icon">
             <img src="img/user.svg" alt="User" class="user-icon-white">
           </div>
           <div class="user-text">
-            <span class="user-name">김그라</span>
+            <span class="user-name">로컬 관리자</span>
           </div>
         </a>
-        <a href="login.html" id="logoutBtn" class="logout-btn" title="로그아웃">
+        
+        <a href="login.html" id="logoutBtn" class="logout-btn" title="로그아웃" style="margin-left: 8px;">
           <img src="img/logout.svg" alt="로그아웃" class="logout-icon">
         </a>
       </div>
@@ -183,6 +207,31 @@
               body.style.display = 'none';
             }
           }
+        }
+      }
+      // 알림 토글
+      const notiBtn = e.target.closest('#notiToggleBtn');
+      if (notiBtn) {
+        const dropdown = document.getElementById('notiDropdown');
+        if (dropdown) {
+          dropdown.style.display = dropdown.style.display === 'none' ? 'flex' : 'none';
+        }
+      }
+
+      // 모두 읽기
+      if (e.target.closest('.noti-read-all')) {
+        readAllNotifications();
+      }
+
+      // 외부 클릭 시 알림 닫기 로직은 document에 추가
+    });
+
+    document.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('notiDropdown');
+      const notiBtn = document.getElementById('notiToggleBtn');
+      if (dropdown && dropdown.style.display === 'flex') {
+        if (!dropdown.contains(e.target) && (!notiBtn || !notiBtn.contains(e.target))) {
+          dropdown.style.display = 'none';
         }
       }
     });
@@ -273,6 +322,96 @@
     highlightActiveLink(sidebar);
     bindEvents(sidebar);
     initMobileMenu();
+    initNotifications();
+  }
+
+  function initNotifications() {
+    const listEl = document.querySelector('.noti-list');
+    const badgeDot = document.querySelector('.noti-badge-dot');
+    const unreadTab = document.querySelector('.noti-tabs .noti-tab:nth-child(2)');
+    const notiHeaderCount = document.querySelector('.noti-header h4');
+
+    // Clean up old notifications (> 30 days)
+    let notis = JSON.parse(localStorage.getItem('gv_notifications') || '[]');
+
+    // Seed default if completely empty (for demonstration based on existing events)
+    if (notis.length === 0) {
+      const existingEvents = JSON.parse(localStorage.getItem('gv_events') || '[]');
+      if (existingEvents.length > 0) {
+        notis.push({
+          id: Date.now(),
+          type: 'warning',
+          title: `RO1 · ${existingEvents[0].title}`,
+          desc: '이벤트 쿠폰 잔여량이 10% 남았습니다.',
+          date: new Date().toISOString(),
+          isRead: false
+        });
+      }
+    }
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    notis = notis.filter(n => new Date(n.date) >= thirtyDaysAgo);
+
+    // Sort descending
+    notis.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    localStorage.setItem('gv_notifications', JSON.stringify(notis));
+
+    const unreadNotis = notis.filter(n => !n.isRead);
+    const unreadCount = unreadNotis.length;
+
+    if (badgeDot) {
+      badgeDot.style.display = unreadCount > 0 ? 'block' : 'none';
+    }
+    if (unreadTab) {
+      unreadTab.textContent = `읽지않음(${unreadCount})`;
+    }
+    if (notiHeaderCount) {
+      notiHeaderCount.textContent = `알림 (${notis.length})`;
+    }
+
+    if (listEl) {
+      if (notis.length === 0) {
+        listEl.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 13px;">최근 30일 이내 알림이 없습니다.</div>';
+      } else {
+        listEl.innerHTML = notis.map(n => {
+          let iconSvg = '';
+          if (n.type === 'new_event') {
+            iconSvg = '<img src="img/plus.svg" style="width:16px;height:16px;">';
+          } else if (n.type === 'bot_msg') {
+            iconSvg = '<img src="img/murmur.svg" style="width:16px;height:16px;">';
+          } else if (n.type === 'warning') {
+            iconSvg = '<img src="img/exclamation.svg" style="width:16px;height:16px;">';
+          } else {
+            // Fallback
+            iconSvg = '<img src="img/notification.svg" style="width:16px;height:16px;">';
+          }
+
+          const timeStr = new Date(n.date).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+          return `
+            <div class="noti-item ${n.isRead ? '' : 'unread'}">
+              <div class="noti-icon" style="display:flex; align-items:center; justify-content:center;">
+                ${iconSvg}
+              </div>
+              <div class="noti-content">
+                <div class="noti-title">${n.title}</div>
+                <div class="noti-desc">${n.desc}</div>
+              </div>
+              <div class="noti-time">
+                ${timeStr} ${n.isRead ? '' : '<span class="noti-unread-dot"></span>'}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+  }
+
+  function readAllNotifications() {
+    let notis = JSON.parse(localStorage.getItem('gv_notifications') || '[]');
+    notis.forEach(n => n.isRead = true);
+    localStorage.setItem('gv_notifications', JSON.stringify(notis));
+    initNotifications();
   }
 
   // DOM 준비 후 실행

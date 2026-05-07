@@ -1,0 +1,132 @@
+import {
+  SlashCommandBuilder,
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+} from 'discord.js';
+import { SlashCommand } from '../client';
+import { getDb, saveDatabase, nowKST } from '../../db/schema';
+
+const command: SlashCommand = {
+  data: new SlashCommandBuilder()
+    .setName('이벤트')
+    .setDescription('현재 진행 중인 일반(텍스트) 이벤트에 참여합니다.')
+    .addStringOption(opt =>
+      opt
+        .setName('내용')
+        .setDescription('참여 메시지 (선택)')
+        .setRequired(false)
+    ) as SlashCommandBuilder,
+
+  async execute(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply({ ephemeral: true });
+
+    const db = getDb();
+    const channelId = interaction.channelId;
+    const userId = interaction.user.id;
+    const userTag = interaction.user.tag;
+    const userName = interaction.user.displayName || interaction.user.username;
+    const content = interaction.options.getString('내용') || '참여 완료!';
+    const now = nowKST(); // YYYY-MM-DD HH:mm:ss
+    // datetime-local input is formatted as YYYY-MM-DDTHH:mm
+    // To properly compare, convert now to match the 'T' format.
+    const nowIso = now.replace(' ', 'T'); 
+    const todayDate = now.slice(0, 10);
+
+    // 현재 채널에서 진행 중인 텍스트 이벤트 검색
+    const evtResults = db.exec(
+      `SELECT * FROM events 
+       WHERE type = 'text' 
+         AND channel_id = ? 
+         AND status = 'active' 
+         AND start_date <= ? 
+         AND end_date >= ?
+       ORDER BY created_at DESC LIMIT 1`,
+      [channelId, nowIso, nowIso]
+    );
+
+    if (!evtResults || evtResults.length === 0 || evtResults[0].values.length === 0) {
+      await interaction.editReply('❌ 이 채널에서 진행 중인 이벤트가 없습니다.');
+      return;
+    }
+
+    const cols = evtResults[0].columns;
+    const row = evtResults[0].values[0];
+    const evt: any = {};
+    cols.forEach((c: string, i: number) => { evt[c] = row[i]; });
+
+    // 데일리 반복 시간 체크
+    if (evt.daily === 'on') {
+      const nowTime = now.slice(11, 16); // HH:mm
+      const start = evt.daily_start || '00:00';
+      const end = evt.daily_end || '23:59';
+      if (nowTime < start || nowTime > end) {
+        await interaction.editReply(
+          `⏰ 참여 가능 시간이 아닙니다.\n참여 가능: **${start}** ~ **${end}**`
+        );
+        return;
+      }
+    }
+
+    // 오늘 이미 참여했는지 체크 (데일리 반복일 때)
+    if (evt.daily === 'on') {
+      const dupCheck = db.exec(
+        `SELECT COUNT(*) FROM event_participants 
+         WHERE event_id = ? AND user_id = ? AND DATE(joined_at) = ?`,
+        [evt.id, userId, todayDate]
+      );
+      if (dupCheck && dupCheck[0] && (dupCheck[0].values[0][0] as number) > 0) {
+        await interaction.editReply('✅ 오늘은 이미 참여했습니다. 내일 다시 참여해 주세요!');
+        return;
+      }
+    } else {
+      // 비반복 이벤트 — 중복 참여 체크
+      const dupCheck = db.exec(
+        `SELECT COUNT(*) FROM event_participants WHERE event_id = ? AND user_id = ?`,
+        [evt.id, userId]
+      );
+      if (dupCheck && dupCheck[0] && (dupCheck[0].values[0][0] as number) > 0) {
+        await interaction.editReply('✅ 이미 참여한 이벤트입니다.');
+        return;
+      }
+    }
+
+    // 참여 기록 저장
+    db.run(
+      `INSERT INTO event_participants (event_id, user_id, user_tag, user_name, content, joined_at, status)
+       VALUES (?, ?, ?, ?, ?, ?, '대기')`,
+      [evt.id, userId, userTag, userName, content, now]
+    );
+    saveDatabase();
+
+    // 자동 발송 + 단일 코드라면 바로 쿠폰 DM
+    if (evt.coupon_method === 'auto' && evt.cpn_code) {
+      try {
+        const dm = await interaction.user.createDM();
+        const cpnEmbed = new EmbedBuilder()
+          .setTitle('🎉 쿠폰 발급 — ' + evt.title)
+          .setDescription(`축하합니다! 이벤트에 참여하셨습니다.\n\n**쿠폰 코드:** \`${evt.cpn_code}\``)
+          .setColor(0x16a34a)
+          .setFooter({ text: 'GV DiscordBot Event System' })
+          .setTimestamp();
+        await dm.send({ embeds: [cpnEmbed] });
+      } catch (e) {
+        console.error('DM 발송 실패:', e);
+      }
+    }
+
+    const embed = new EmbedBuilder()
+      .setTitle('🎉 이벤트 참여 완료!')
+      .setDescription(`**${evt.title}** 이벤트에 참여되었습니다.`)
+      .addFields(
+        { name: '참여 내용', value: content, inline: true },
+        { name: '참여 시간', value: now, inline: true }
+      )
+      .setColor(0x0b5cff)
+      .setFooter({ text: 'GV DiscordBot Event System' })
+      .setTimestamp();
+
+    await interaction.editReply({ embeds: [embed] });
+  },
+};
+
+export default command;

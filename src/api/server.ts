@@ -7,6 +7,7 @@ import messagesRouter from './routes/messages';
 import channelsRouter from './routes/channels';
 import authRouter from './routes/auth';
 import logsRouter from './routes/logs';
+import eventsRouter from './routes/events';
 
 dotenv.config();
 
@@ -57,6 +58,7 @@ app.use('/api/auth', authRouter);  // 인증 없이 접근 가능
 app.use('/api/messages', authMiddleware, messagesRouter);
 app.use('/api/channels', authMiddleware, channelsRouter);
 app.use('/api/logs', authMiddleware, logsRouter);
+app.use('/api/events', eventsRouter);  // 이벤트 쿠폰 DM은 관리 페이지에서 직접 호출
 
 // 헬스체크 (인증 불필요)
 app.get('/health', (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));

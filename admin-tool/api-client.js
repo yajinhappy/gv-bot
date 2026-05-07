@@ -131,6 +131,13 @@ async function apiChangePassword(currentPassword, newPassword) {
  * 토큰이 없거나 만료되면 로그인 페이지로 이동
  */
 async function requireAuth() {
+  // 로컬 개발/테스트 환경에서는 로그인 우회
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') {
+    const userNameEl = document.querySelector('.user-name');
+    if (userNameEl) userNameEl.textContent = '로컬 관리자';
+    return { name: '로컬 관리자', loginId: 'local_admin' };
+  }
+
   const token = getAuthToken();
   if (!token) {
     window.location.href = 'login.html';

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>쿠폰 코드 관리 - GV DiscordBot Admin Tool</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside id="lnb"></aside>
+
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="page-title" id="pageTitle">쿠폰 코드 관리</div>
+        <div class="page-subtitle">이벤트에 사용할 쿠폰 코드를 등록하고 재고를 관리합니다.</div>
+      </header>
+
+      <div class="main-content">
+
+        <!-- 탭 -->
+        <div class="tabs-container" id="couponTabs">
+          <button class="tab-btn active" data-tab="tab-list">쿠폰 목록</button>
+          <button class="tab-btn" data-tab="tab-register">쿠폰 등록</button>
+        </div>
+
+        <!-- ===== 탭1: 쿠폰 목록 ===== -->
+        <div class="tab-pane active" id="tab-list">
+          <div class="card">
+            <!-- 데스크톱 필터 -->
+            <div class="flex items-center justify-between mb-20 cpn-desktop-filters">
+              <div class="flex items-center gap-4">
+                <h2 class="card-title mb-0">쿠폰 목록 <span class="list-count" id="cpnListCount">총 0건</span></h2>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="d-flex gap-8 align-center">
+                  <div class="search-input-wrapper">
+                    <input type="text" class="form-control search-input-field" id="cpnSearch" placeholder="쿠폰명 검색">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-input-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  </div>
+                  <div class="select-wrapper">
+                    <select class="form-control search-select" id="cpnTypeFilter">
+                      <option value="all">유형: 전체</option>
+                      <option value="single">단일 코드</option>
+                      <option value="individual">개별 코드</option>
+                    </select>
+                    <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
+                  <div class="select-wrapper">
+                    <select class="form-control search-select" id="cpnStatusFilter">
+                      <option value="all">상태: 전체</option>
+                      <option value="active">활성</option>
+                      <option value="exhausted">소진</option>
+                      <option value="inactive">비활성</option>
+                    </select>
+                    <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 모바일 헤더 -->
+            <div class="cpn-mobile-header" style="display:none;">
+              <h2 class="card-title mb-0">쿠폰 목록 <span class="list-count" id="cpnListCountM">총 0건</span></h2>
+              <button class="msg-filter-btn" id="cpnMobileFilterBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+                필터
+              </button>
+            </div>
+
+            <!-- 데스크톱 테이블 -->
+            <div class="table-container cpn-desktop-table">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="col-no">No.</th>
+                    <th>쿠폰명</th>
+                    <th>유형</th>
+                    <th>연결 이벤트</th>
+                    <th>재고</th>
+                    <th>발급 수</th>
+                    <th>등록일</th>
+                    <th class="col-status">상태</th>
+                    <th class="col-action">관리</th>
+                  </tr>
+                </thead>
+                <tbody id="cpnTableBody"></tbody>
+              </table>
+            </div>
+
+            <!-- 모바일 카드 -->
+            <div class="cpn-mobile-list" id="cpnMobileList" style="display:none;">
+              <div class="msg-card-list" id="cpnMobileCardBody"></div>
+            </div>
+
+            <div class="pagination" id="cpnPagination"></div>
+          </div>
+        </div>
+
+        <!-- ===== 탭2: 쿠폰 등록 ===== -->
+        <div class="tab-pane" id="tab-register">
+          <div class="card max-w-800">
+            <h2 class="card-title">쿠폰 등록</h2>
+
+            <form id="couponForm">
+              <!-- 쿠폰명 -->
+              <div class="form-group">
+                <label class="form-label">쿠폰명 <span class="required">*</span></label>
+                <input type="text" class="form-control" id="cpnName" placeholder="예: 출석체크 5월 쿠폰" required>
+              </div>
+
+              <!-- 쿠폰 유형 -->
+              <div class="form-group">
+                <label class="form-label">쿠폰 코드 유형 <span class="required">*</span></label>
+                <div class="cpn-type-selector">
+                  <label class="cpn-type-option active" data-type="single">
+                    <input type="radio" name="cpnType" value="single" checked>
+                    <div class="cpn-type-card">
+                      <div class="cpn-type-icon">🏷️</div>
+                      <div class="cpn-type-info">
+                        <strong>단일 코드</strong>
+                        <span>하나의 코드를 모든 참여자에게 동일하게 지급</span>
+                      </div>
+                    </div>
+                  </label>
+                  <label class="cpn-type-option" data-type="individual">
+                    <input type="radio" name="cpnType" value="individual">
+                    <div class="cpn-type-card">
+                      <div class="cpn-type-icon">📋</div>
+                      <div class="cpn-type-info">
+                        <strong>개별 코드</strong>
+                        <span>참여자마다 고유한 코드를 지급 (CSV/TXT 업로드)</span>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 단일 코드 입력 -->
+              <div class="form-group" id="singleCodeGroup">
+                <label class="form-label">쿠폰 코드 <span class="required">*</span></label>
+                <input type="text" class="form-control" id="cpnSingleCode" placeholder="예: GRAVITY-MAY-2026">
+              </div>
+
+              <!-- 개별 코드 업로드 -->
+              <div class="form-group" id="individualCodeGroup" style="display:none;">
+                <label class="form-label">쿠폰 코드 파일 업로드 <span class="required">*</span></label>
+                <div class="cpn-upload-area" id="cpnUploadArea">
+                  <div class="cpn-upload-content">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <p>CSV 또는 TXT 파일을 드래그하거나 <strong>파일 선택</strong></p>
+                    <span class="cpn-upload-hint">한 줄에 하나의 쿠폰 코드를 입력한 파일</span>
+                  </div>
+                  <input type="file" id="cpnFileInput" accept=".csv,.txt" style="display:none;">
+                </div>
+                <div class="cpn-file-info" id="cpnFileInfo" style="display:none;">
+                  <span class="cpn-file-name" id="cpnFileName"></span>
+                  <span class="cpn-file-count" id="cpnFileCount"></span>
+                  <button type="button" class="cpn-file-remove" id="cpnFileRemove">&times;</button>
+                </div>
+              </div>
+
+              <!-- 재고 정책 -->
+              <div class="form-group">
+                <label class="form-label">쿠폰 발급 제한 <span class="required">*</span></label>
+                <div class="cpn-stock-selector">
+                  <label class="cpn-radio-label">
+                    <input type="radio" name="stockPolicy" value="unlimited" checked>
+                    <span>무제한</span>
+                  </label>
+                  <label class="cpn-radio-label">
+                    <input type="radio" name="stockPolicy" value="limited">
+                    <span>수량 제한</span>
+                  </label>
+                </div>
+                <div id="stockLimitGroup" style="display:none; margin-top:12px;">
+                  <input type="number" class="form-control" id="cpnStockLimit" placeholder="발급 가능 수량 입력" min="1" style="max-width:300px;">
+                </div>
+              </div>
+
+              <!-- 연결 이벤트 (선택) -->
+              <div class="form-group">
+                <label class="form-label">연결 이벤트</label>
+                <select class="form-control" id="cpnEvent">
+                  <option value="">이벤트 미연결</option>
+                </select>
+                <span class="form-hint" style="font-size:12px;">이벤트 등록 후 연결할 수 있습니다.</span>
+              </div>
+
+              <!-- 메모 -->
+              <div class="form-group">
+                <label class="form-label">메모</label>
+                <textarea class="form-control" id="cpnMemo" rows="3" placeholder="관리용 메모 (선택)"></textarea>
+              </div>
+
+              <!-- 버튼 -->
+              <div class="flex justify-end gap-2" style="margin-top:32px;">
+                <button type="button" class="btn btn-secondary" id="cpnCancelBtn">취소</button>
+                <button type="submit" class="btn btn-primary" id="cpnSubmitBtn">등록하기</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- 모바일 필터 오버레이 -->
+  <div class="msg-filter-overlay" id="cpnFilterOverlay">
+    <div class="msg-filter-panel">
+      <div class="msg-filter-panel-header">
+        <h3>필터</h3><button class="msg-filter-panel-close" id="cpnFilterClose">&times;</button>
+      </div>
+      <div class="msg-filter-panel-body">
+        <div class="msg-filter-section">
+          <div class="search-input-wrapper" style="width:100%;">
+            <input type="text" class="form-control search-input-field" id="cpnMSearch" placeholder="쿠폰명 검색">
+          </div>
+        </div>
+        <div class="msg-filter-section">
+          <div class="msg-filter-section-label">쿠폰 유형</div>
+          <div class="msg-status-switches" id="cpnMTypeSw">
+            <button class="msg-status-sw active" data-val="all">전체</button>
+            <button class="msg-status-sw" data-val="single">단일 코드</button>
+            <button class="msg-status-sw" data-val="individual">개별 코드</button>
+          </div>
+        </div>
+        <div class="msg-filter-section">
+          <div class="msg-filter-section-label">상태</div>
+          <div class="msg-status-switches" id="cpnMStatusSw">
+            <button class="msg-status-sw active" data-val="all">전체</button>
+            <button class="msg-status-sw" data-val="active">활성</button>
+            <button class="msg-status-sw" data-val="exhausted">소진</button>
+            <button class="msg-status-sw" data-val="inactive">비활성</button>
+          </div>
+        </div>
+      </div>
+      <div class="msg-filter-panel-footer"><button class="btn btn-primary" id="cpnMFilterApply">조회하기</button></div>
+    </div>
+  </div>
+
+  <!-- 쿠폰 상세 모달 -->
+  <div class="modal-overlay" id="cpnDetailModal">
+    <div class="modal-content" style="max-width:600px;">
+      <div class="flex items-center justify-between mb-20">
+        <h3 class="modal-title">쿠폰 상세</h3>
+        <button class="modal-close" id="cpnDetailClose">&times;</button>
+      </div>
+      <div id="cpnDetailBody"></div>
+    </div>
+  </div>
+
+  <!-- 코드 추가 업로드 모달 -->
+  <div class="modal-overlay" id="cpnAddCodesModal">
+    <div class="modal-content" style="max-width:500px;">
+      <div class="flex items-center justify-between mb-20">
+        <h3 class="modal-title">코드 추가 업로드</h3>
+        <button class="modal-close" id="cpnAddCodesClose">&times;</button>
+      </div>
+      <div class="form-group">
+        <div class="cpn-upload-area" id="cpnAddUploadArea">
+          <div class="cpn-upload-content">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <p>CSV 또는 TXT 파일 선택</p>
+          </div>
+          <input type="file" id="cpnAddFileInput" accept=".csv,.txt" style="display:none;">
+        </div>
+        <div class="cpn-file-info" id="cpnAddFileInfo" style="display:none;">
+          <span class="cpn-file-name" id="cpnAddFileName"></span>
+          <span class="cpn-file-count" id="cpnAddFileCount"></span>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2" style="margin-top:16px;">
+        <button class="btn btn-secondary" id="cpnAddCodesCancel">취소</button>
+        <button class="btn btn-primary" id="cpnAddCodesSubmit" disabled>추가하기</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="lnb.js"></script>
+  <script src="api-client.js"></script>
+  <script src="script.js"></script>
+  <script src="coupon_mgmt.js"></script>
+</body>
+</html>

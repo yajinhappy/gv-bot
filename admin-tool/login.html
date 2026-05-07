@@ -42,8 +42,8 @@
 
   <script src="api-client.js"></script>
   <script>
-    // 이미 로그인 상태면 메인으로 이동
-    if (getAuthToken()) {
+    // 이미 로그인 상태면 메인으로 이동 (또는 로컬 환경 우회)
+    if (getAuthToken() || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') {
       window.location.href = 'index.html';
     }
 

@@ -1,17 +1,18 @@
 import cron from 'node-cron';
 import { TextChannel, EmbedBuilder } from 'discord.js';
 import { client } from '../bot/client';
-import { getPendingMessages, markAsSent, markAsFailed } from '../db/schema';
+import { getPendingMessages, markAsSent, markAsFailed, getDb, nowKST } from '../db/schema';
 
 /**
- * 1분마다 DB를 폴링해서 전송할 메시지가 있으면 Discord로 전송
+ * 1분마다 DB를 폴링해서 전송할 메시지나 데일리 이벤트 알림이 있으면 Discord로 전송
  */
 export function startScheduler() {
   cron.schedule('* * * * *', async () => {
     await processPendingMessages();
+    await processDailyEvents();
   });
 
-  console.log('⏰ 메시지 스케줄러 시작 (1분 주기 폴링)');
+  console.log('⏰ 메시지 및 데일리 이벤트 스케줄러 시작 (1분 주기 폴링)');
 }
 
 async function processPendingMessages() {
@@ -122,4 +123,59 @@ function splitMessage(text: string, maxLength: number): string[] {
   return chunks;
 }
 
+}
+
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function processDailyEvents() {
+  const db = getDb();
+  const nowStr = nowKST(); // "2026-05-07 10:00:00"
+  const isoStr = nowStr.substring(0, 16).replace(' ', 'T'); // "2026-05-07T10:00"
+  const currentTime = nowStr.substring(11, 16); // "10:00"
+
+  const results = db.exec(`
+    SELECT * FROM events 
+    WHERE status = 'active' 
+      AND daily = 'on'
+      AND daily_start = ?
+      AND announce_msg IS NOT NULL
+      AND announce_msg != ''
+      AND start_date <= ?
+      AND end_date >= ?
+  `, [currentTime, isoStr, isoStr]);
+
+  if (results.length === 0) return;
+
+  const columns = results[0].columns;
+  const events = results[0].values.map((row: any[]) => {
+    const e: any = {};
+    columns.forEach((col, idx) => e[col] = row[idx]);
+    return e;
+  });
+
+  console.log(`📣 데일리 이벤트 공지 발송: ${events.length}건`);
+
+  for (const e of events) {
+    try {
+      const channelIds = e.channel_id.split(',').map((id: string) => id.trim());
+      for (const channelId of channelIds) {
+        const channel = await client.channels.fetch(channelId);
+        if (channel && channel instanceof TextChannel) {
+          const content = e.announce_msg;
+          if (content.length > 2000) {
+            const chunks = splitMessage(content, 2000);
+            for (const chunk of chunks) {
+              await channel.send({ content: chunk });
+              await sleep(500);
+            }
+          } else {
+            await channel.send({ content: content });
+          }
+          console.log(`✅ 데일리 이벤트 공지 발송 완료 [이벤트:${e.title}] → 채널: ${channelId}`);
+        }
+      }
+    } catch (err) {
+      console.error(`❌ 데일리 이벤트 공지 발송 실패 [이벤트:${e.title}]:`, err);
+    }
+  }
+}

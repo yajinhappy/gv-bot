@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이벤트 등록 - GV DiscordBot Admin Tool</title>
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <aside id="lnb"></aside>
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="page-title"><span id="pageTitle">이벤트 등록</span></div>
+      </header>
+      <div class="main-content">
+        <div class="card">
+          <h2 class="card-title" id="cardTitle">이벤트 등록하기</h2>
+          <form id="eventForm">
+
+            <!-- 이벤트 활성 상태 (수정 시에만 표시) -->
+            <div class="form-group" id="evtStatusGroup" style="display:none; border-bottom:1px solid #E2E8F0; padding-bottom:16px; margin-bottom:16px;">
+              <div class="flex items-center justify-between">
+                <label class="form-label mb-0" style="font-size:15px; font-weight:700;">이벤트 활성 상태</label>
+                <label class="custom-text-switch">
+                  <input type="checkbox" id="evtStatusToggle" checked>
+                  <span class="switch-slider">
+                    <span class="switch-text on">활성</span>
+                    <span class="switch-text off">비활성</span>
+                    <span class="switch-circle"></span>
+                  </span>
+                </label>
+              </div>
+              <p style="font-size:12px; color:var(--text-muted); margin-top:8px;">* 비활성 시 이벤트가 일시 중지되며, 유저의 참여가 차단됩니다.</p>
+            </div>
+
+            <!-- 이벤트 유형 (6-1) -->
+            <div class="form-group">
+              <label class="form-label">이벤트 유형 <span class="required">*</span></label>
+              <div class="evt-type-selector">
+                <label class="evt-type-option active" data-type="text">
+                  <input type="radio" name="evtType" value="text" checked>
+                  <div class="evt-type-card">
+                    <div class="evt-type-card-icon">📝</div>
+                    <div class="evt-type-card-title">일반 이벤트</div>
+                    <div class="evt-type-card-desc">슬래시 커맨드로 참여<br>데일리 반복 설정 가능</div>
+                  </div>
+                </label>
+                <label class="evt-type-option" data-type="image">
+                  <input type="radio" name="evtType" value="image">
+                  <div class="evt-type-card">
+                    <div class="evt-type-card-icon">📸</div>
+                    <div class="evt-type-card-title">이미지 인증 이벤트</div>
+                    <div class="evt-type-card-desc">슬래시 커맨드 + 이미지 첨부<br>관리자 검토 후 처리</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- 기본 정보 (6-2) -->
+            <div class="form-group">
+              <label class="form-label">이벤트 제목 <span class="required">*</span></label>
+              <input type="text" class="form-control" id="evtTitle" placeholder="예: 5월 출석체크 이벤트" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">이벤트 내용</label>
+              <textarea class="form-control" id="evtDesc" rows="4" placeholder="이벤트 안내 내용 (선택)"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">공지 메시지 내용 <span style="font-size:12px; color:var(--text-muted); font-weight:normal;">(데일리 반복 시 채널에 발송될 안내 메시지)</span></label>
+              <div id="editor-container" style="height: 250px; background: var(--bg-body); border-radius: 0 0 6px 6px;"></div>
+              <textarea class="form-control" id="evtAnnounceMsg" style="display:none;"></textarea>
+            </div>
+
+            <div class="evt-datetime-row" style="margin-bottom:20px;">
+              <div class="form-group">
+                <label class="form-label">시작일 <span class="required">*</span></label>
+                <input type="datetime-local" class="form-control" id="evtStartDate" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">종료일 <span class="required">*</span></label>
+                <input type="datetime-local" class="form-control" id="evtEndDate" required>
+              </div>
+            </div>
+            
+            <div id="evtTextOptions">
+              <div class="form-group" style="margin-top:16px;">
+                <label class="form-label">데일리 반복 (선택 시 매일 반복)</label>
+                <div class="cpn-stock-selector">
+                  <label class="cpn-radio-label"><input type="radio" name="evtDaily" value="off" checked><span>OFF</span></label>
+                  <label class="cpn-radio-label"><input type="radio" name="evtDaily" value="on"><span>ON (매일 반복)</span></label>
+                </div>
+              </div>
+              <div class="evt-datetime-row" id="evtDailyTimeRow" style="display:none; margin-bottom:20px; border-left: 2px solid var(--border-color); padding-left: 16px;">
+                <div class="form-group">
+                  <label class="form-label">참여 시작 시각</label>
+                  <input type="time" class="form-control" id="evtDailyStart" value="09:00">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">참여 마감 시각</label>
+                  <input type="time" class="form-control" id="evtDailyEnd" value="23:59">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">적용 채널 <span class="required">*</span></label>
+              <select class="form-control" id="evtChannel" required>
+                <option value="">채널 선택</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">슬래시 커맨드 <span class="required">*</span></label>
+              <input type="text" class="form-control" id="evtCommand" placeholder="예: /출석체크완료" required>
+            </div>
+
+
+
+            <!-- 쿠폰 지급 방식 (6-7) -->
+            <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 24px; margin-top: 8px;">
+              <label class="form-label" style="font-size:15px; font-weight:700;">쿠폰 지급 방식</label>
+              <div class="cpn-stock-selector" style="margin-top:8px;">
+                <label class="cpn-radio-label"><input type="radio" name="evtCouponMethod" value="auto" checked><span>자동 발송 (참여 즉시 DM 발송)</span></label>
+                <label class="cpn-radio-label"><input type="radio" name="evtCouponMethod" value="manual"><span>수동 발송 (관리자 검토 후 발송)</span></label>
+              </div>
+            </div>
+
+            <!-- 쿠폰 코드 관리 (6-8) -->
+            <div class="form-group">
+              <label class="form-label">쿠폰 코드 유형 <span class="required">*</span></label>
+              <div class="cpn-type-selector">
+                <label class="cpn-type-option active" data-type="single">
+                  <input type="radio" name="cpnType" value="single" checked>
+                  <div class="cpn-type-card">
+                    <div class="cpn-type-icon">🏷️</div>
+                    <div class="cpn-type-info">
+                      <strong>단일 코드</strong>
+                      <span>하나의 코드를 모든 참여자에게 동일 지급</span>
+                    </div>
+                  </div>
+                </label>
+                <label class="cpn-type-option" data-type="individual">
+                  <input type="radio" name="cpnType" value="individual">
+                  <div class="cpn-type-card">
+                    <div class="cpn-type-icon">📋</div>
+                    <div class="cpn-type-info">
+                      <strong>개별 코드</strong>
+                      <span>참여자마다 고유한 코드 지급 (CSV/TXT 업로드)</span>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- 단일 코드 입력 -->
+            <div class="form-group" id="singleCodeGroup">
+              <label class="form-label">쿠폰 코드 <span class="required">*</span></label>
+              <input type="text" class="form-control" id="cpnSingleCode" placeholder="예: GRAVITY-MAY-2026">
+              <div class="form-group" style="margin-top:12px;">
+                <label class="form-label">재고 정책</label>
+                <div class="cpn-stock-selector">
+                  <label class="cpn-radio-label"><input type="radio" name="singleStockPolicy" value="unlimited" checked><span>수량 무제한</span></label>
+                  <label class="cpn-radio-label"><input type="radio" name="singleStockPolicy" value="limited"><span>재고 숫자 설정</span></label>
+                </div>
+                <div id="singleStockLimitGroup" style="display:none; margin-top:12px;">
+                  <input type="number" class="form-control" id="singleStockLimit" placeholder="발급 가능 수량 입력" min="1" style="max-width:300px;">
+                </div>
+              </div>
+            </div>
+
+            <!-- 개별 코드 업로드 -->
+            <div class="form-group" id="individualCodeGroup" style="display:none;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <label class="form-label" style="margin-bottom:0;">쿠폰 코드 파일 업로드 <span class="required">*</span></label>
+                <a href="coupon_sample.csv" download class="btn btn-secondary btn-sm" style="display:inline-flex;align-items:center;gap:4px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  템플릿
+                </a>
+              </div>
+              <div class="cpn-upload-area" id="cpnUploadArea">
+                <div class="cpn-upload-content">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <p>CSV 또는 TXT 파일을 드래그하거나 <strong>파일 선택</strong></p>
+                  <span class="cpn-upload-hint">한 줄에 하나의 쿠폰 코드를 입력한 파일</span>
+                </div>
+                <input type="file" id="cpnFileInput" accept=".csv,.txt" style="display:none;">
+              </div>
+              <div class="cpn-file-info" id="cpnFileInfo" style="display:none;">
+                <span class="cpn-file-name" id="cpnFileName"></span>
+                <span class="cpn-file-count" id="cpnFileCount"></span>
+                <button type="button" class="cpn-file-remove" id="cpnFileRemove">&times;</button>
+              </div>
+              <small class="form-hint" style="margin-top:8px; display:block;">* 업로드된 수량 소진 시 발급 자동 중단 · 잔여 10% 미만 시 관리자 알림</small>
+            </div>
+
+            <!-- 메모 -->
+            <div class="form-group">
+              <label class="form-label">관리 메모</label>
+              <textarea class="form-control" id="evtMemo" rows="2" placeholder="관리용 메모 (선택)"></textarea>
+            </div>
+
+            <!-- 하단 버튼 -->
+            <div class="msg-write-actions mt-24">
+              <div class="list-btn-container">
+                <button type="button" class="btn btn-secondary list-btn" id="evtBackBtn">목록보기</button>
+              </div>
+              <div class="right-btns">
+                <div class="action-row-2">
+                  <button type="submit" class="btn btn-primary" id="evtSubmitBtn">등록하기</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="lnb.js"></script>
+  <script src="api-client.js"></script>
+  <script src="script.js"></script>
+  <script src="event_write.js"></script>
+</body>
+</html>

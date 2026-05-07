@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이벤트 상세 - GV DiscordBot Admin Tool</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside id="lnb"></aside>
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="page-title"><span id="pageTitle">이벤트 상세</span></div>
+      </header>
+      <div class="main-content">
+
+        <!-- 이벤트 정보 -->
+        <div class="card" id="evtInfoCard">
+          <div class="flex items-center justify-between mb-20">
+            <h2 class="card-title mb-0" id="evtDetailTitle">이벤트 정보</h2>
+            <div class="flex gap-2">
+              <button class="btn btn-secondary" id="evtBackBtn">목록보기</button>
+              <button class="btn btn-primary" id="evtEditBtn">수정</button>
+            </div>
+          </div>
+          <div class="detail-info-grid" id="evtDetailGrid"></div>
+        </div>
+
+        <!-- 쿠폰 재고 현황 -->
+        <div class="card" id="evtStockCard" style="display:none;">
+          <h2 class="card-title">쿠폰 재고 현황</h2>
+          <div id="evtStockInfo"></div>
+        </div>
+
+        <!-- 참여자 목록 -->
+        <div class="card">
+          <div class="flex items-center justify-between mb-20">
+            <h2 class="card-title mb-0">참여자 목록 <span class="list-count" id="ptcCount">총 0건</span></h2>
+            <div class="flex items-center gap-2">
+              <div class="select-wrapper">
+                <select class="form-control search-select" id="ptcStatusFilter">
+                  <option value="all">상태: 전체</option>
+                  <option value="대기">대기</option>
+                  <option value="발송 완료">발송 완료</option>
+                  <option value="발송 실패">발송 실패</option>
+                  <option value="삭제됨">삭제됨</option>
+                </select>
+                <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <button class="btn btn-primary" id="ptcCouponSendBtn" disabled>쿠폰 발송</button>
+            </div>
+          </div>
+
+          <!-- 데스크톱 테이블 -->
+          <div class="table-container evt-participant-table evt-desktop-table">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:40px;"><input type="checkbox" id="ptcCheckAll"></th>
+                  <th class="col-no">No.</th>
+                  <th>유저 정보</th>
+                  <th id="ptcContentHeader">참여 내용</th>
+                  <th>발급 쿠폰</th>
+                  <th>참여 일시</th>
+                  <th class="col-status">상태</th>
+                </tr>
+              </thead>
+              <tbody id="ptcTableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- 모바일 카드 -->
+          <div class="msg-mobile-list evt-mobile-list" id="ptcMobileList" style="display:none;">
+            <div class="msg-card-list" id="ptcMobileCardBody"></div>
+          </div>
+
+          <div class="pagination" id="ptcPagination"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 쿠폰 발송 모달 -->
+  <div class="modal-overlay" id="evtCouponModal">
+    <div class="modal-content" style="max-width:600px;">
+      <div class="flex items-center justify-between mb-20">
+        <h3 class="modal-title">쿠폰 발송</h3>
+        <button class="modal-close" id="evtCouponClose">&times;</button>
+      </div>
+      <div id="evtCouponBody"></div>
+      <div class="flex justify-end gap-2" style="margin-top:16px;border-top:1px solid var(--border-color);padding-top:16px;">
+        <button class="btn btn-secondary" id="evtCouponCancelBtn">취소</button>
+        <button class="btn btn-primary" id="evtCouponSendSubmit">DM 발송</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 이미지 확대 -->
+  <div class="evt-image-overlay" id="evtImageOverlay">
+    <img src="" id="evtImageFull" alt="확대 이미지">
+  </div>
+
+  <!-- 토스트 알림 -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="lnb.js"></script>
+  <script src="api-client.js"></script>
+  <script src="script.js"></script>
+  <script src="event_detail.js"></script>
+</body>
+</html>
