@@ -129,6 +129,69 @@ router.post('/', (req: Request, res: Response) => {
   }
 });
 
+// GET /api/events/:id — 단일 이벤트 조회
+router.get('/:id', (req: Request, res: Response) => {
+  try {
+    const db = getDb();
+    const results = db.exec('SELECT * FROM events WHERE id = ?', [req.params.id]);
+    if (!results.length || !results[0].values.length) {
+      return res.status(404).json({ success: false, error: '이벤트를 찾을 수 없습니다.' });
+    }
+    const cols = results[0].columns;
+    const evt: any = {};
+    cols.forEach((c: string, i: number) => { evt[c] = results[0].values[0][i]; });
+    return res.json({ success: true, event: evt });
+  } catch (err: any) {
+    return res.json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/events/:id/participants — 참여자 목록
+router.get('/:id/participants', (req: Request, res: Response) => {
+  try {
+    const db = getDb();
+    const results = db.exec(
+      'SELECT * FROM event_participants WHERE event_id = ? ORDER BY joined_at DESC',
+      [req.params.id]
+    );
+    const cols = results[0]?.columns || [];
+    const participants = (results[0]?.values || []).map((row: any[]) => {
+      const obj: any = {};
+      cols.forEach((c: string, i: number) => { obj[c] = row[i]; });
+      return obj;
+    });
+    return res.json({ success: true, participants });
+  } catch (err: any) {
+    return res.json({ success: false, error: err.message });
+  }
+});
+
+// PATCH /api/events/:id/participants/status — 참여자 상태 일괄 업데이트 (쿠폰 발송)
+router.patch('/:id/participants/status', (req: Request, res: Response) => {
+  try {
+    const db = getDb();
+    const { ptcIds, status, couponCodes } = req.body;
+    (ptcIds as number[]).forEach((ptcId: number, i: number) => {
+      const code = couponCodes?.[i] || null;
+      if (code) {
+        db.run('UPDATE event_participants SET status = ?, coupon_code = ? WHERE id = ?', [status, code, ptcId]);
+      } else {
+        db.run('UPDATE event_participants SET status = ? WHERE id = ?', [status, ptcId]);
+      }
+    });
+    const issuedRes = db.exec(
+      "SELECT COUNT(*) FROM event_participants WHERE event_id = ? AND status = '발송 완료'",
+      [req.params.id]
+    );
+    const issued = (issuedRes[0]?.values[0]?.[0] as number) || 0;
+    db.run('UPDATE events SET cpn_issued = ? WHERE id = ?', [issued, req.params.id]);
+    saveDatabase();
+    return res.json({ success: true });
+  } catch (err: any) {
+    return res.json({ success: false, error: err.message });
+  }
+});
+
 router.put('/:id', (req: Request, res: Response) => {
   try {
     const db = getDb();
