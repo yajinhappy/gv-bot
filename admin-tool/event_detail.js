@@ -9,9 +9,13 @@
 
   function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
+  function nowKSTIso() {
+    return new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 16);
+  }
+
   function getEvtStatus(e) {
     if (e.status === 'inactive') return 'inactive';
-    const now = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    const now = nowKSTIso();
     if (now < e.start_date) return 'upcoming';
     if (now > e.end_date) return 'ended';
     return 'running';
@@ -114,7 +118,7 @@
     rows += row('상태', stLabel);
     rows += row('채널', esc(evt.channel_id || '-'));
     rows += row('슬래시 커맨드', '<code style="background:#f1f5f9;padding:2px 8px;border-radius:4px;">' + esc(evt.command_name || '-') + '</code>');
-    rows += row('기간', (evt.start_date || '') + ' ~ ' + (evt.end_date || ''));
+    rows += row('기간', (evt.start_date || '').replace('T', ' ') + ' ~ ' + (evt.end_date || '').replace('T', ' '));
     rows += row('데일리 반복', dailyLabel);
     rows += row('쿠폰 발송 방식', methodLabel);
     rows += row('쿠폰 코드 유형', cpnTypeLabel);

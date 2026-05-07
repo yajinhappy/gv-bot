@@ -12,10 +12,15 @@
   function S(n) { return String(n).padStart(2,'0'); }
   function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
+  function nowKSTIso() {
+    return new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 16);
+  }
+
   function getEvtStatus(e) {
-    const today = new Date().toISOString().slice(0,10);
-    if (today < e.startDate) return 'upcoming';
-    if (today > e.endDate) return 'ended';
+    if (e.status === 'inactive') return 'inactive';
+    const now = nowKSTIso();
+    if (now < e.startDate) return 'upcoming';
+    if (now > e.endDate) return 'ended';
     return 'running';
   }
   function statusBadge(s) {
@@ -139,7 +144,7 @@
         <td><strong>${esc(e.title)}</strong></td>
         <td>${typeLabel(e.type)}</td>
         <td>${cpnTxt}</td>
-        <td>${e.startDate} ~ ${e.endDate}</td>
+        <td>${(e.startDate||'').replace('T',' ')} ~ ${(e.endDate||'').replace('T',' ')}</td>
         <td>${ptcCnt}명</td>
         <td>${createdStr}</td>
         <td>${esc(e.author||'-')}</td>
@@ -165,7 +170,7 @@
       
       return `<a href="event_detail.html?id=${e.id}&title=${encTitle}" class="msg-card-item" style="text-decoration:none;color:inherit;">
         <div class="msg-card-row"><span class="msg-card-channel">${esc(e.title)}</span><span class="msg-card-status ${stCls}">${stTxt}</span></div>
-        <div class="msg-card-preview">${typeLabel(e.type)} · ${e.startDate} ~ ${e.endDate}</div>
+        <div class="msg-card-preview">${typeLabel(e.type)} · ${(e.startDate||'').replace('T',' ')} ~ ${(e.endDate||'').replace('T',' ')}</div>
         <div class="msg-card-row"><span class="msg-card-date">${createdStr} 등록</span><span class="msg-card-manage">참여자 ${ptcCnt}명</span></div>
       </a>`;
     }).join('');
