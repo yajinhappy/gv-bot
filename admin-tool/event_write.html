@@ -110,9 +110,20 @@
 
             <div class="form-group">
               <label class="form-label">적용 채널 <span class="required">*</span></label>
-              <select class="form-control" id="evtChannel" required>
-                <option value="">채널 선택</option>
-              </select>
+              <div class="multi-select-container" id="channelMultiSelect">
+                <div class="form-control multi-select-trigger"
+                  onclick="this.nextElementSibling.classList.toggle('active')">
+                  <span class="selected-text" id="channelSelectedText">채널을 선택하세요</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+                <div class="multi-select-dropdown" id="evtChannelDropdown">
+                  <div style="padding: 10px; color: #888;">채널 목록을 불러오는 중...</div>
+                </div>
+              </div>
+              <input type="hidden" id="evtChannel" required>
             </div>
 
             <div class="form-group">

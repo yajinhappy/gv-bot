@@ -91,18 +91,39 @@
     })
     .then(res => res.json())
     .then(data => {
-      const select = document.getElementById('evtChannel');
-      select.innerHTML = '<option value="">채널 선택</option>';
+      const dropdown = document.getElementById('evtChannelDropdown');
+      dropdown.innerHTML = '';
       if (data.success && data.data) {
         data.data.forEach(ch => {
-          const opt = document.createElement('option');
-          opt.value = ch.id;
-          opt.textContent = ch.name + ' (' + ch.id + ')';
-          select.appendChild(opt);
+          const label = document.createElement('label');
+          label.className = 'multi-select-option';
+          label.innerHTML = `<input type="radio" name="evtChannelRadio" value="${ch.id}" class="channel-radio" required> # ${ch.name}`;
+          dropdown.appendChild(label);
         });
+
+        const radios = document.querySelectorAll('.channel-radio');
+        const selectedTextEl = document.getElementById('channelSelectedText');
+        const hiddenInput = document.getElementById('evtChannel');
+
+        radios.forEach(radio => {
+          radio.addEventListener('change', () => {
+            if (radio.checked) {
+              selectedTextEl.textContent = radio.nextSibling.textContent.trim();
+              selectedTextEl.style.color = 'var(--text-main)';
+              hiddenInput.value = radio.value;
+              dropdown.classList.remove('active');
+            }
+          });
+        });
+      } else {
+        dropdown.innerHTML = '<div style="padding: 10px; color: red;">채널 목록을 불러오지 못했습니다.</div>';
       }
     })
-    .catch(err => console.error('채널 로드 에러:', err));
+    .catch(err => {
+      console.error('채널 로드 에러:', err);
+      const dropdown = document.getElementById('evtChannelDropdown');
+      if (dropdown) dropdown.innerHTML = '<div style="padding: 10px; color: red;">채널 로드 에러 발생</div>';
+    });
   }
 
     // 이벤트 활성 상태 토글
@@ -200,7 +221,6 @@
 
     // 비활성화 항목들
     document.querySelectorAll('input[name="evtType"]').forEach(r => r.disabled = true);
-    document.getElementById('evtChannel').disabled = true;
     document.getElementById('evtCommand').disabled = true;
 
     // 데이터 세팅
@@ -217,7 +237,27 @@
     document.getElementById('evtStartDate').value = editEvt.startDate || '';
     document.getElementById('evtEndDate').value = editEvt.endDate || '';
     document.getElementById('evtChannel').value = editEvt.channel || '';
-    document.getElementById('evtChannel').disabled = true;
+
+    // 드롭다운 값 복원 및 비활성화
+    setTimeout(() => {
+      const selectedRadio = document.querySelector(`.channel-radio[value="${editEvt.channel}"]`);
+      if (selectedRadio) {
+        selectedRadio.checked = true;
+        const selectedTextEl = document.getElementById('channelSelectedText');
+        selectedTextEl.textContent = selectedRadio.nextSibling.textContent.trim();
+        selectedTextEl.style.color = 'var(--text-main)';
+      }
+      const multiSelectTrigger = document.querySelector('.multi-select-trigger');
+      if (multiSelectTrigger) {
+        multiSelectTrigger.style.pointerEvents = 'none';
+        multiSelectTrigger.style.backgroundColor = 'var(--bg-surface)';
+      }
+      document.querySelectorAll('.channel-radio').forEach(r => {
+        r.disabled = true;
+        const opt = r.closest('.multi-select-option');
+        if (opt) opt.style.opacity = '0.7';
+      });
+    }, 100);
     document.getElementById('evtCommand').value = editEvt.command || '';
     document.getElementById('evtCommand').disabled = true;
 
@@ -356,4 +396,11 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+
+  // 외부 클릭 시 드롭다운 닫기
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.multi-select-container')) {
+      document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('active'));
+    }
+  });
 })();
