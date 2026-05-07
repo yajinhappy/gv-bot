@@ -122,9 +122,6 @@ function splitMessage(text: string, maxLength: number): string[] {
 
   return chunks;
 }
-
-}
-
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function processDailyEvents() {
