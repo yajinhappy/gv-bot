@@ -13,7 +13,7 @@
   function now() { const d = new Date(); return d.getFullYear()+'-'+S(d.getMonth()+1)+'-'+S(d.getDate())+' '+S(d.getHours())+':'+S(d.getMinutes())+':'+S(d.getSeconds()); }
   function S(n) { return String(n).padStart(2,'0'); }
 
-  function init() {
+  async function init() {
     const params = new URLSearchParams(location.search);
     const title = params.get('title') || 'RO1';
     editId = params.get('edit');
@@ -35,66 +35,13 @@
     });
 
     document.getElementById('pageTitle').textContent = title + (isEditMode ? ' - 이벤트 수정' : ' - 이벤트 등록');
-    fetchChannels().then(() => {
-      if (isEditMode) {
-        document.getElementById('cardTitle').textContent = '이벤트 수정하기';
-        const submitBtn = document.getElementById('evtSubmitBtn');
-        if (submitBtn) submitBtn.textContent = '수정하기';
-
-        fetch((window.API_CONFIG ? window.API_CONFIG.BASE_URL : '/api') + '/events', {
-          headers: {
-            'x-api-key': window.API_CONFIG ? window.API_CONFIG.API_KEY : '',
-            'Authorization': 'Bearer ' + localStorage.getItem('gv_auth_token')
-          }
-        })
-        .then(r => r.json())
-        .then(res => {
-          const events = res.events || [];
-          const e = events.find(e => String(e.id) === String(editId));
-          if (!e) { alert('이벤트를 찾을 수 없습니다.'); location.href='event_mgmt.html'; return; }
-          editEvt = {
-            id: e.id,
-            type: e.type,
-            title: e.title,
-            desc: e.description,
-            announceMsg: e.announce_msg,
-            startDate: e.start_date,
-            endDate: e.end_date,
-            channel: e.channel_id,
-            command: e.command_name,
-            daily: e.daily,
-            dailyStart: e.daily_start,
-            dailyEnd: e.daily_end,
-            couponMethod: e.coupon_method,
-            cpnType: e.cpn_type,
-            cpnCode: e.cpn_code,
-            cpnStock: e.cpn_stock,
-            cpnStockLimit: e.cpn_stock_limit,
-            memo: e.memo,
-            status: e.status
-          };
-          loadEventData();
-        })
-        .catch(err => {
-          console.error(err);
-          alert('이벤트를 찾을 수 없습니다.'); location.href='event_mgmt.html';
-        });
-      }
-    });
-
-  function fetchChannels() {
-    return fetch(window.API_CONFIG ? window.API_CONFIG.BASE_URL + '/channels' : '/api/channels', {
-      headers: {
-        'x-api-key': window.API_CONFIG ? window.API_CONFIG.API_KEY : '',
-        'Authorization': 'Bearer ' + localStorage.getItem('gv_auth_token')
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
+    
+    try {
+      const channels = await apiRequest('/channels');
       const dropdown = document.getElementById('evtChannelDropdown');
       dropdown.innerHTML = '';
-      if (data.success && data.data) {
-        data.data.forEach(ch => {
+      if (channels && channels.data) {
+        channels.data.forEach(ch => {
           const label = document.createElement('label');
           label.className = 'multi-select-option';
           label.innerHTML = `<input type="radio" name="evtChannelRadio" value="${ch.id}" class="channel-radio" required> # ${ch.name}`;
@@ -118,13 +65,49 @@
       } else {
         dropdown.innerHTML = '<div style="padding: 10px; color: red;">채널 목록을 불러오지 못했습니다.</div>';
       }
-    })
-    .catch(err => {
+    } catch(err) {
       console.error('채널 로드 에러:', err);
       const dropdown = document.getElementById('evtChannelDropdown');
       if (dropdown) dropdown.innerHTML = '<div style="padding: 10px; color: red;">채널 로드 에러 발생</div>';
-    });
-  }
+    }
+
+    if (isEditMode) {
+      document.getElementById('cardTitle').textContent = '이벤트 수정하기';
+      const submitBtn = document.getElementById('evtSubmitBtn');
+      if (submitBtn) submitBtn.textContent = '수정하기';
+
+      try {
+        const res = await apiRequest('/events');
+        const events = res.events || [];
+        const e = events.find(e => String(e.id) === String(editId));
+        if (!e) { alert('이벤트를 찾을 수 없습니다.'); location.href='event_mgmt.html'; return; }
+        editEvt = {
+          id: e.id,
+          type: e.type,
+          title: e.title,
+          desc: e.description,
+          announceMsg: e.announce_msg,
+          startDate: e.start_date,
+          endDate: e.end_date,
+          channel: e.channel_id,
+          command: e.command_name,
+          daily: e.daily,
+          dailyStart: e.daily_start,
+          dailyEnd: e.daily_end,
+          couponMethod: e.coupon_method,
+          cpnType: e.cpn_type,
+          cpnCode: e.cpn_code,
+          cpnStock: e.cpn_stock,
+          cpnStockLimit: e.cpn_stock_limit,
+          memo: e.memo,
+          status: e.status
+        };
+        loadEventData();
+      } catch (err) {
+        console.error(err);
+        alert('이벤트를 찾을 수 없습니다.'); location.href='event_mgmt.html';
+      }
+    }
 
     // 이벤트 활성 상태 토글
     const toggle = document.getElementById('evtStatusToggle');
