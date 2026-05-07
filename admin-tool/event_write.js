@@ -41,10 +41,44 @@
         const submitBtn = document.getElementById('evtSubmitBtn');
         if (submitBtn) submitBtn.textContent = '수정하기';
 
-        const events = JSON.parse(localStorage.getItem(EVT_KEY) || '[]');
-        editEvt = events.find(e => e.id === editId);
-        if (!editEvt) { alert('이벤트를 찾을 수 없습니다.'); location.href='event_mgmt.html'; return; }
-        loadEventData();
+        fetch((window.API_CONFIG ? window.API_CONFIG.BASE_URL : '/api') + '/events', {
+          headers: {
+            'x-api-key': window.API_CONFIG ? window.API_CONFIG.API_KEY : '',
+            'Authorization': 'Bearer ' + localStorage.getItem('gv_auth_token')
+          }
+        })
+        .then(r => r.json())
+        .then(res => {
+          const events = res.events || [];
+          const e = events.find(e => String(e.id) === String(editId));
+          if (!e) { alert('이벤트를 찾을 수 없습니다.'); location.href='event_mgmt.html'; return; }
+          editEvt = {
+            id: e.id,
+            type: e.type,
+            title: e.title,
+            desc: e.description,
+            announceMsg: e.announce_msg,
+            startDate: e.start_date,
+            endDate: e.end_date,
+            channel: e.channel_id,
+            command: e.command_name,
+            daily: e.daily,
+            dailyStart: e.daily_start,
+            dailyEnd: e.daily_end,
+            couponMethod: e.coupon_method,
+            cpnType: e.cpn_type,
+            cpnCode: e.cpn_code,
+            cpnStock: e.cpn_stock,
+            cpnStockLimit: e.cpn_stock_limit,
+            memo: e.memo,
+            status: e.status
+          };
+          loadEventData();
+        })
+        .catch(err => {
+          console.error(err);
+          alert('이벤트를 찾을 수 없습니다.'); location.href='event_mgmt.html';
+        });
       }
     });
 
@@ -59,8 +93,8 @@
     .then(data => {
       const select = document.getElementById('evtChannel');
       select.innerHTML = '<option value="">채널 선택</option>';
-      if (data.success && data.channels) {
-        data.channels.forEach(ch => {
+      if (data.success && data.data) {
+        data.data.forEach(ch => {
           const opt = document.createElement('option');
           opt.value = ch.id;
           opt.textContent = ch.name + ' (' + ch.id + ')';
@@ -269,31 +303,23 @@
     const status = isEditMode && !document.getElementById('evtStatusToggle').checked ? 'inactive' : 'active';
     
     const evtData = {
-      id: isEditMode ? editId : uid(),
       type: document.querySelector('input[name="evtType"]:checked').value,
       title: t,
-      desc: document.getElementById('evtDesc').value.trim(),
+      description: document.getElementById('evtDesc').value.trim(),
       announceMsg: announceMsg,
       startDate: sd, endDate: ed,
-      channel: document.getElementById('evtChannel').value.trim(),
-      command: document.getElementById('evtCommand').value.trim(),
+      channelId: document.getElementById('evtChannel').value.trim(),
+      commandName: document.getElementById('evtCommand').value.trim(),
       daily: document.querySelector('input[name="evtDaily"]:checked')?.value || 'off',
       dailyStart: document.getElementById('evtDailyStart')?.value || '',
       dailyEnd: document.getElementById('evtDailyEnd')?.value || '',
       couponMethod: document.querySelector('input[name="evtCouponMethod"]:checked')?.value || 'auto',
-      cpnType, cpnCode, cpnCodes, cpnStock, cpnStockLimit,
+      cpnType, cpnCode, cpnStock, cpnStockLimit,
       memo: document.getElementById('evtMemo').value.trim(),
       status: status
     };
 
-    const events = JSON.parse(localStorage.getItem(EVT_KEY) || '[]');
     if (isEditMode) {
-      const idx = events.findIndex(e => e.id === editId);
-      if (idx !== -1) {
-        events[idx] = { ...events[idx], ...evtData };
-      }
-      localStorage.setItem(EVT_KEY, JSON.stringify(events));
-      
       // Update via API
       fetch((window.API_CONFIG ? window.API_CONFIG.BASE_URL : '/api') + '/events/' + editId, {
         method: 'PUT',
@@ -303,29 +329,13 @@
           'Authorization': 'Bearer ' + localStorage.getItem('gv_auth_token')
         },
         body: JSON.stringify(evtData)
+      }).then(() => {
+        alert('이벤트가 수정되었습니다.');
+        const titleParams = new URLSearchParams(location.search).get('title') || '';
+        location.href = 'event_mgmt.html' + (titleParams ? '?title=' + encodeURIComponent(titleParams) : '');
       }).catch(e => console.error('API Error:', e));
-
-      alert('이벤트가 수정되었습니다.');
     } else {
       evtData.author = author;
-      evtData.createdAt = now();
-      evtData.cpnIssued = 0;
-      events.unshift(evtData);
-      localStorage.setItem(EVT_KEY, JSON.stringify(events));
-
-      // Add Notification
-      const titleName = new URLSearchParams(window.location.search).get('title') || 'RO1';
-      let notis = JSON.parse(localStorage.getItem('gv_notifications') || '[]');
-      notis.unshift({
-        id: new Date().getTime(),
-        type: 'new_event',
-        title: `${titleName} · ${evtData.title}`,
-        desc: '새로운 이벤트가 등록되었습니다.',
-        date: new Date().toISOString(),
-        isRead: false
-      });
-      localStorage.setItem('gv_notifications', JSON.stringify(notis));
-      if (window.refreshLNB) window.refreshLNB();
 
       // Create via API
       fetch((window.API_CONFIG ? window.API_CONFIG.BASE_URL : '/api') + '/events', {
@@ -336,12 +346,12 @@
           'Authorization': 'Bearer ' + localStorage.getItem('gv_auth_token')
         },
         body: JSON.stringify(evtData)
+      }).then(() => {
+        if (window.refreshLNB) window.refreshLNB();
+        alert('이벤트가 등록되었습니다.');
+        const titleParams = new URLSearchParams(location.search).get('title') || '';
+        location.href = 'event_mgmt.html' + (titleParams ? '?title=' + encodeURIComponent(titleParams) : '');
       }).catch(e => console.error('API Error:', e));
-
-      alert('이벤트가 등록되었습니다.');
-    }
-    const title = new URLSearchParams(location.search).get('title') || '';
-    location.href = 'event_mgmt.html' + (title ? '?title=' + encodeURIComponent(title) : '');
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

@@ -25,29 +25,7 @@
   }
   function typeLabel(t) { return t === 'text' ? '일반 이벤트' : '이미지 인증'; }
 
-  function seedIfEmpty() {
-    if (JSON.parse(localStorage.getItem(EVT_KEY)||'[]').length > 0) return;
-    const events = [
-      { id:'d1',type:'text',title:'5월 출석체크',desc:'매일 출석체크!',startDate:'2026-05-01',endDate:'2026-05-31',channel:'#이벤트-참여',command:'/출석체크완료',daily:'on',dailyStart:'09:00',dailyEnd:'23:59',couponMethod:'auto',cpnType:'single',cpnCode:'GRAV-MAY-2026',cpnCodes:[],cpnStock:'unlimited',cpnStockLimit:0,cpnIssued:42,memo:'',author:'admin',createdAt:'2026-05-01 09:00:00'},
-      { id:'d2',type:'image',title:'스크린샷 인증 이벤트',desc:'게임 플레이 스크린샷 인증!',startDate:'2026-05-05',endDate:'2026-05-20',channel:'#스크린샷-인증',command:'/스크린샷인증',daily:'off',dailyStart:'',dailyEnd:'',couponMethod:'manual',cpnType:'individual',cpnCode:'',cpnCodes:['RO1-A001','RO1-A002','RO1-A003','RO1-A004','RO1-A005','RO1-A006','RO1-A007','RO1-A008','RO1-A009','RO1-A010'],cpnStock:'limited',cpnStockLimit:10,cpnIssued:3,memo:'이미지 확인 후 발송',author:'admin',createdAt:'2026-05-04 14:00:00'},
-      { id:'d3',type:'text',title:'런칭 기념 이벤트',desc:'런칭 축하!',startDate:'2026-04-15',endDate:'2026-04-30',channel:'#이벤트',command:'/런칭축하',daily:'off',dailyStart:'',dailyEnd:'',couponMethod:'auto',cpnType:'single',cpnCode:'LAUNCH-2026',cpnCodes:[],cpnStock:'limited',cpnStockLimit:100,cpnIssued:100,memo:'',author:'operator1',createdAt:'2026-04-14 10:00:00'},
-    ];
-    localStorage.setItem(EVT_KEY, JSON.stringify(events));
-
-    const ptcs = [
-      { id:'p1',eventId:'d1',eventTitle:'5월 출석체크',userId:'user#1234',userName:'PlayerOne',content:'출석 완료!',imageUrl:'',joinedAt:'2026-05-06 10:23:45',status:'발송 완료'},
-      { id:'p2',eventId:'d1',eventTitle:'5월 출석체크',userId:'user#5678',userName:'GamerKR',content:'출석!',imageUrl:'',joinedAt:'2026-05-06 11:05:12',status:'대기'},
-      { id:'p3',eventId:'d2',eventTitle:'스크린샷 인증 이벤트',userId:'user#9012',userName:'ScreenCapPro',content:'',imageUrl:'https://placehold.co/400x300/2563eb/white?text=Screenshot',joinedAt:'2026-05-06 15:30:00',status:'대기'},
-      { id:'p4',eventId:'d2',eventTitle:'스크린샷 인증 이벤트',userId:'user#3456',userName:'ArtFan',content:'',imageUrl:'https://placehold.co/400x300/16a34a/white?text=Game+Play',joinedAt:'2026-05-06 16:10:33',status:'대기'},
-      { id:'p5',eventId:'d3',eventTitle:'런칭 기념 이벤트',userId:'user#7890',userName:'EarlyBird',content:'런칭 축하!',imageUrl:'',joinedAt:'2026-04-15 12:00:00',status:'발송 완료'},
-    ];
-    localStorage.setItem(PTC_KEY, JSON.stringify(ptcs));
-  }
-
   function init() {
-    seedIfEmpty();
-    allEvents = JSON.parse(localStorage.getItem(EVT_KEY)||'[]');
-    allPtc = JSON.parse(localStorage.getItem(PTC_KEY)||'[]');
     const title = new URLSearchParams(location.search).get('title') || 'RO1';
     document.getElementById('pageTitle').textContent = title + ' - 이벤트 관리';
 
@@ -57,9 +35,51 @@
     const fab = document.getElementById('evtNewFab');
     if (fab) fab.setAttribute('href', 'event_write.html?title=' + enc);
 
-    bindFilters();
-    bindMobileFilter();
-    applyFilters();
+    fetch((window.API_CONFIG ? window.API_CONFIG.BASE_URL : '/api') + '/events', {
+      headers: {
+        'x-api-key': window.API_CONFIG ? window.API_CONFIG.API_KEY : '',
+        'Authorization': 'Bearer ' + localStorage.getItem('gv_auth_token')
+      }
+    })
+    .then(r => r.json())
+    .then(res => {
+      allEvents = (res.events || []).map(e => ({
+        id: e.id,
+        type: e.type,
+        title: e.title,
+        desc: e.description,
+        announceMsg: e.announce_msg,
+        startDate: e.start_date,
+        endDate: e.end_date,
+        channel: e.channel_id,
+        command: e.command_name,
+        daily: e.daily,
+        dailyStart: e.daily_start,
+        dailyEnd: e.daily_end,
+        couponMethod: e.coupon_method,
+        cpnType: e.cpn_type,
+        cpnCode: e.cpn_code,
+        cpnStock: e.cpn_stock,
+        cpnStockLimit: e.cpn_stock_limit,
+        memo: e.memo,
+        status: e.status,
+        author: e.author,
+        createdAt: e.created_at
+      }));
+      allPtc = [];
+
+      bindFilters();
+      bindMobileFilter();
+      applyFilters();
+    })
+    .catch(err => {
+      console.error(err);
+      allEvents = [];
+      allPtc = [];
+      bindFilters();
+      bindMobileFilter();
+      applyFilters();
+    });
   }
 
   function bindFilters() {
