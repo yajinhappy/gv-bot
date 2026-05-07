@@ -322,10 +322,9 @@
         document.getElementById('cpnDownloadBtn').disabled = true;
       }
 
-      // 수정 모드에서도 파일 교체 가능 — 업로드 영역 유지 (라벨만 변경)
-      document.getElementById('cpnUploadArea').style.display = '';
-      const uploadLabel = document.querySelector('#individualCodeGroup .form-label');
-      if (uploadLabel) uploadLabel.innerHTML = '코드 파일 교체 <span style="font-size:12px;color:var(--text-muted);font-weight:400;">(새 파일 업로드 시 기존 코드 전체 교체)</span>';
+      // 수정 모드: 업로드 영역 및 라벨 숨김
+      document.getElementById('cpnUploadArea').style.display = 'none';
+      document.getElementById('cpnUploadLabel') && (document.getElementById('cpnUploadLabel').style.display = 'none');
     }
     document.getElementById('evtMemo').value = editEvt.memo || '';
   }
