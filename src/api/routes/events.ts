@@ -120,8 +120,8 @@ router.post('/', (req: Request, res: Response) => {
     const db = getDb();
     const e = req.body;
     db.run(
-      `INSERT INTO events (type, title, description, announce_msg, start_date, end_date, channel_id, command_name, daily, daily_start, daily_end, coupon_method, cpn_type, cpn_code, cpn_stock, cpn_stock_limit, memo, status, author, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO events (type, title, description, announce_msg, start_date, end_date, channel_id, command_name, daily, daily_start, daily_end, coupon_method, cpn_type, cpn_code, cpn_stock, cpn_stock_limit, cpn_codes_pool, memo, status, author, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         e.type || 'text',
         e.title,
@@ -139,6 +139,7 @@ router.post('/', (req: Request, res: Response) => {
         e.cpnCode || null,
         e.cpnStock || 'unlimited',
         e.cpnStockLimit || 0,
+        e.cpnCodes && e.cpnCodes.length > 0 ? JSON.stringify(e.cpnCodes) : null,
         e.memo || null,
         e.status || 'active',
         e.author || 'admin',

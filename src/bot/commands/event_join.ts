@@ -106,8 +106,14 @@ const command: SlashCommand = {
       }
     }
 
-    // 한정 수량 재고 체크
-    if (evt.cpn_stock === 'limited') {
+    // 재고 체크
+    if (evt.cpn_type === 'individual') {
+      const pool: string[] = evt.cpn_codes_pool ? JSON.parse(evt.cpn_codes_pool) : [];
+      if (pool.length === 0) {
+        await interaction.editReply('❌ 이벤트 쿠폰이 모두 소진되었습니다.');
+        return;
+      }
+    } else if (evt.cpn_stock === 'limited') {
       const issued = evt.cpn_issued || 0;
       const limit = evt.cpn_stock_limit || 0;
       if (issued >= limit) {
@@ -122,25 +128,56 @@ const command: SlashCommand = {
        VALUES (?, ?, ?, ?, ?, ?, '대기')`,
       [evt.id, userId, userTag, userName, content, now]
     );
+    const ptcIdRes = db.exec('SELECT last_insert_rowid()');
+    const ptcId = ptcIdRes[0].values[0][0] as number;
     saveDatabase();
 
-    // 자동 발송 + 단일 코드라면 바로 쿠폰 DM
+    // 자동 쿠폰 DM 발송
     let dmSent = false;
-    if (evt.coupon_method === 'auto' && evt.cpn_code) {
+    let couponCode: string | null = null;
+
+    if (evt.coupon_method === 'auto') {
+      if (evt.cpn_type === 'single' && evt.cpn_code) {
+        couponCode = evt.cpn_code;
+      } else if (evt.cpn_type === 'individual' && evt.cpn_codes_pool) {
+        try {
+          const pool: string[] = JSON.parse(evt.cpn_codes_pool);
+          if (pool.length > 0) {
+            couponCode = pool.shift()!;
+            db.run('UPDATE events SET cpn_codes_pool = ? WHERE id = ?', [JSON.stringify(pool), evt.id]);
+          }
+        } catch { /* pool 파싱 오류 무시 */ }
+      }
+    }
+
+    if (couponCode) {
       try {
         const dm = await interaction.user.createDM();
         const cpnEmbed = new EmbedBuilder()
           .setTitle('🎉 쿠폰 발급 — ' + evt.title)
-          .setDescription(`축하합니다! 이벤트에 참여하셨습니다.\n\n**쿠폰 코드:** \`${evt.cpn_code}\``)
+          .setDescription(`축하합니다! 이벤트에 참여하셨습니다.\n\n**쿠폰 코드:** \`${couponCode}\``)
           .setColor(0x16a34a)
           .setFooter({ text: 'GV DiscordBot Event System' })
           .setTimestamp();
         await dm.send({ embeds: [cpnEmbed] });
         dmSent = true;
+        db.run(
+          `UPDATE event_participants SET coupon_code = ?, status = '발송 완료' WHERE id = ?`,
+          [couponCode, ptcId]
+        );
         db.run('UPDATE events SET cpn_issued = cpn_issued + 1 WHERE id = ?', [evt.id]);
         saveDatabase();
       } catch (e) {
         console.error('DM 발송 실패:', e);
+        // 개별 코드를 꺼냈지만 DM 실패 → 다시 풀에 반납
+        if (evt.cpn_type === 'individual' && couponCode) {
+          try {
+            const pool: string[] = evt.cpn_codes_pool ? JSON.parse(evt.cpn_codes_pool) : [];
+            pool.unshift(couponCode);
+            db.run('UPDATE events SET cpn_codes_pool = ? WHERE id = ?', [JSON.stringify(pool), evt.id]);
+            saveDatabase();
+          } catch { /* 무시 */ }
+        }
       }
     }
 
@@ -155,7 +192,7 @@ const command: SlashCommand = {
       .setFooter({ text: 'GV DiscordBot Event System' })
       .setTimestamp();
 
-    if (evt.coupon_method === 'auto' && evt.cpn_code && !dmSent) {
+    if (evt.coupon_method === 'auto' && couponCode && !dmSent) {
       embed.addFields({ name: '⚠️ 쿠폰 DM', value: 'DM 발송에 실패했습니다. Discord 설정에서 DM 허용 여부를 확인해 주세요.' });
     }
 

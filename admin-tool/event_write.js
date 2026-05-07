@@ -360,7 +360,7 @@
       dailyStart: document.getElementById('evtDailyStart')?.value || '',
       dailyEnd: document.getElementById('evtDailyEnd')?.value || '',
       couponMethod: document.querySelector('input[name="evtCouponMethod"]:checked')?.value || 'auto',
-      cpnType, cpnCode, cpnStock, cpnStockLimit,
+      cpnType, cpnCode, cpnCodes, cpnStock, cpnStockLimit,
       memo: document.getElementById('evtMemo').value.trim(),
       status: status
     };
