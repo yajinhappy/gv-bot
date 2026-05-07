@@ -11,6 +11,7 @@ export function startScheduler() {
     await processPendingMessages();
     await processEventStartAnnouncements();
     await processDailyEvents();
+    await processEventEndNotifications();
   });
 
   console.log('⏰ 메시지 및 데일리 이벤트 스케줄러 시작 (1분 주기 폴링)');
@@ -153,21 +154,70 @@ async function processEventStartAnnouncements() {
   for (const e of events) {
     try {
       const channelIds = e.channel_id.split(',').map((id: string) => id.trim());
+      let firstMessageId: string | null = null;
       for (const channelId of channelIds) {
         const channel = await client.channels.fetch(channelId);
         if (channel && channel instanceof TextChannel) {
           const chunks = e.announce_msg.length > 2000 ? splitMessage(e.announce_msg, 2000) : [e.announce_msg];
-          for (const chunk of chunks) {
-            await channel.send({ content: chunk });
+          for (let i = 0; i < chunks.length; i++) {
+            const sent = await channel.send({ content: chunks[i] });
+            if (i === 0 && !firstMessageId) firstMessageId = sent.id;
             if (chunks.length > 1) await sleep(500);
           }
           console.log(`✅ 이벤트 시작 공지 완료 [${e.title}] → ${channelId}`);
         }
       }
-      db.run('UPDATE events SET announced = 1 WHERE id = ?', [e.id]);
+      db.run(
+        'UPDATE events SET announced = 1, announce_message_id = ? WHERE id = ?',
+        [firstMessageId, e.id]
+      );
       saveDatabase();
     } catch (err) {
       console.error(`❌ 이벤트 시작 공지 실패 [${e.title}]:`, err);
+    }
+  }
+}
+
+async function processEventEndNotifications() {
+  const db = getDb();
+  const isoStr = nowKST().substring(0, 16).replace(' ', 'T');
+
+  const results = db.exec(`
+    SELECT * FROM events
+    WHERE status = 'active'
+      AND announce_message_id IS NOT NULL
+      AND end_notified = 0
+      AND end_date < ?
+  `, [isoStr]);
+
+  if (!results.length || !results[0].values.length) return;
+
+  const columns = results[0].columns;
+  const events = results[0].values.map((row: any[]) => {
+    const e: any = {};
+    columns.forEach((col, idx) => e[col] = row[idx]);
+    return e;
+  });
+
+  console.log(`🔔 이벤트 종료 알림 발송: ${events.length}건`);
+
+  for (const e of events) {
+    try {
+      const channelId = e.channel_id.split(',')[0].trim();
+      const channel = await client.channels.fetch(channelId);
+      if (channel && channel instanceof TextChannel) {
+        const announceMsg = await channel.messages.fetch(e.announce_message_id).catch(() => null);
+        if (announceMsg) {
+          await announceMsg.reply(`❌ **${e.title}** 이벤트가 종료되었습니다.`);
+        } else {
+          await channel.send(`❌ **${e.title}** 이벤트가 종료되었습니다.`);
+        }
+        console.log(`✅ 이벤트 종료 알림 완료 [${e.title}]`);
+      }
+      db.run('UPDATE events SET end_notified = 1 WHERE id = ?', [e.id]);
+      saveDatabase();
+    } catch (err) {
+      console.error(`❌ 이벤트 종료 알림 실패 [${e.title}]:`, err);
     }
   }
 }
