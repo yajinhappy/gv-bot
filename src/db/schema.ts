@@ -138,9 +138,11 @@ export async function initDatabase(): Promise<SqlJsDatabase> {
 
   try {
     db.exec(`ALTER TABLE events ADD COLUMN announce_msg TEXT DEFAULT NULL;`);
-  } catch (e) {
-    // Already exists
-  }
+  } catch (e) { /* Already exists */ }
+
+  try {
+    db.exec(`ALTER TABLE events ADD COLUMN announced INTEGER DEFAULT 0;`);
+  } catch (e) { /* Already exists */ }
 
   // 초기 슈퍼관리자 계정 (없을 때만)
   const adminCheck = db.exec("SELECT COUNT(*) FROM operators WHERE login_id = 'admin'");

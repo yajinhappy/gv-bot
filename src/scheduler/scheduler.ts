@@ -1,7 +1,7 @@
 import cron from 'node-cron';
 import { TextChannel, EmbedBuilder } from 'discord.js';
 import { client } from '../bot/client';
-import { getPendingMessages, markAsSent, markAsFailed, getDb, nowKST } from '../db/schema';
+import { getPendingMessages, markAsSent, markAsFailed, getDb, saveDatabase, nowKST } from '../db/schema';
 
 /**
  * 1분마다 DB를 폴링해서 전송할 메시지나 데일리 이벤트 알림이 있으면 Discord로 전송
@@ -9,6 +9,7 @@ import { getPendingMessages, markAsSent, markAsFailed, getDb, nowKST } from '../
 export function startScheduler() {
   cron.schedule('* * * * *', async () => {
     await processPendingMessages();
+    await processEventStartAnnouncements();
     await processDailyEvents();
   });
 
@@ -123,6 +124,53 @@ function splitMessage(text: string, maxLength: number): string[] {
   return chunks;
 }
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function processEventStartAnnouncements() {
+  const db = getDb();
+  const isoStr = nowKST().substring(0, 16).replace(' ', 'T');
+
+  const results = db.exec(`
+    SELECT * FROM events
+    WHERE status = 'active'
+      AND announce_msg IS NOT NULL
+      AND announce_msg != ''
+      AND announced = 0
+      AND start_date <= ?
+      AND end_date >= ?
+  `, [isoStr, isoStr]);
+
+  if (!results.length || !results[0].values.length) return;
+
+  const columns = results[0].columns;
+  const events = results[0].values.map((row: any[]) => {
+    const e: any = {};
+    columns.forEach((col, idx) => e[col] = row[idx]);
+    return e;
+  });
+
+  console.log(`📣 이벤트 시작 공지 발송: ${events.length}건`);
+
+  for (const e of events) {
+    try {
+      const channelIds = e.channel_id.split(',').map((id: string) => id.trim());
+      for (const channelId of channelIds) {
+        const channel = await client.channels.fetch(channelId);
+        if (channel && channel instanceof TextChannel) {
+          const chunks = e.announce_msg.length > 2000 ? splitMessage(e.announce_msg, 2000) : [e.announce_msg];
+          for (const chunk of chunks) {
+            await channel.send({ content: chunk });
+            if (chunks.length > 1) await sleep(500);
+          }
+          console.log(`✅ 이벤트 시작 공지 완료 [${e.title}] → ${channelId}`);
+        }
+      }
+      db.run('UPDATE events SET announced = 1 WHERE id = ?', [e.id]);
+      saveDatabase();
+    } catch (err) {
+      console.error(`❌ 이벤트 시작 공지 실패 [${e.title}]:`, err);
+    }
+  }
+}
 
 async function processDailyEvents() {
   const db = getDb();
