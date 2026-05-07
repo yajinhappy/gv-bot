@@ -19,20 +19,38 @@
     editId = params.get('edit');
     isEditMode = !!editId;
 
-    window.quill = new Quill('#editor-container', {
-      theme: 'snow',
-      modules: {
-        toolbar: [
-          [{ 'header': [1, 2, 3, false] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-          ['link', 'image', 'video'],
-          ['clean']
-        ]
-      },
-      placeholder: '공지 메시지 내용을 입력하세요...'
-    });
+    // Quill 초기화 — CDN 로드 실패 시 textarea 폴백으로 대체
+    try {
+      if (typeof Quill !== 'undefined') {
+        window.quill = new Quill('#editor-container', {
+          theme: 'snow',
+          modules: {
+            toolbar: [
+              [{ 'header': [1, 2, 3, false] }],
+              ['bold', 'italic', 'underline', 'strike'],
+              [{ 'color': [] }, { 'background': [] }],
+              [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+              ['link', 'image', 'video'],
+              ['clean']
+            ]
+          },
+          placeholder: '공지 메시지 내용을 입력하세요...'
+        });
+      } else {
+        document.getElementById('editor-container').style.display = 'none';
+        const ta = document.getElementById('evtAnnounceMsg');
+        ta.style.display = '';
+        ta.rows = 8;
+        ta.placeholder = '공지 메시지 내용을 입력하세요...';
+      }
+    } catch (e) {
+      console.error('Quill 초기화 실패:', e);
+      document.getElementById('editor-container').style.display = 'none';
+      const ta = document.getElementById('evtAnnounceMsg');
+      ta.style.display = '';
+      ta.rows = 8;
+      ta.placeholder = '공지 메시지 내용을 입력하세요...';
+    }
 
     document.getElementById('pageTitle').textContent = title + (isEditMode ? ' - 이벤트 수정' : ' - 이벤트 등록');
     
@@ -216,6 +234,8 @@
     document.getElementById('evtDesc').value = editEvt.desc || '';
     if (window.quill && editEvt.announceMsg) {
       window.quill.clipboard.dangerouslyPasteHTML(editEvt.announceMsg.replace(/\n/g, '<br>'));
+    } else if (!window.quill && editEvt.announceMsg) {
+      document.getElementById('evtAnnounceMsg').value = editEvt.announceMsg;
     }
     document.getElementById('evtStartDate').value = editEvt.startDate || '';
     document.getElementById('evtEndDate').value = editEvt.endDate || '';
@@ -290,6 +310,8 @@
     const ed = document.getElementById('evtEndDate').value;
     if (!sd || !ed) { alert('이벤트 기간을 설정해주세요.'); return; }
     if (sd > ed) { alert('종료일은 시작일 이후여야 합니다.'); return; }
+    const channelVal = document.getElementById('evtChannel').value.trim();
+    if (!channelVal) { alert('적용 채널을 선택해주세요.'); return; }
 
     const cpnType = document.querySelector('input[name="cpnType"]:checked').value;
     let cpnCode = '', cpnCodes = [], cpnStock = 'unlimited', cpnStockLimit = 0;
@@ -375,6 +397,7 @@
         const titleParams = new URLSearchParams(location.search).get('title') || '';
         location.href = 'event_mgmt.html' + (titleParams ? '?title=' + encodeURIComponent(titleParams) : '');
       }).catch(e => console.error('API Error:', e));
+    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
