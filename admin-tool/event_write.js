@@ -294,9 +294,7 @@
         document.getElementById('singleStockLimit').value = editEvt.cpnStockLimit || '';
       }
     } else {
-      // 수정 모드: 업로드 영역 숨기고 다운로드 영역 표시
-      document.getElementById('cpnUploadArea').style.display = 'none';
-      document.getElementById('cpnFileInfo').style.display = 'none';
+      // 수정 모드: 기존 코드 다운로드 영역 표시
       const dlArea = document.getElementById('cpnDownloadArea');
       dlArea.style.display = 'flex';
 
@@ -319,9 +317,15 @@
           document.getElementById('cpnDownloadBtn').disabled = true;
         }
       } else {
-        document.getElementById('cpnDownloadCount').textContent = '등록된 코드 없음';
+        document.getElementById('cpnDownloadName').textContent = '등록된 쿠폰 코드 없음';
+        document.getElementById('cpnDownloadCount').textContent = '아래에서 파일을 업로드해주세요';
         document.getElementById('cpnDownloadBtn').disabled = true;
       }
+
+      // 수정 모드에서도 파일 교체 가능 — 업로드 영역 유지 (라벨만 변경)
+      document.getElementById('cpnUploadArea').style.display = '';
+      const uploadLabel = document.querySelector('#individualCodeGroup .form-label');
+      if (uploadLabel) uploadLabel.innerHTML = '코드 파일 교체 <span style="font-size:12px;color:var(--text-muted);font-weight:400;">(새 파일 업로드 시 기존 코드 전체 교체)</span>';
     }
     document.getElementById('evtMemo').value = editEvt.memo || '';
   }
@@ -349,10 +353,16 @@
         if (cpnStockLimit < 1) { alert('재고 수량을 입력해주세요.'); return; }
       }
     } else {
-      if (uploadedCodes.length === 0) { alert('쿠폰 코드 파일을 업로드해주세요.'); return; }
-      cpnCodes = [...uploadedCodes];
+      // 수정 모드에서는 새 파일 없으면 기존 코드 유지 (파일 업로드 선택사항)
+      if (!isEditMode && uploadedCodes.length === 0) { alert('쿠폰 코드 파일을 업로드해주세요.'); return; }
+      if (uploadedCodes.length > 0) {
+        cpnCodes = [...uploadedCodes];
+        cpnStockLimit = cpnCodes.length;
+      } else {
+        // 수정 모드 + 새 파일 없음 → 기존 재고 수량 유지
+        cpnStockLimit = editEvt ? (editEvt.cpnStockLimit || 0) : 0;
+      }
       cpnStock = 'limited';
-      cpnStockLimit = cpnCodes.length;
     }
 
     let announceMsg = '';

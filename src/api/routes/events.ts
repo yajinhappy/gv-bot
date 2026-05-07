@@ -245,10 +245,15 @@ router.put('/:id', (req: Request, res: Response) => {
     const db = getDb();
     const id = req.params.id;
     const e = req.body;
+    const newPool = e.cpnCodes && e.cpnCodes.length > 0 ? JSON.stringify(e.cpnCodes) : null;
+    const poolClause = newPool !== null ? ', cpn_codes_pool = ?, cpn_stock_limit = ?' : '';
+    const poolParams = newPool !== null ? [newPool, e.cpnStockLimit || e.cpnCodes.length] : [];
+
     db.run(
       `UPDATE events SET
         title = ?, description = ?, announce_msg = ?, start_date = ?, end_date = ?,
         daily = ?, daily_start = ?, daily_end = ?, memo = ?, status = ?
+        ${poolClause}
        WHERE id = ?`,
       [
         e.title,
@@ -261,6 +266,7 @@ router.put('/:id', (req: Request, res: Response) => {
         e.dailyEnd || null,
         e.memo || null,
         e.status || 'active',
+        ...poolParams,
         id
       ]
     );
