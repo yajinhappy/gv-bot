@@ -32,20 +32,36 @@ const command: SlashCommand = {
     const nowIso = now.replace(' ', 'T'); 
     const todayDate = now.slice(0, 10);
 
-    // 현재 채널에서 진행 중인 텍스트 이벤트 검색
+    const commandUsed = '/' + interaction.commandName;
+
+    // 현재 채널에서 진행 중인 텍스트 이벤트 검색 (커맨드명 일치 포함)
     const evtResults = db.exec(
-      `SELECT * FROM events 
-       WHERE type = 'text' 
-         AND channel_id = ? 
-         AND status = 'active' 
-         AND start_date <= ? 
+      `SELECT * FROM events
+       WHERE type = 'text'
+         AND channel_id = ?
+         AND status = 'active'
+         AND start_date <= ?
          AND end_date >= ?
+         AND (command_name IS NULL OR command_name = '' OR command_name = ?)
        ORDER BY created_at DESC LIMIT 1`,
-      [channelId, nowIso, nowIso]
+      [channelId, nowIso, nowIso, commandUsed]
     );
 
     if (!evtResults || evtResults.length === 0 || evtResults[0].values.length === 0) {
-      await interaction.editReply('❌ 이 채널에서 진행 중인 이벤트가 없습니다.');
+      // 커맨드명이 달라서 못 찾은 건지 확인
+      const anyEvt = db.exec(
+        `SELECT command_name FROM events
+         WHERE type = 'text' AND channel_id = ? AND status = 'active'
+           AND start_date <= ? AND end_date >= ?
+         ORDER BY created_at DESC LIMIT 1`,
+        [channelId, nowIso, nowIso]
+      );
+      if (anyEvt?.length && anyEvt[0].values.length) {
+        const correctCmd = anyEvt[0].values[0][0] || '/이벤트';
+        await interaction.editReply(`❌ 올바른 커맨드가 아닙니다.\n이벤트 참여 커맨드: **${correctCmd}**`);
+      } else {
+        await interaction.editReply('❌ 이 채널에서 진행 중인 이벤트가 없습니다.');
+      }
       return;
     }
 
@@ -90,6 +106,16 @@ const command: SlashCommand = {
       }
     }
 
+    // 한정 수량 재고 체크
+    if (evt.cpn_stock === 'limited') {
+      const issued = evt.cpn_issued || 0;
+      const limit = evt.cpn_stock_limit || 0;
+      if (issued >= limit) {
+        await interaction.editReply('❌ 이벤트 쿠폰이 모두 소진되었습니다.');
+        return;
+      }
+    }
+
     // 참여 기록 저장
     db.run(
       `INSERT INTO event_participants (event_id, user_id, user_tag, user_name, content, joined_at, status)
@@ -99,6 +125,7 @@ const command: SlashCommand = {
     saveDatabase();
 
     // 자동 발송 + 단일 코드라면 바로 쿠폰 DM
+    let dmSent = false;
     if (evt.coupon_method === 'auto' && evt.cpn_code) {
       try {
         const dm = await interaction.user.createDM();
@@ -109,6 +136,9 @@ const command: SlashCommand = {
           .setFooter({ text: 'GV DiscordBot Event System' })
           .setTimestamp();
         await dm.send({ embeds: [cpnEmbed] });
+        dmSent = true;
+        db.run('UPDATE events SET cpn_issued = cpn_issued + 1 WHERE id = ?', [evt.id]);
+        saveDatabase();
       } catch (e) {
         console.error('DM 발송 실패:', e);
       }
@@ -124,6 +154,10 @@ const command: SlashCommand = {
       .setColor(0x0b5cff)
       .setFooter({ text: 'GV DiscordBot Event System' })
       .setTimestamp();
+
+    if (evt.coupon_method === 'auto' && evt.cpn_code && !dmSent) {
+      embed.addFields({ name: '⚠️ 쿠폰 DM', value: 'DM 발송에 실패했습니다. Discord 설정에서 DM 허용 여부를 확인해 주세요.' });
+    }
 
     await interaction.editReply({ embeds: [embed] });
   },

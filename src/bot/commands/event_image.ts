@@ -42,20 +42,35 @@ const command: SlashCommand = {
       return;
     }
 
-    // 현재 채널에서 진행 중인 이미지 이벤트 검색
+    const commandUsed = '/' + interaction.commandName;
+
+    // 현재 채널에서 진행 중인 이미지 이벤트 검색 (커맨드명 일치 포함)
     const evtResults = db.exec(
-      `SELECT * FROM events 
-       WHERE type = 'image' 
-         AND channel_id = ? 
-         AND status = 'active' 
-         AND start_date <= ? 
+      `SELECT * FROM events
+       WHERE type = 'image'
+         AND channel_id = ?
+         AND status = 'active'
+         AND start_date <= ?
          AND end_date >= ?
+         AND (command_name IS NULL OR command_name = '' OR command_name = ?)
        ORDER BY created_at DESC LIMIT 1`,
-      [channelId, nowIso, nowIso]
+      [channelId, nowIso, nowIso, commandUsed]
     );
 
     if (!evtResults || evtResults.length === 0 || evtResults[0].values.length === 0) {
-      await interaction.editReply('❌ 이 채널에서 진행 중인 이미지 인증 이벤트가 없습니다.');
+      const anyEvt = db.exec(
+        `SELECT command_name FROM events
+         WHERE type = 'image' AND channel_id = ? AND status = 'active'
+           AND start_date <= ? AND end_date >= ?
+         ORDER BY created_at DESC LIMIT 1`,
+        [channelId, nowIso, nowIso]
+      );
+      if (anyEvt?.length && anyEvt[0].values.length) {
+        const correctCmd = anyEvt[0].values[0][0] || '/이미지인증이벤트';
+        await interaction.editReply(`❌ 올바른 커맨드가 아닙니다.\n이벤트 참여 커맨드: **${correctCmd}**`);
+      } else {
+        await interaction.editReply('❌ 이 채널에서 진행 중인 이미지 인증 이벤트가 없습니다.');
+      }
       return;
     }
 
