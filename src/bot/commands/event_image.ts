@@ -10,6 +10,12 @@ const command: SlashCommand = {
   data: new SlashCommandBuilder()
     .setName('이미지인증이벤트')
     .setDescription('이미지 인증 이벤트에 참여합니다. (이미지 첨부 필수)')
+    .addStringOption(opt =>
+      opt
+        .setName('내용')
+        .setDescription('참여 내용을 입력해주세요')
+        .setRequired(false)
+    )
     .addAttachmentOption(opt =>
       opt
         .setName('이미지')
@@ -25,6 +31,7 @@ const command: SlashCommand = {
     const userId = interaction.user.id;
     const userTag = interaction.user.tag;
     const userName = interaction.user.displayName || interaction.user.username;
+    const content = interaction.options.getString('내용') || '';
     const attachment = interaction.options.getAttachment('이미지', true);
     const now = nowKST();
     const nowIso = now.replace(' ', 'T');
@@ -72,7 +79,7 @@ const command: SlashCommand = {
     db.run(
       `INSERT INTO event_participants (event_id, user_id, user_tag, user_name, content, image_url, joined_at, status)
        VALUES (?, ?, ?, ?, '', ?, ?, '대기')`,
-      [evt.id, userId, userTag, userName, attachment.url, now]
+      [evt.id, userId, userTag, userName, content, attachment.url, now]
     );
     saveDatabase();
 
