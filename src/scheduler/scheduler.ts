@@ -8,10 +8,10 @@ import { getPendingMessages, markAsSent, markAsFailed, getDb, saveDatabase, nowK
  */
 export function startScheduler() {
   cron.schedule('* * * * *', async () => {
-    await processPendingMessages();
-    await processEventStartAnnouncements();
-    await processDailyEvents();
-    await processEventEndNotifications();
+    try { await processPendingMessages(); } catch (e) { console.error('⚠️ 스케줄러 오류 (메시지):', e); }
+    try { await processEventStartAnnouncements(); } catch (e) { console.error('⚠️ 스케줄러 오류 (이벤트 공지):', e); }
+    try { await processDailyEvents(); } catch (e) { console.error('⚠️ 스케줄러 오류 (데일리):', e); }
+    try { await processEventEndNotifications(); } catch (e) { console.error('⚠️ 스케줄러 오류 (종료 알림):', e); }
   });
 
   console.log('⏰ 메시지 및 이벤트 스케줄러 시작 (1분 주기 폴링)');
