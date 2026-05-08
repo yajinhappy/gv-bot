@@ -4,8 +4,12 @@
  */
 
 const API_CONFIG = {
-  // 배포 환경과 로컬 환경을 모두 지원하도록 현재 도메인을 사용합니다.
   BASE_URL: window.location.origin.includes('localhost') ? 'http://localhost:3001/api' : '/api',
+  API_KEY: 'gv-admin-secret-key-change-in-production',
+};
+
+const EVENT_BOT_API_CONFIG = {
+  BASE_URL: window.location.origin.includes('localhost') ? 'http://localhost:3002/api' : '/event-api',
   API_KEY: 'gv-admin-secret-key-change-in-production',
 };
 
@@ -312,6 +316,38 @@ async function checkApiHealth() {
   } catch {
     return false;
   }
+}
+
+// ─── 이벤트봇 API ──────────────────────────
+
+async function eventBotApiRequest(endpoint, options = {}) {
+  const url = `${EVENT_BOT_API_CONFIG.BASE_URL}${endpoint}`;
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': EVENT_BOT_API_CONFIG.API_KEY,
+        ...options.headers,
+      },
+      ...options,
+    });
+    const json = await response.json();
+    if (!response.ok) throw new Error(json.error || `HTTP ${response.status}`);
+    return json;
+  } catch (error) {
+    if (error.message === 'Failed to fetch') throw new Error('이벤트봇 API 서버에 연결할 수 없습니다.');
+    throw error;
+  }
+}
+
+/**
+ * 이벤트봇을 통해 쿠폰 DM 발송
+ */
+async function sendCouponDm(eventTitle, targets) {
+  return await eventBotApiRequest('/events/send-coupon-dm', {
+    method: 'POST',
+    body: JSON.stringify({ eventTitle, targets }),
+  });
 }
 
 console.log('✅ API 클라이언트 로드 완료');
