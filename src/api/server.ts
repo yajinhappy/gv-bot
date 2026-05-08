@@ -61,7 +61,12 @@ app.use('/api/logs', authMiddleware, logsRouter);
 app.use('/api/events', eventsRouter);  // 이벤트 쿠폰 DM은 관리 페이지에서 직접 호출
 
 // 헬스체크 (인증 불필요)
-app.get('/health', (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
+app.get('/health', (_, res) => res.json({
+  status: 'ok',
+  version: 'merged-event-bot-v2',
+  timestamp: new Date().toISOString(),
+  schedulerFeatures: ['messages', 'eventAnnouncements', 'dailyEvents', 'eventEndNotifications'],
+}));
 
 // 에러 핸들러
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
