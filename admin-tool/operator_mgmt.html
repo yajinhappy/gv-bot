@@ -6,406 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>설정 - GV DiscordBot Admin Tool</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .badge-role {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 10px;
-      border-radius: 12px;
-    }
-
-    .badge-super {
-      background: #EFF6FF;
-      color: var(--primary-color);
-    }
-
-    .badge-admin {
-      background: #F0FDF4;
-      color: #16A34A;
-    }
-
-    .badge-operator {
-      background: #FFF7ED;
-      color: #EA580C;
-    }
-
-    .badge-viewer {
-      background: #F5F5F5;
-      color: #71717A;
-    }
-
-    .badge-active {
-      background: #DCFCE7;
-      color: #16A34A;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 2px 10px;
-      border-radius: 12px;
-    }
-
-    .badge-inactive {
-      background: #FEE2E2;
-      color: #DC2626;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 2px 10px;
-      border-radius: 12px;
-    }
-
-    .badge-pending-approval {
-      background: #FEF3C7;
-      color: #D97706;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 2px 10px;
-      border-radius: 12px;
-    }
-
-    .approval-card {
-      border: 1px solid #FDE68A;
-      background: #FFFBEB;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 24px;
-    }
-
-    .approval-card-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #92400E;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .approval-count {
-      background: #F59E0B;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 10px;
-    }
-
-    /* 모달 */
-    .modal-overlay.show {
-      display: flex;
-    }
-
-    .modal-body {
-      margin: 16px 0;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .detail-modal-grid {
-      display: grid;
-      grid-template-columns: 120px 1fr;
-      gap: 0;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      overflow: hidden;
-    }
-
-    .detail-modal-grid .dm-label {
-      padding: 10px 14px;
-      background: var(--bg-body);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-muted);
-      border-bottom: 1px solid var(--border-color);
-      border-right: 1px solid var(--border-color);
-    }
-
-    .detail-modal-grid .dm-value {
-      padding: 10px 14px;
-      font-size: 13px;
-      color: var(--text-main);
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .detail-modal-grid .dm-label:nth-last-child(2),
-    .detail-modal-grid .dm-value:last-child {
-      border-bottom: none;
-    }
-
-    .toggle-switch {
-      position: relative;
-      width: 36px;
-      height: 20px;
-      appearance: none;
-      background: #CBD5E1;
-      border-radius: 20px;
-      outline: none;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .toggle-switch::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 16px;
-      height: 16px;
-      background: #fff;
-      border-radius: 50%;
-      transition: transform 0.3s;
-    }
-
-    .toggle-switch:checked {
-      background: var(--primary-color);
-    }
-
-    .toggle-switch:checked::after {
-      transform: translateX(16px);
-    }
-
-    /* Custom UI Components for Roles & Permissions */
-    .switch-ui {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 24px;
-      margin: 0;
-      vertical-align: middle;
-    }
-
-    .switch-ui input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider-ui {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #cbd5e1;
-      transition: .3s;
-      border-radius: 24px;
-    }
-
-    .slider-ui:before {
-      position: absolute;
-      content: '';
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: .3s;
-      border-radius: 50%;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .switch-ui input:checked+.slider-ui {
-      background-color: #0b5cff;
-    }
-
-    .switch-ui input:checked+.slider-ui:before {
-      transform: translateX(20px);
-    }
-
-    .switch-ui input:disabled+.slider-ui {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .role-tabs {
-      display: inline-flex;
-      background: #fff;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-    }
-
-    .role-tab {
-      padding: 8px 24px;
-      font-size: 15px;
-      font-weight: 500;
-      color: #737373;
-      cursor: pointer;
-      border-right: 1px solid #d1d5db;
-      text-align: center;
-      transition: color 0.2s;
-      position: relative;
-    }
-
-    .role-tab:last-child {
-      border-right: none;
-    }
-
-    .role-tab.active {
-      color: #0ea5e9;
-      font-weight: 700;
-    }
-
-    .role-tab.active::after {
-      content: '';
-      position: absolute;
-      top: -1px;
-      left: -1px;
-      right: -1px;
-      bottom: -1px;
-      border: 1.5px solid #0ea5e9;
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .role-tab:first-child.active::after {
-      border-top-left-radius: 6px;
-      border-bottom-left-radius: 6px;
-    }
-
-    .role-tab:last-child.active::after {
-      border-top-right-radius: 6px;
-      border-bottom-right-radius: 6px;
-    }
-
-    .perm-card {
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      overflow: hidden;
-    }
-
-    .perm-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 20px;
-      border-bottom: 1px solid #e2e8f0;
-      background: #fff;
-    }
-
-    .perm-card-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #1e293b;
-      margin: 0;
-    }
-
-    .perm-card-body {
-      padding: 0;
-      transition: opacity 0.3s;
-    }
-
-    .perm-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 20px;
-      border-bottom: 1px solid #f1f5f9;
-    }
-
-    .perm-row:last-child {
-      border-bottom: none;
-    }
-
-    .perm-label {
-      font-size: 14px;
-      color: #334155;
-      font-weight: 500;
-    }
-
-    .perm-controls {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .custom-check {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: #475569;
-      cursor: pointer;
-    }
-
-    .custom-check input[type='checkbox'] {
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border: 1px solid #cbd5e1;
-      border-radius: 3px;
-      background-color: #fff;
-      display: grid;
-      place-content: center;
-      cursor: pointer;
-      margin: 0;
-    }
-
-    .custom-check input[type='checkbox']::before {
-      content: '';
-      width: 10px;
-      height: 10px;
-      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-      transform: scale(0);
-      background-color: white;
-      transition: 0.1s transform;
-    }
-
-    .custom-check input[type='checkbox']:checked {
-      background-color: #0ea5e9;
-      border-color: #0ea5e9;
-    }
-
-    .custom-check input[type='checkbox']:checked::before {
-      transform: scale(1);
-    }
-
-    .custom-check input[type='checkbox']:disabled {
-      background-color: #f1f5f9;
-      border-color: #e2e8f0;
-      cursor: not-allowed;
-    }
-
-    .custom-check input[type='checkbox']:disabled:checked {
-      background-color: #94a3b8;
-      border-color: #94a3b8;
-    }
-
-    .segment-toggles {
-      display: inline-flex;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .segment-toggle {
-      padding: 4px 12px;
-      font-size: 13px;
-      font-weight: 500;
-      color: #6b7280;
-      background: #fff;
-      border-right: 1px solid #d1d5db;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .segment-toggle:last-child {
-      border-right: none;
-    }
-
-    .segment-toggle.active {
-      color: #0ea5e9;
-      font-weight: 700;
-      background: #f0f9ff;
-    }
-  </style>
+  <link rel="stylesheet" href="operator_mgmt.css">
 </head>
 
 <body>
@@ -422,97 +23,171 @@
 
       <div class="main-content">
 
-        <!-- 계정 신청 대기 -->
-        <div class="approval-card" id="approvalSection">
-          <div class="approval-card-title">
-            📋 계정 신청 대기 <span class="approval-count" id="approvalCount">2</span>
-          </div>
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th style="width:50px;">No.</th>
-                  <th>이름</th>
-                  <th>아이디</th>
-                  <th>이메일</th>
-                  <th>팀/유닛</th>
-                  <th>담당 타이틀</th>
-                  <th>신청일</th>
-                  <th style="width:120px; text-align:right;">관리</th>
-                </tr>
-              </thead>
-              <tbody id="approvalTableBody">
-              </tbody>
-            </table>
-          </div>
+        <!-- 탭 바 -->
+        <div class="page-tab-bar">
+          <button class="page-tab active" id="tabBtnOperator" onclick="switchTab('operator')">운영자 관리</button>
+          <button class="page-tab" id="tabBtnTitle" onclick="switchTab('title')">타이틀 관리</button>
         </div>
 
-        <!-- 운영자 목록 -->
-        <div class="card">
-          <div class="flex items-center justify-between mb-20">
-            <div class="flex items-center gap-4">
-              <h2 class="card-title mb-0">운영자 목록 <span class="list-count" id="opCount">총 8명</span></h2>
+        <!-- 운영자 관리 탭 -->
+        <div id="tabOperator">
+
+          <!-- 계정 신청 대기 -->
+          <div class="approval-card" id="approvalSection">
+            <div class="approval-card-title">
+              📋 계정 신청 대기 <span class="approval-count" id="approvalCount">2</span>
             </div>
-            <div class="flex items-center gap-3">
-              <div class="d-flex gap-8 align-center">
-                <div class="search-input-wrapper">
-                  <input type="text" class="form-control search-input-field" id="opSearch" placeholder="이름 또는 아이디 검색">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" class="search-input-icon">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                </div>
-                <div class="select-wrapper">
-                  <select class="form-control search-select" id="roleFilter">
-                    <option>권한: 전체</option>
-                    <option>마스터</option>
-                    <option>관리자</option>
-                    <option>운영자</option>
-                    <option>뷰어</option>
-                  </select>
-                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </div>
-                <div class="select-wrapper">
-                  <select class="form-control search-select" id="statusFilter">
-                    <option>상태: 전체</option>
-                    <option>활성</option>
-                    <option>비활성</option>
-                  </select>
-                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width:50px;">No.</th>
+                    <th>이름</th>
+                    <th>아이디</th>
+                    <th>이메일</th>
+                    <th>팀/유닛</th>
+                    <th>담당 타이틀</th>
+                    <th>신청일</th>
+                    <th style="width:120px; text-align:right;">관리</th>
+                  </tr>
+                </thead>
+                <tbody id="approvalTableBody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 운영자 목록 -->
+          <div class="card">
+            <div class="flex items-center justify-between mb-20">
+              <div class="flex items-center gap-4">
+                <h2 class="card-title mb-0">운영자 목록 <span class="list-count" id="opCount">총 8명</span></h2>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="d-flex gap-8 align-center">
+                  <div class="search-input-wrapper">
+                    <input type="text" class="form-control search-input-field" id="opSearch" placeholder="이름 또는 아이디 검색">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round" class="search-input-icon">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </div>
+                  <div class="select-wrapper">
+                    <select class="form-control search-select" id="roleFilter">
+                      <option>권한: 전체</option>
+                      <option>마스터</option>
+                      <option>관리자</option>
+                      <option>운영자</option>
+                      <option>뷰어</option>
+                    </select>
+                    <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                  <div class="select-wrapper">
+                    <select class="form-control search-select" id="statusFilter">
+                      <option>상태: 전체</option>
+                      <option>활성</option>
+                      <option>비활성</option>
+                    </select>
+                    <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
                 </div>
               </div>
-              <button class="btn btn-outline-primary white-space-nowrap" onclick="openTitleMgmtModal()">타이틀
-                관리</button>
             </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="col-no">No.</th>
+                    <th>이름</th>
+                    <th>아이디</th>
+                    <th>권한 등급</th>
+                    <th>담당 타이틀</th>
+                    <th>등록일</th>
+                    <th>상태</th>
+                    <th class="col-action">관리</th>
+                  </tr>
+                </thead>
+                <tbody id="opTableBody">
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pagination" id="pagination"></div>
           </div>
 
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th class="col-no">No.</th>
-                  <th>이름</th>
-                  <th>아이디</th>
-                  <th>권한 등급</th>
-                  <th>담당 타이틀</th>
-                  <th>등록일</th>
-                  <th>상태</th>
-                  <th class="col-action">관리</th>
-                </tr>
-              </thead>
-              <tbody id="opTableBody">
-              </tbody>
-            </table>
-          </div>
+        </div>
 
-          <div class="pagination" id="pagination"></div>
+        <!-- 타이틀 관리 탭 -->
+        <div id="tabTitle" style="display:none;">
+          <div class="card">
+
+            <!-- 카드 헤더 -->
+            <div class="flex items-center justify-between mb-20">
+              <h2 class="card-title mb-0">타이틀 설정 및 관리</h2>
+              <button id="titleEditBtn" class="btn btn-secondary btn-sm" onclick="enterTitleEditMode()" style="display:flex; align-items:center; gap:6px;">
+                <img src="img/edit.svg" alt="" style="width:14px; height:14px; opacity:0.7;">
+                편집
+              </button>
+            </div>
+
+            <!-- 뷰 모드 -->
+            <div id="titleViewContent">
+              <!-- 새 타이틀 생성 -->
+              <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:16px; margin-bottom:20px;">
+                <h4 style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:12px;">새 타이틀 생성</h4>
+                <div class="flex gap-8">
+                  <input type="text" class="form-control flex-1" id="newTitleName" placeholder="새 타이틀 입력">
+                  <button class="btn btn-primary" onclick="createNewTitle()" style="white-space:nowrap;">추가</button>
+                </div>
+              </div>
+
+              <!-- 타이틀 목록 (뷰 모드 - 기능 토글만) -->
+              <div id="titleListContainer" style="display:flex; flex-direction:column; gap:16px;">
+                <!-- RO1 -->
+                <div class="card" style="border:1px solid var(--border-color); padding:16px; margin:0;">
+                  <h4 style="font-size:15px; font-weight:700; color:var(--primary-color); margin-bottom:16px;">Ragnarok Online (RO1)</h4>
+                  <div style="display:flex; flex-direction:column; gap:12px;">
+                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>메시지 예약/관리</span><input type="checkbox" checked class="toggle-switch"></label>
+                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>이벤트 관리</span><input type="checkbox" checked class="toggle-switch"></label>
+                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>SNS 미러링 관리 (2차)</span><input type="checkbox" checked class="toggle-switch"></label>
+                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>FAQ 자동응답 (2차)</span><input type="checkbox" checked class="toggle-switch"></label>
+                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>다국어 자동 번역 (2차)</span><input type="checkbox" class="toggle-switch"></label>
+                  </div>
+                </div>
+                <!-- RMK -->
+                <div class="card" style="border:1px solid var(--border-color); padding:16px; margin:0;">
+                  <h4 style="font-size:15px; font-weight:700; color:var(--primary-color); margin-bottom:16px;">Ragnarok Monster Kitchen</h4>
+                  <div style="display:flex; flex-direction:column; gap:12px;">
+                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>메시지 예약/관리</span><input type="checkbox" checked class="toggle-switch"></label>
+                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>이벤트 관리</span><input type="checkbox" class="toggle-switch"></label>
+                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>SNS 미러링 관리 (2차)</span><input type="checkbox" class="toggle-switch"></label>
+                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>FAQ 자동응답 (2차)</span><input type="checkbox" class="toggle-switch"></label>
+                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>다국어 자동 번역 (2차)</span><input type="checkbox" class="toggle-switch"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 편집 모드 (동적 생성) -->
+            <div id="titleEditContent" style="display:none;">
+              <div id="titleEditList" style="display:flex; flex-direction:column; gap:8px;"></div>
+            </div>
+
+            <!-- 편집 모드 하단 버튼 -->
+            <div id="titleEditActions" style="display:none; justify-content:flex-end; gap:8px; margin-top:24px; padding-top:16px; border-top:1px solid var(--border-color);">
+              <button class="btn btn-secondary" onclick="exitTitleEditMode()">취소</button>
+              <button class="btn btn-primary" onclick="confirmSaveTitleEdit()">저장</button>
+            </div>
+
+          </div>
         </div>
 
       </div>
@@ -760,99 +435,9 @@
     </div>
   </div>
 
-  <!-- 타이틀 관리 모달 -->
-  <div class="modal-overlay" id="titleMgmtModal">
-    <div class="modal-content" style="width: 600px; max-height: 80vh; display: flex; flex-direction: column;">
-      <div class="flex items-center justify-between mb-20" style="flex-shrink:0;">
-        <h3 class="modal-title">타이틀 설정 및 관리</h3>
-        <button class="modal-close" onclick="closeTitleMgmtModal()">&times;</button>
-      </div>
-      <div class="modal-body" style="flex: 1; overflow-y: auto; padding-right: 8px;">
-        <!-- 타이틀 생성 영역 -->
-        <div class="card mb-20" style="background:#F8FAFC; border:1px solid #E2E8F0; padding:16px;">
-          <h4 style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:12px;">새 타이틀 생성</h4>
-          <div class="flex gap-8">
-            <input type="text" class="form-control flex-1" id="newTitleName" placeholder="새 타이틀 입력">
-            <button class="btn btn-primary" onclick="createNewTitle()" style="white-space:nowrap;">추가</button>
-          </div>
-        </div>
-
-        <!-- 기존 타이틀 목록 영역 -->
-        <div id="titleListContainer" style="display:flex; flex-direction:column; gap:16px;">
-          <!-- RO1 -->
-          <div class="card" style="border:1px solid var(--border-color); padding:16px; margin:0;">
-            <div class="flex items-center justify-between mb-24">
-              <h4 style="font-size:15px; font-weight:700; color:var(--primary-color);">Ragnarok Online (RO1)</h4>
-            </div>
-            <div style="display:flex; flex-direction:column; gap:12px;">
-              <label
-                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-                <span>메시지 예약/관리</span>
-                <input type="checkbox" checked class="toggle-switch">
-              </label>
-              <label
-                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-                <span>이벤트 관리</span>
-                <input type="checkbox" checked class="toggle-switch">
-              </label>
-              <label
-                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-                <span>SNS 미러링 관리 (2차)</span>
-                <input type="checkbox" checked class="toggle-switch">
-              </label>
-              <label
-                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-                <span>FAQ 자동응답 (2차)</span>
-                <input type="checkbox" checked class="toggle-switch">
-              </label>
-              <label
-                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-                <span>다국어 자동 번역 (2차)</span>
-                <input type="checkbox" class="toggle-switch">
-              </label>
-            </div>
-          </div>
-
-          <!-- RMK -->
-          <div class="card" style="border:1px solid var(--border-color); padding:16px; margin:0;">
-            <div class="flex items-center justify-between mb-24">
-              <h4 style="font-size:15px; font-weight:700; color:var(--primary-color);">Ragnarok Monster Kitchen</h4>
-            </div>
-            <div style="display:flex; flex-direction:column; gap:12px;">
-              <label
-                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-                <span>메시지 예약/관리</span>
-                <input type="checkbox" checked class="toggle-switch">
-              </label>
-              <label
-                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-                <span>이벤트 관리</span>
-                <input type="checkbox" class="toggle-switch">
-              </label>
-              <label
-                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-                <span>SNS 미러링 관리 (2차)</span>
-                <input type="checkbox" class="toggle-switch">
-              </label>
-              <label
-                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-                <span>FAQ 자동응답 (2차)</span>
-                <input type="checkbox" class="toggle-switch">
-              </label>
-              <label
-                style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-                <span>다국어 자동 번역 (2차)</span>
-                <input type="checkbox" class="toggle-switch">
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="flex justify-end gap-8"
-        style="flex-shrink:0; padding-top:16px; border-top:1px solid var(--border-color);">
-        <button class="btn btn-primary" onclick="closeTitleMgmtModal(); alert('타이틀 설정이 저장되었습니다.');">저장 및 닫기</button>
-      </div>
-    </div>
+  <!-- 토스트 -->
+  <div id="saveToast" style="position:fixed; bottom:32px; left:50%; transform:translateX(-50%); background:#1e293b; color:#fff; padding:12px 28px; border-radius:8px; font-size:14px; font-weight:500; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,0.18); opacity:0; pointer-events:none; transition:opacity 0.35s; white-space:nowrap;">
+    변경사항이 적용되었습니다.
   </div>
 
   <script src="lnb.js"></script>
@@ -1182,86 +767,223 @@
     }
 
     // =============================================
-    //  타이틀 관리 모달
+    //  탭 전환
     // =============================================
-    function openTitleMgmtModal() {
-      document.getElementById('titleMgmtModal').classList.add('show');
+    function switchTab(tab) {
+      document.getElementById('tabOperator').style.display = tab === 'operator' ? '' : 'none';
+      document.getElementById('tabTitle').style.display = tab === 'title' ? '' : 'none';
+      document.getElementById('tabBtnOperator').classList.toggle('active', tab === 'operator');
+      document.getElementById('tabBtnTitle').classList.toggle('active', tab === 'title');
     }
 
-    function closeTitleMgmtModal() {
-      document.getElementById('titleMgmtModal').classList.remove('show');
+    // =============================================
+    //  타이틀 데이터 헬퍼
+    // =============================================
+    const DEFAULT_TITLE_KEYS = ['RO1', 'Ragnarok Monster Kitchen'];
+
+    function getTitleActiveStates() {
+      return JSON.parse(localStorage.getItem('titleActiveStates') || '{}');
+    }
+    function getTitleDisplayNames() {
+      return JSON.parse(localStorage.getItem('titleDisplayNames') || '{}');
+    }
+    function getTitleOrder() {
+      return JSON.parse(localStorage.getItem('titleOrder') || 'null');
     }
 
-    function createTitleCard(name) {
+    function getAllTitlesOrdered() {
+      const customKeys = JSON.parse(localStorage.getItem('customTitles') || '[]');
+      const allKeys = [...DEFAULT_TITLE_KEYS, ...customKeys];
+      const order = getTitleOrder();
+      let ordered = allKeys;
+      if (order) {
+        ordered = order.filter(k => allKeys.includes(k));
+        allKeys.forEach(k => { if (!ordered.includes(k)) ordered.push(k); });
+      }
+      const displayNames = getTitleDisplayNames();
+      const activeStates = getTitleActiveStates();
+      return ordered.map(key => ({
+        key,
+        displayName: displayNames[key] || key,
+        active: activeStates[key] !== false
+      }));
+    }
+
+    // =============================================
+    //  뷰 모드: 타이틀 카드 생성 (기능 토글만, 활성/비활성 없음)
+    // =============================================
+    function createTitleCard(key, displayName) {
+      const label = displayName || key;
       const container = document.getElementById('titleListContainer');
-      const newCard = document.createElement('div');
-      newCard.className = 'card';
-      newCard.style.cssText = 'border:1px solid var(--border-color); padding:16px; margin:0;';
-      newCard.innerHTML = `
-        <div class="flex items-center justify-between mb-16">
-          <h4 style="font-size:15px; font-weight:700; color:var(--primary-color);">${name}</h4>
-          <span class="badge-active">운영 중</span>
-        </div>
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.cssText = 'border:1px solid var(--border-color); padding:16px; margin:0;';
+      card.innerHTML = `
+        <h4 style="font-size:15px; font-weight:700; color:var(--primary-color); margin-bottom:16px;">${label}</h4>
         <div style="display:flex; flex-direction:column; gap:12px;">
-          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-            <span>메시지 예약/관리</span>
-            <input type="checkbox" class="toggle-switch" checked>
-          </label>
-          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-            <span>이벤트 관리</span>
-            <input type="checkbox" class="toggle-switch">
-          </label>
-          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-            <span>SNS 미러링 관리 (2차)</span>
-            <input type="checkbox" class="toggle-switch">
-          </label>
-          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-            <span>FAQ 자동응답 (2차)</span>
-            <input type="checkbox" class="toggle-switch">
-          </label>
-          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;">
-            <span>다국어 자동 번역 (2차)</span>
-            <input type="checkbox" class="toggle-switch">
-          </label>
+          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>메시지 예약/관리</span><input type="checkbox" class="toggle-switch" checked></label>
+          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>이벤트 관리</span><input type="checkbox" class="toggle-switch"></label>
+          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>SNS 미러링 관리 (2차)</span><input type="checkbox" class="toggle-switch"></label>
+          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>FAQ 자동응답 (2차)</span><input type="checkbox" class="toggle-switch"></label>
+          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>다국어 자동 번역 (2차)</span><input type="checkbox" class="toggle-switch"></label>
         </div>
       `;
-      container.insertBefore(newCard, container.firstChild);
+      container.appendChild(card);
+    }
+
+    function rerenderTitleListFromConfig() {
+      const container = document.getElementById('titleListContainer');
+      // 기본 카드(RO1, RMK)를 포함해 전체를 재렌더링
+      container.innerHTML = '';
+      getAllTitlesOrdered().forEach(t => createTitleCard(t.key, t.displayName));
     }
 
     function createNewTitle() {
       const input = document.getElementById('newTitleName');
       const name = input.value.trim();
-      if (!name) {
-        alert('타이틀명을 입력해주세요.');
-        return;
-      }
-
+      if (!name) { alert('타이틀명을 입력해주세요.'); return; }
       const titles = JSON.parse(localStorage.getItem('customTitles') || '[]');
-      if (titles.includes(name)) {
-        alert('이미 존재하는 타이틀입니다.');
-        return;
+      if (titles.includes(name) || DEFAULT_TITLE_KEYS.includes(name)) {
+        alert('이미 존재하는 타이틀입니다.'); return;
       }
-
       titles.push(name);
       localStorage.setItem('customTitles', JSON.stringify(titles));
-
-      createTitleCard(name);
-      
-      // 전역 LNB 업데이트
-      if (typeof loadCustomTitles === 'function') {
-        loadCustomTitles();
-      }
-
+      rerenderTitleListFromConfig();
+      if (typeof refreshLNB === 'function') refreshLNB();
       input.value = '';
       alert('[' + name + '] 타이틀이 생성되었습니다.');
     }
 
     function initTitleModal() {
-      const titles = JSON.parse(localStorage.getItem('customTitles') || '[]');
-      // 배열 역순으로 렌더링해야 최신 생성된 것이 위에 위치
-      titles.reverse().forEach(name => {
-        createTitleCard(name);
+      rerenderTitleListFromConfig();
+    }
+
+    // =============================================
+    //  편집 모드
+    // =============================================
+    function enterTitleEditMode() {
+      const titles = getAllTitlesOrdered();
+      const list = document.getElementById('titleEditList');
+
+      list.innerHTML = titles.map(t => `
+        <div class="title-edit-row" draggable="true" data-title-key="${t.key}">
+          <span class="drag-handle" title="드래그하여 순서 변경">⠿</span>
+          <input class="form-control title-name-edit" value="${t.displayName}" style="flex:1; min-width:0; margin:0 4px;">
+          <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
+            <span class="title-edit-badge ${t.active ? 'badge-active' : 'badge-inactive'}" style="font-size:12px; font-weight:600; padding:2px 10px; border-radius:12px;">${t.active ? '운영 중' : '운영 중단'}</span>
+            <label class="switch-ui" style="margin:0;">
+              <input type="checkbox" class="title-edit-active-toggle" ${t.active ? 'checked' : ''}>
+              <span class="slider-ui"></span>
+            </label>
+          </div>
+        </div>
+      `).join('');
+
+      // 편집 모드 내 토글 → 뱃지 즉시 반영
+      list.querySelectorAll('.title-edit-active-toggle').forEach(toggle => {
+        toggle.addEventListener('change', function () {
+          const badge = this.closest('label').previousElementSibling;
+          const on = this.checked;
+          badge.textContent = on ? '운영 중' : '운영 중단';
+          badge.className = 'title-edit-badge ' + (on ? 'badge-active' : 'badge-inactive');
+          badge.style.cssText = 'font-size:12px; font-weight:600; padding:2px 10px; border-radius:12px;';
+        });
       });
+
+      initDragDrop(list);
+
+      document.getElementById('titleViewContent').style.display = 'none';
+      document.getElementById('titleEditContent').style.display = 'block';
+      document.getElementById('titleEditActions').style.display = 'flex';
+      document.getElementById('titleEditBtn').style.display = 'none';
+    }
+
+    function exitTitleEditMode() {
+      document.getElementById('titleViewContent').style.display = '';
+      document.getElementById('titleEditContent').style.display = 'none';
+      document.getElementById('titleEditActions').style.display = 'none';
+      document.getElementById('titleEditBtn').style.display = '';
+    }
+
+    function confirmSaveTitleEdit() {
+      if (!confirm('변경하시겠습니까?')) return;
+      applyTitleSave();
+    }
+
+    function applyTitleSave() {
+      const rows = document.querySelectorAll('#titleEditList .title-edit-row');
+      const newOrder = [];
+      const newActiveStates = {};
+      const newDisplayNames = {};
+
+      rows.forEach(row => {
+        const key = row.dataset.titleKey;
+        const displayName = row.querySelector('.title-name-edit').value.trim() || key;
+        const isActive = row.querySelector('.title-edit-active-toggle').checked;
+        newOrder.push(key);
+        newActiveStates[key] = isActive;
+        if (displayName !== key) newDisplayNames[key] = displayName;
+      });
+
+      localStorage.setItem('titleOrder', JSON.stringify(newOrder));
+      localStorage.setItem('titleActiveStates', JSON.stringify(newActiveStates));
+      localStorage.setItem('titleDisplayNames', JSON.stringify(newDisplayNames));
+
+      closeTitleSaveConfirm();
+      exitTitleEditMode();
+      rerenderTitleListFromConfig();
+      if (typeof refreshLNB === 'function') refreshLNB();
+      showToast('변경사항이 적용되었습니다.');
+    }
+
+    // =============================================
+    //  드래그앤드롭
+    // =============================================
+    function initDragDrop(list) {
+      let dragItem = null;
+
+      list.querySelectorAll('.title-edit-row').forEach(row => {
+        row.addEventListener('dragstart', () => {
+          dragItem = row;
+          setTimeout(() => row.classList.add('dragging'), 0);
+        });
+        row.addEventListener('dragend', () => {
+          row.classList.remove('dragging');
+          list.querySelectorAll('.title-edit-row').forEach(r => r.classList.remove('drag-over'));
+          dragItem = null;
+        });
+        row.addEventListener('dragover', e => {
+          e.preventDefault();
+          if (row === dragItem) return;
+          list.querySelectorAll('.title-edit-row').forEach(r => r.classList.remove('drag-over'));
+          row.classList.add('drag-over');
+        });
+        row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+        row.addEventListener('drop', e => {
+          e.preventDefault();
+          if (!dragItem || dragItem === row) return;
+          const allRows = [...list.querySelectorAll('.title-edit-row')];
+          const fromIdx = allRows.indexOf(dragItem);
+          const toIdx = allRows.indexOf(row);
+          list.insertBefore(dragItem, fromIdx < toIdx ? row.nextSibling : row);
+          list.querySelectorAll('.title-edit-row').forEach(r => r.classList.remove('drag-over'));
+        });
+      });
+    }
+
+    // =============================================
+    //  토스트
+    // =============================================
+    function showToast(msg) {
+      const toast = document.getElementById('saveToast');
+      toast.textContent = msg;
+      toast.style.opacity = '1';
+      toast.style.pointerEvents = 'auto';
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.pointerEvents = 'none';
+      }, 3000);
     }
 
     // 초기 데이터 로드

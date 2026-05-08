@@ -20,6 +20,10 @@
     return JSON.parse(localStorage.getItem('customTitles') || '[]');
   }
 
+  function getTitleActiveStates() {
+    return JSON.parse(localStorage.getItem('titleActiveStates') || '{}');
+  }
+
   function getCurrentPage() {
     const path = window.location.pathname;
     return path.substring(path.lastIndexOf('/') + 1) || 'index.html';
@@ -31,7 +35,7 @@
   }
 
   // ─── 타이틀 아코디언 HTML 생성 ───
-  function buildTitleAccordion(titleName, isActive) {
+  function buildTitleAccordion(titleName, displayName, isActive) {
     const enc = encodeURIComponent(titleName);
     const bodyDisplay = isActive ? '' : ' style="display:none;"';
     const bodyClass = isActive ? 'accordion-body' : 'accordion-body d-none';
@@ -40,7 +44,7 @@
     return `
       <div class="accordion-item${activeClass}" data-title="${titleName}">
         <div class="accordion-header">
-          <span>${titleName}</span>
+          <span>${displayName}</span>
           <span class="accordion-icon">▾</span>
         </div>
         <div class="${bodyClass}"${bodyDisplay}>
@@ -63,16 +67,35 @@
   }
 
   // ─── 전체 사이드바 HTML 생성 ───
+  function getTitleDisplayNames() {
+    return JSON.parse(localStorage.getItem('titleDisplayNames') || '{}');
+  }
+
   function buildSidebarHTML() {
     const currentPage = getCurrentPage();
     const currentTitle = getCurrentTitle();
     const customTitles = getCustomTitles();
 
-    // 모든 타이틀 목록 합치기
-    const allTitles = [
+    // 모든 타이틀 합치기 (비활성 제외, 저장된 순서 적용)
+    const titleActiveStates = getTitleActiveStates();
+    const titleDisplayNames = getTitleDisplayNames();
+    const titleOrder = JSON.parse(localStorage.getItem('titleOrder') || 'null');
+
+    let allTitles = [
       ...DEFAULT_TITLES,
       ...customTitles.map(name => ({ name, isDefault: false }))
-    ];
+    ].filter(t => titleActiveStates[t.name] !== false);
+
+    if (titleOrder) {
+      allTitles.sort((a, b) => {
+        const ai = titleOrder.indexOf(a.name);
+        const bi = titleOrder.indexOf(b.name);
+        if (ai === -1 && bi === -1) return 0;
+        if (ai === -1) return 1;
+        if (bi === -1) return -1;
+        return ai - bi;
+      });
+    }
 
     // 타이틀별 페이지라면 해당 타이틀 아코디언을 활성화
     const titlePages = ['msg-mgmt.html', 'title_settings.html', 'message_write.html', 'message_detail.html', 'event_mgmt.html', 'event_write.html', 'event_detail.html'];
@@ -82,8 +105,9 @@
     allTitles.forEach(t => {
       const isActive = isTitlePage
         ? (currentTitle === t.name || (!currentTitle && t.name === 'RO1'))
-        : (t.name === 'RO1'); // 타이틀 무관 페이지에서는 RO1을 기본 열림
-      accordionsHTML += buildTitleAccordion(t.name, isActive);
+        : (t.name === 'RO1');
+      const displayName = titleDisplayNames[t.name] || t.name;
+      accordionsHTML += buildTitleAccordion(t.name, displayName, isActive);
     });
 
     // 시스템 공통 관리 active 표시
