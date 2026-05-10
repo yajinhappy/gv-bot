@@ -54,40 +54,52 @@
 
     document.getElementById('pageTitle').textContent = title + (isEditMode ? ' - 이벤트 수정' : ' - 이벤트 등록');
     
-    try {
-      const channels = await apiRequest('/channels');
-      const dropdown = document.getElementById('evtChannelDropdown');
-      dropdown.innerHTML = '';
-      if (channels && channels.data) {
-        channels.data.forEach(ch => {
-          const label = document.createElement('label');
-          label.className = 'multi-select-option';
-          label.innerHTML = `<input type="radio" name="evtChannelRadio" value="${ch.id}" class="channel-radio" required> # ${ch.name}`;
-          dropdown.appendChild(label);
-        });
-
-        const radios = document.querySelectorAll('.channel-radio');
-        const selectedTextEl = document.getElementById('channelSelectedText');
-        const hiddenInput = document.getElementById('evtChannel');
-
-        radios.forEach(radio => {
-          radio.addEventListener('change', () => {
-            if (radio.checked) {
-              selectedTextEl.textContent = radio.nextSibling.textContent.trim();
-              selectedTextEl.style.color = 'var(--text-main)';
-              hiddenInput.value = radio.value;
-              dropdown.classList.remove('active');
-            }
+    // 채널 목록 로드 (최대 3회 재시도)
+    async function loadChannels(retryCount = 0) {
+      try {
+        const channels = await apiRequest('/channels');
+        const dropdown = document.getElementById('evtChannelDropdown');
+        dropdown.innerHTML = '';
+        if (channels && channels.data && channels.data.length > 0) {
+          channels.data.forEach(ch => {
+            const label = document.createElement('label');
+            label.className = 'multi-select-option';
+            label.innerHTML = `<input type="radio" name="evtChannelRadio" value="${ch.id}" class="channel-radio" required> # ${ch.name}`;
+            dropdown.appendChild(label);
           });
-        });
-      } else {
-        dropdown.innerHTML = '<div style="padding: 10px; color: red;">채널 목록을 불러오지 못했습니다.</div>';
+
+          const radios = document.querySelectorAll('.channel-radio');
+          const selectedTextEl = document.getElementById('channelSelectedText');
+          const hiddenInput = document.getElementById('evtChannel');
+
+          radios.forEach(radio => {
+            radio.addEventListener('change', () => {
+              if (radio.checked) {
+                selectedTextEl.textContent = radio.nextSibling.textContent.trim();
+                selectedTextEl.style.color = 'var(--text-main)';
+                hiddenInput.value = radio.value;
+                dropdown.classList.remove('active');
+              }
+            });
+          });
+        } else {
+          dropdown.innerHTML = '<div style="padding: 10px; color: red;">채널 목록을 불러오지 못했습니다.</div>';
+        }
+      } catch(err) {
+        console.error('채널 로드 에러 (시도 ' + (retryCount + 1) + '/3):', err);
+        if (retryCount < 2) {
+          // Discord 봇이 아직 준비 안됐을 수 있으므로 2초 후 재시도
+          const dropdown = document.getElementById('evtChannelDropdown');
+          if (dropdown) dropdown.innerHTML = '<div style="padding: 10px; color: #666;">채널 목록 로드 재시도 중... (' + (retryCount + 2) + '/3)</div>';
+          await new Promise(r => setTimeout(r, 2000));
+          return loadChannels(retryCount + 1);
+        }
+        const dropdown = document.getElementById('evtChannelDropdown');
+        const errMsg = err.message || '알 수 없는 에러';
+        if (dropdown) dropdown.innerHTML = '<div style="padding: 10px; color: red;">채널 로드 에러 발생<br><small style="color:#888;">' + errMsg + '</small></div>';
       }
-    } catch(err) {
-      console.error('채널 로드 에러:', err);
-      const dropdown = document.getElementById('evtChannelDropdown');
-      if (dropdown) dropdown.innerHTML = '<div style="padding: 10px; color: red;">채널 로드 에러 발생</div>';
     }
+    await loadChannels();
 
     if (isEditMode) {
       document.getElementById('cardTitle').textContent = '이벤트 수정하기';
