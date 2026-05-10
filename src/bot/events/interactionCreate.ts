@@ -7,10 +7,11 @@ import {
   EmbedBuilder,
   TextChannel,
 } from 'discord.js';
-import { client } from '../client';
+import { client, eventClient } from '../client';
 import { pendingReservations } from '../shared/pendingStore';
 import { insertMessage, cancelMessageById, markAsSent, setUserTimezone } from '../../db/schema';
 
+// ─── MSG_PLAY 봇 인터랙션 핸들러 ──────────────────
 client.on(Events.InteractionCreate, async (interaction: Interaction) => {
 
   // ─── 슬래시 커맨드 처리 ──────────────────
@@ -18,14 +19,14 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
     const command = client.commands.get(interaction.commandName);
 
     if (!command) {
-      console.error(`❌ 커맨드 없음: ${interaction.commandName}`);
+      console.error(`❌ [MSG_PLAY] 커맨드 없음: ${interaction.commandName}`);
       return;
     }
 
     try {
       await command.execute(interaction);
     } catch (error) {
-      console.error('커맨드 실행 오류:', error);
+      console.error('[MSG_PLAY] 커맨드 실행 오류:', error);
       const reply = { content: '커맨드 실행 중 오류가 발생했습니다.', ephemeral: true };
       if (interaction.replied || interaction.deferred) {
         await interaction.followUp(reply);
@@ -230,6 +231,30 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
         await interaction.reply({ content: '❌ 설정 중 오류가 발생했습니다.', ephemeral: true });
       }
       return;
+    }
+  }
+});
+
+// ─── EVENT 봇 인터랙션 핸들러 ──────────────────
+eventClient.on(Events.InteractionCreate, async (interaction: Interaction) => {
+  if (interaction.isChatInputCommand()) {
+    const command = eventClient.commands.get(interaction.commandName);
+
+    if (!command) {
+      console.error(`❌ [EVENT] 커맨드 없음: ${interaction.commandName}`);
+      return;
+    }
+
+    try {
+      await command.execute(interaction);
+    } catch (error) {
+      console.error('[EVENT] 커맨드 실행 오류:', error);
+      const reply = { content: '커맨드 실행 중 오류가 발생했습니다.', ephemeral: true };
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp(reply);
+      } else {
+        await interaction.reply(reply);
+      }
     }
   }
 });

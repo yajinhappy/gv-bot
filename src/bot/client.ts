@@ -15,11 +15,20 @@ export interface SlashCommand {
   execute: (interaction: any) => Promise<void>;
 }
 
+// ─── MSG_PLAY 봇 (메시지 예약/발송) ───
 export const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
   ],
 });
-
 client.commands = new Collection();
+
+// ─── EVENT 봇 (이벤트 관리/쿠폰 DM) ───
+export const eventClient = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+  ],
+});
+eventClient.commands = new Collection();

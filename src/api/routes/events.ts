@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { client } from '../../bot/client';
+import { eventClient } from '../../bot/client';
 import { EmbedBuilder } from 'discord.js';
 import { getDb, saveDatabase, nowKST, insertActivityLog } from '../../db/schema';
 import jwt from 'jsonwebtoken';
@@ -44,7 +44,7 @@ router.post('/send-coupon-dm', async (req: Request, res: Response) => {
     for (const target of targets) {
       try {
         // Discord userId로 유저 조회 — userId가 숫자 ID일 때
-        const user = await client.users.fetch(target.userId.replace(/[^0-9]/g, ''));
+        const user = await eventClient.users.fetch(target.userId.replace(/[^0-9]/g, ''));
         if (!user) {
           failCount++;
           errors.push(`${target.userName}: 유저를 찾을 수 없습니다.`);

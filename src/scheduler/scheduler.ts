@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { TextChannel, EmbedBuilder } from 'discord.js';
-import { client } from '../bot/client';
+import { client, eventClient } from '../bot/client';
 import { getPendingMessages, markAsSent, markAsFailed, getDb, saveDatabase, nowKST } from '../db/schema';
 
 /**
@@ -156,7 +156,7 @@ async function processEventStartAnnouncements() {
       const channelIds = e.channel_id.split(',').map((id: string) => id.trim());
       let firstMessageId: string | null = null;
       for (const channelId of channelIds) {
-        const channel = await client.channels.fetch(channelId);
+        const channel = await eventClient.channels.fetch(channelId);
         if (channel && channel instanceof TextChannel) {
           const sent = await channel.send({ content: e.announce_msg });
           if (!firstMessageId) firstMessageId = sent.id;
@@ -203,7 +203,7 @@ async function processDailyEvents() {
     try {
       const channelIds = e.channel_id.split(',').map((id: string) => id.trim());
       for (const channelId of channelIds) {
-        const channel = await client.channels.fetch(channelId);
+        const channel = await eventClient.channels.fetch(channelId);
         if (channel && channel instanceof TextChannel) {
           await channel.send({ content: e.announce_msg });
           console.log(`✅ 데일리 이벤트 공지 완료 [${e.title}] → ${channelId}`);
@@ -242,7 +242,7 @@ async function processEventEndNotifications() {
   for (const e of events) {
     try {
       const channelId = e.channel_id.split(',')[0].trim();
-      const channel = await client.channels.fetch(channelId);
+      const channel = await eventClient.channels.fetch(channelId);
       if (channel && channel instanceof TextChannel) {
         const announceMsg = e.announce_message_id
           ? await channel.messages.fetch(e.announce_message_id).catch(() => null)
