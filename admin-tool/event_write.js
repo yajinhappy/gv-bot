@@ -62,24 +62,24 @@
         dropdown.innerHTML = '';
         if (channels && channels.data && channels.data.length > 0) {
           channels.data.forEach(ch => {
-            const label = document.createElement('label');
-            label.className = 'multi-select-option';
-            label.innerHTML = `<input type="radio" name="evtChannelRadio" value="${ch.id}" class="channel-radio" required> # ${ch.name}`;
-            dropdown.appendChild(label);
+            const opt = document.createElement('div');
+            opt.className = 'multi-select-option channel-option';
+            opt.dataset.value = ch.id;
+            opt.textContent = '# ' + ch.name;
+            dropdown.appendChild(opt);
           });
 
-          const radios = document.querySelectorAll('.channel-radio');
           const selectedTextEl = document.getElementById('channelSelectedText');
           const hiddenInput = document.getElementById('evtChannel');
 
-          radios.forEach(radio => {
-            radio.addEventListener('change', () => {
-              if (radio.checked) {
-                selectedTextEl.textContent = radio.nextSibling.textContent.trim();
-                selectedTextEl.style.color = 'var(--text-main)';
-                hiddenInput.value = radio.value;
-                dropdown.classList.remove('active');
-              }
+          dropdown.querySelectorAll('.channel-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+              dropdown.querySelectorAll('.channel-option').forEach(o => o.classList.remove('selected'));
+              opt.classList.add('selected');
+              selectedTextEl.textContent = opt.textContent.trim();
+              selectedTextEl.style.color = 'var(--text-main)';
+              hiddenInput.value = opt.dataset.value;
+              dropdown.classList.remove('active');
             });
           });
         } else {
@@ -256,11 +256,11 @@
 
     // 드롭다운 값 복원 및 비활성화
     setTimeout(() => {
-      const selectedRadio = document.querySelector(`.channel-radio[value="${editEvt.channel}"]`);
-      if (selectedRadio) {
-        selectedRadio.checked = true;
+      const selectedOpt = document.querySelector(`.channel-option[data-value="${editEvt.channel}"]`);
+      if (selectedOpt) {
+        selectedOpt.classList.add('selected');
         const selectedTextEl = document.getElementById('channelSelectedText');
-        selectedTextEl.textContent = selectedRadio.nextSibling.textContent.trim();
+        selectedTextEl.textContent = selectedOpt.textContent.trim();
         selectedTextEl.style.color = 'var(--text-main)';
       }
       const multiSelectTrigger = document.querySelector('.multi-select-trigger');
@@ -268,10 +268,9 @@
         multiSelectTrigger.style.pointerEvents = 'none';
         multiSelectTrigger.style.backgroundColor = 'var(--bg-surface)';
       }
-      document.querySelectorAll('.channel-radio').forEach(r => {
-        r.disabled = true;
-        const opt = r.closest('.multi-select-option');
-        if (opt) opt.style.opacity = '0.7';
+      document.querySelectorAll('.channel-option').forEach(o => {
+        o.style.pointerEvents = 'none';
+        o.style.opacity = '0.7';
       });
     }, 100);
     document.getElementById('evtCommand').value = editEvt.command || '';
