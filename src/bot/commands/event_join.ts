@@ -51,6 +51,17 @@ const command: SlashCommand = {
     const evt: any = {};
     cols.forEach((c: string, i: number) => { evt[c] = row[i]; });
 
+    if (evt.command_name) {
+      const expected = (evt.command_name as string).replace(/^\//, '').trim();
+      const entered = content.replace(/^\//, '').trim();
+      if (entered !== expected) {
+        await interaction.editReply(
+          `❌ 참여 내용이 올바르지 않습니다.\n슬래시 커맨드에 맞는 내용을 입력해 주세요.`
+        );
+        return;
+      }
+    }
+
     if (evt.daily === 'on') {
       const nowTime = now.slice(11, 16);
       const start = evt.daily_start || '00:00';
