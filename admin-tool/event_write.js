@@ -244,7 +244,6 @@
     document.getElementById('evtTextOptions').style.display = editEvt.type === 'text' ? '' : 'none';
 
     document.getElementById('evtTitle').value = editEvt.title || '';
-    document.getElementById('evtDesc').value = editEvt.desc || '';
     if (window.quill && editEvt.announceMsg) {
       window.quill.clipboard.dangerouslyPasteHTML(editEvt.announceMsg.replace(/\n/g, '<br>'));
     } else if (!window.quill && editEvt.announceMsg) {
@@ -337,7 +336,6 @@
       document.getElementById('cpnUploadArea').style.display = 'none';
       document.getElementById('cpnUploadLabel') && (document.getElementById('cpnUploadLabel').style.display = 'none');
     }
-    document.getElementById('evtMemo').value = editEvt.memo || '';
   }
 
   function submitEvent() {
@@ -394,7 +392,6 @@
       type: document.querySelector('input[name="evtType"]:checked').value,
       targetTitle: new URLSearchParams(location.search).get('title') || 'RO1',
       title: t,
-      description: document.getElementById('evtDesc').value.trim(),
       announceMsg: announceMsg,
       startDate: sd, endDate: ed,
       channelId: document.getElementById('evtChannel').value.trim(),
@@ -404,7 +401,6 @@
       dailyEnd: document.getElementById('evtDailyEnd')?.value || '',
       couponMethod: document.querySelector('input[name="evtCouponMethod"]:checked')?.value || 'auto',
       cpnType, cpnCode, cpnCodes, cpnStock, cpnStockLimit,
-      memo: document.getElementById('evtMemo').value.trim(),
       status: status
     };
 
