@@ -1088,20 +1088,22 @@ td .btn {
 }
 
 .status-badge {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
 }
 
 .status-badge.connected {
-  background: #dcfce7;
-  color: #16a34a;
+  background: #22c55e1A;
+  color: #22c55e;
 }
 
 .status-badge.disconnected {
-  background: #fee2e2;
-  color: #dc2626;
+  background: #ef44441A;
+  color: #ef4444;
 }
 
 /* 가입 승인 대기 목록 */
@@ -2107,25 +2109,17 @@ td .btn {
 }
 
 /* Status Badges */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-}
 .status-pending {
-  background: #EFF6FF;
+  background: #00ADEF1A;
   color: var(--primary-color);
 }
 .status-sent {
-  background: #F0FDF4;
-  color: #16A34A;
+  background: #22c55e1A;
+  color: #22c55e;
 }
 .status-cancelled {
-  background: #FEF2F2;
-  color: #DC2626;
+  background: #ef44441A;
+  color: #ef4444;
 }
 
 /* Sections */
