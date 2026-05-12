@@ -8,6 +8,7 @@
   let isEditMode = false;
   let editId = null;
   let editEvt = null;
+  let pageTitle = 'RO1';
 
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
   function now() { const d = new Date(); return d.getFullYear()+'-'+S(d.getMonth()+1)+'-'+S(d.getDate())+' '+S(d.getHours())+':'+S(d.getMinutes())+':'+S(d.getSeconds()); }
@@ -16,6 +17,7 @@
   async function init() {
     const params = new URLSearchParams(location.search);
     const title = params.get('title') || 'RO1';
+    pageTitle = title;
     editId = params.get('edit');
     isEditMode = !!editId;
 
@@ -415,6 +417,7 @@
         },
         body: JSON.stringify(evtData)
       }).then(() => {
+        pushNotification({ type: 'new_event', title: pageTitle + ' · ' + t, desc: '이벤트가 수정되었습니다.' });
         alert('이벤트가 수정되었습니다.');
         const titleParams = new URLSearchParams(location.search).get('title') || '';
         location.href = 'event_mgmt.html' + (titleParams ? '?title=' + encodeURIComponent(titleParams) : '');
@@ -432,6 +435,7 @@
         },
         body: JSON.stringify(evtData)
       }).then(() => {
+        pushNotification({ type: 'new_event', title: pageTitle + ' · ' + t, desc: '새 이벤트가 등록되었습니다.' });
         if (window.refreshLNB) window.refreshLNB();
         alert('이벤트가 등록되었습니다.');
         const titleParams = new URLSearchParams(location.search).get('title') || '';

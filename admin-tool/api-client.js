@@ -350,4 +350,23 @@ async function sendCouponDm(eventTitle, targets) {
   });
 }
 
+// ─── 알림 푸시 ──────────────────────────
+
+/**
+ * 알림을 localStorage gv_notifications에 push
+ * type: 'new_event' | 'bot_msg' | 'warning'
+ */
+function pushNotification({ type, title, desc }) {
+  const notis = JSON.parse(localStorage.getItem('gv_notifications') || '[]');
+  notis.unshift({
+    id: Date.now(),
+    type,
+    title,
+    desc,
+    date: new Date().toISOString(),
+    isRead: false
+  });
+  localStorage.setItem('gv_notifications', JSON.stringify(notis));
+}
+
 console.log('✅ API 클라이언트 로드 완료');

@@ -358,21 +358,6 @@
     // Clean up old notifications (> 30 days)
     let notis = JSON.parse(localStorage.getItem('gv_notifications') || '[]');
 
-    // Seed default if completely empty (for demonstration based on existing events)
-    if (notis.length === 0) {
-      const existingEvents = JSON.parse(localStorage.getItem('gv_events') || '[]');
-      if (existingEvents.length > 0) {
-        notis.push({
-          id: Date.now(),
-          type: 'warning',
-          title: `RO1 · ${existingEvents[0].title}`,
-          desc: '이벤트 쿠폰 잔여량이 10% 남았습니다.',
-          date: new Date().toISOString(),
-          isRead: false
-        });
-      }
-    }
-
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     notis = notis.filter(n => new Date(n.date) >= thirtyDaysAgo);

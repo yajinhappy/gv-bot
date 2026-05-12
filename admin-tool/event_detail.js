@@ -166,6 +166,16 @@
       const barCls = pct < 10 ? 'low' : pct < 30 ? 'warn' : '';
       const alertTxt = pct > 0 && pct < 10 ? ' <span style="color:#DC2626;font-weight:600;font-size:13px;">⚠ 잔여 10% 미만</span>' : '';
       info.innerHTML = '<div style="margin-bottom:8px;font-size:14px;">잔여: <strong>' + remain + '</strong> / ' + total + '건 · 발급 ' + issued + '건' + alertTxt + '</div><div class="cpn-stock-bar"><div class="cpn-stock-bar-fill ' + barCls + '" style="width:' + pct + '%"></div></div>';
+      if (pct > 0 && pct < 10) {
+        const notis = JSON.parse(localStorage.getItem('gv_notifications') || '[]');
+        const alreadyNotified = notis.find(function (n) {
+          return n.type === 'warning' && n.title && n.title.includes(evt.title) &&
+            (Date.now() - new Date(n.date).getTime()) < 86400000;
+        });
+        if (!alreadyNotified) {
+          pushNotification({ type: 'warning', title: pageTitle + ' · ' + evt.title, desc: '이벤트 쿠폰 잔여량이 10% 미만입니다.' });
+        }
+      }
     }
   }
 
@@ -362,6 +372,7 @@
       evt.cpn_issued = (evt.cpn_issued || 0) + ptcIds.length;
 
       if (dmRes.success) {
+        pushNotification({ type: 'bot_msg', title: pageTitle + ' · ' + evt.title, desc: ptcIds.length + '명에게 쿠폰 DM이 발송되었습니다.' });
         showToast(ptcIds.length + '명에게 쿠폰 DM 발송 완료!', 'success');
       } else {
         showToast(ptcIds.length + '명 처리 완료 (DM: ' + (dmRes.error || '봇 연결 확인') + ')', 'error');
