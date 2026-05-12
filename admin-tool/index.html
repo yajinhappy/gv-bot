@@ -184,11 +184,14 @@
               else if (item.status === 'failed') { statusColor = '#ef4444'; statusText = '발송 실패'; }
 
               return `
-                 <div class="activity-item">
-                   <div class="activity-dot" style="background:${statusColor}"></div>
-                   <div class="activity-content" style="cursor:pointer;" onclick="window.location.href='message_detail.html?id=${item.id}'">
-                     <div class="activity-text"><span style="font-size: 11px; font-weight: bold; margin-right: 5px; color: ${statusColor};">[${statusText}]</span>${title}</div>
+                 <div class="activity-item" style="align-items: center;">
+                   <div class="activity-dot" style="background:${statusColor}; margin-top: 0;"></div>
+                   <div class="activity-content" style="cursor:pointer; flex: 1; min-width: 0;" onclick="window.location.href='message_detail.html?id=${item.id}'">
+                     <div class="activity-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${title}</div>
                      <div class="activity-time">${(time || '').substring(0, 16).replace('T', ' ')} · RO1 ${cName}</div>
+                   </div>
+                   <div style="flex-shrink: 0; margin-left: 10px;">
+                     <span style="font-size: 11px; font-weight: 700; color: ${statusColor}; background: ${statusColor}1A; padding: 4px 8px; border-radius: 6px;">${statusText}</span>
                    </div>
                  </div>`;
             }).join('');
@@ -233,11 +236,14 @@
                 const title = item.title.length > 30 ? item.title.substring(0, 30) + '...' : item.title;
 
                 return `
-                   <div class="activity-item">
-                     <div class="activity-dot" style="background:${statusColor}"></div>
-                     <div class="activity-content" style="cursor:pointer;" onclick="window.location.href='event_detail.html?id=${item.id}'">
-                       <div class="activity-text"><span style="font-size: 11px; font-weight: bold; margin-right: 5px; color: ${statusColor};">[${statusText}]</span>${title}</div>
+                   <div class="activity-item" style="align-items: center;">
+                     <div class="activity-dot" style="background:${statusColor}; margin-top: 0;"></div>
+                     <div class="activity-content" style="cursor:pointer; flex: 1; min-width: 0;" onclick="window.location.href='event_detail.html?id=${item.id}'">
+                       <div class="activity-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${title}</div>
                        <div class="activity-time">${typeText} · ${(item.start_date || '').replace('T', ' ').substring(0, 16)} ~ ${(item.end_date || '').replace('T', ' ').substring(0, 16)}</div>
+                     </div>
+                     <div style="flex-shrink: 0; margin-left: 10px;">
+                       <span style="font-size: 11px; font-weight: 700; color: ${statusColor}; background: ${statusColor}1A; padding: 4px 8px; border-radius: 6px;">${statusText}</span>
                      </div>
                    </div>`;
               }).join('');
