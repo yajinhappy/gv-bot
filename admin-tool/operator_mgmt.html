@@ -11,11 +11,8 @@
 
 <body>
   <div class="app-container">
-    <!-- LNB (Sidebar) -->
-    <!-- LNB (Sidebar) - 공통 모듈 -->
     <aside id="lnb"></aside>
 
-    <!-- Main Content Area -->
     <main class="main-wrapper">
       <header class="top-header">
         <div class="page-title">설정</div>
@@ -29,15 +26,16 @@
           <button class="page-tab" id="tabBtnTitle" onclick="switchTab('title')">타이틀 관리</button>
         </div>
 
-        <!-- 운영자 관리 탭 -->
+        <!-- ===== 운영자 관리 탭 ===== -->
         <div id="tabOperator">
 
           <!-- 계정 신청 대기 -->
           <div class="approval-card" id="approvalSection">
             <div class="approval-card-title">
-              📋 계정 신청 대기 <span class="approval-count" id="approvalCount">2</span>
+              📋 계정 신청 대기 <span class="approval-count" id="approvalCount">0</span>
             </div>
-            <div class="table-container">
+            <!-- 데스크톱 테이블 -->
+            <div class="table-container op-desktop-table">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -51,57 +49,69 @@
                     <th style="width:120px; text-align:right;">관리</th>
                   </tr>
                 </thead>
-                <tbody id="approvalTableBody">
-                </tbody>
+                <tbody id="approvalTableBody"></tbody>
               </table>
+            </div>
+            <!-- 모바일 카드 -->
+            <div class="op-mobile-list" id="approvalMobileList">
+              <div class="msg-card-list" id="approvalMobileCardBody"></div>
             </div>
           </div>
 
           <!-- 운영자 목록 -->
           <div class="card">
-            <div class="flex items-center justify-between mb-20">
-              <div class="flex items-center gap-4">
-                <h2 class="card-title mb-0">운영자 목록 <span class="list-count" id="opCount">총 8명</span></h2>
-              </div>
-              <div class="flex items-center gap-3">
-                <div class="d-flex gap-8 align-center">
-                  <div class="search-input-wrapper">
-                    <input type="text" class="form-control search-input-field" id="opSearch" placeholder="이름 또는 아이디 검색">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
-                      stroke-linecap="round" stroke-linejoin="round" class="search-input-icon">
-                      <circle cx="11" cy="11" r="8"></circle>
-                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                  </div>
-                  <div class="select-wrapper">
-                    <select class="form-control search-select" id="roleFilter">
-                      <option>권한: 전체</option>
-                      <option>마스터</option>
-                      <option>관리자</option>
-                      <option>운영자</option>
-                      <option>뷰어</option>
-                    </select>
-                    <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
-                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                  </div>
-                  <div class="select-wrapper">
-                    <select class="form-control search-select" id="statusFilter">
-                      <option>상태: 전체</option>
-                      <option>활성</option>
-                      <option>비활성</option>
-                    </select>
-                    <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
-                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                  </div>
+            <!-- 데스크톱 헤더 -->
+            <div class="op-desktop-header flex items-center justify-between mb-20">
+              <h2 class="card-title mb-0">운영자 목록 <span class="list-count" id="opCount">총 0명</span></h2>
+              <div class="flex items-center gap-8">
+                <div class="search-input-wrapper">
+                  <input type="text" class="form-control search-input-field" id="opSearch" placeholder="이름 또는 아이디 검색">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" class="search-input-icon">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                </div>
+                <div class="select-wrapper">
+                  <select class="form-control search-select" id="roleFilter">
+                    <option>권한: 전체</option>
+                    <option>마스터</option>
+                    <option>관리자</option>
+                    <option>운영자</option>
+                    <option>뷰어</option>
+                  </select>
+                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+                <div class="select-wrapper">
+                  <select class="form-control search-select" id="statusFilter">
+                    <option>상태: 전체</option>
+                    <option>활성</option>
+                    <option>비활성</option>
+                  </select>
+                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
                 </div>
               </div>
             </div>
 
-            <div class="table-container">
+            <!-- 모바일 헤더 -->
+            <div class="op-mobile-header">
+              <h2 class="card-title mb-0" style="font-size:15px;">운영자 목록 <span class="list-count" id="opCountMobile">총 0명</span></h2>
+              <button class="msg-filter-btn" id="opMobileFilterBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="4" y1="6" x2="20" y2="6" /><line x1="7" y1="12" x2="17" y2="12" /><line x1="10" y1="18" x2="14" y2="18" />
+                </svg>
+                필터
+              </button>
+            </div>
+
+            <!-- 데스크톱 테이블 -->
+            <div class="table-container op-desktop-table">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -115,9 +125,13 @@
                     <th class="col-action">관리</th>
                   </tr>
                 </thead>
-                <tbody id="opTableBody">
-                </tbody>
+                <tbody id="opTableBody"></tbody>
               </table>
+            </div>
+
+            <!-- 모바일 카드 -->
+            <div class="op-mobile-list" id="opMobileList">
+              <div class="msg-card-list" id="opMobileCardBody"></div>
             </div>
 
             <div class="pagination" id="pagination"></div>
@@ -125,11 +139,10 @@
 
         </div>
 
-        <!-- 타이틀 관리 탭 -->
+        <!-- ===== 타이틀 관리 탭 ===== -->
         <div id="tabTitle" style="display:none;">
           <div class="card">
 
-            <!-- 카드 헤더 -->
             <div class="flex items-center justify-between mb-20">
               <h2 class="card-title mb-0">타이틀 설정 및 관리</h2>
               <button id="titleEditBtn" class="btn btn-secondary btn-sm" onclick="enterTitleEditMode()" style="display:flex; align-items:center; gap:6px;">
@@ -148,35 +161,11 @@
                   <button class="btn btn-primary" onclick="createNewTitle()" style="white-space:nowrap;">추가</button>
                 </div>
               </div>
-
-              <!-- 타이틀 목록 (뷰 모드 - 기능 토글만) -->
-              <div id="titleListContainer" style="display:flex; flex-direction:column; gap:16px;">
-                <!-- RO1 -->
-                <div class="card" style="border:1px solid var(--border-color); padding:16px; margin:0;">
-                  <h4 style="font-size:15px; font-weight:700; color:var(--primary-color); margin-bottom:16px;">Ragnarok Online (RO1)</h4>
-                  <div style="display:flex; flex-direction:column; gap:12px;">
-                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>메시지 예약/관리</span><input type="checkbox" checked class="toggle-switch"></label>
-                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>이벤트 관리</span><input type="checkbox" checked class="toggle-switch"></label>
-                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>SNS 미러링 관리 (2차)</span><input type="checkbox" checked class="toggle-switch"></label>
-                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>FAQ 자동응답 (2차)</span><input type="checkbox" checked class="toggle-switch"></label>
-                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>다국어 자동 번역 (2차)</span><input type="checkbox" class="toggle-switch"></label>
-                  </div>
-                </div>
-                <!-- RMK -->
-                <div class="card" style="border:1px solid var(--border-color); padding:16px; margin:0;">
-                  <h4 style="font-size:15px; font-weight:700; color:var(--primary-color); margin-bottom:16px;">Ragnarok Monster Kitchen</h4>
-                  <div style="display:flex; flex-direction:column; gap:12px;">
-                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>메시지 예약/관리</span><input type="checkbox" checked class="toggle-switch"></label>
-                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>이벤트 관리</span><input type="checkbox" class="toggle-switch"></label>
-                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>SNS 미러링 관리 (2차)</span><input type="checkbox" class="toggle-switch"></label>
-                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>FAQ 자동응답 (2차)</span><input type="checkbox" class="toggle-switch"></label>
-                    <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>다국어 자동 번역 (2차)</span><input type="checkbox" class="toggle-switch"></label>
-                  </div>
-                </div>
-              </div>
+              <!-- 타이틀 목록 (기능 설정은 타이틀별 설정에서 진행) -->
+              <div id="titleListContainer" style="display:flex; flex-direction:column; gap:12px;"></div>
             </div>
 
-            <!-- 편집 모드 (동적 생성) -->
+            <!-- 편집 모드 -->
             <div id="titleEditContent" style="display:none;">
               <div id="titleEditList" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
@@ -239,7 +228,6 @@
         <div class="form-group mt-16">
           <label class="form-label">권한 상세 설정</label>
           <div style="background:#F8FAFC; padding-top:4px; margin-top:8px;">
-
             <div class="perm-card">
               <div class="perm-card-header">
                 <h4 class="perm-card-title">시스템 권한</h4>
@@ -360,7 +348,6 @@
         <div class="form-group mt-16">
           <label class="form-label">권한 상세 설정</label>
           <div style="background:#F8FAFC; padding-top:4px; margin-top:8px;">
-
             <div class="perm-card">
               <div class="perm-card-header">
                 <h4 class="perm-card-title">시스템 권한</h4>
@@ -435,6 +422,61 @@
     </div>
   </div>
 
+  <!-- 모바일 필터 오버레이 (운영자) -->
+  <div class="msg-filter-overlay" id="opMobileFilterOverlay">
+    <div class="msg-filter-panel">
+      <div class="msg-filter-panel-header">
+        <h3>필터</h3>
+        <button class="msg-filter-panel-close" id="opMobileFilterClose">&times;</button>
+      </div>
+      <div class="msg-filter-panel-body">
+        <div class="msg-filter-section">
+          <div class="msg-filter-section-label">이름/아이디 검색</div>
+          <div class="search-input-wrapper" style="width:100%;">
+            <input type="text" class="form-control search-input-field" id="mOpFilterKeyword" placeholder="이름 또는 아이디 검색">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" class="search-input-icon">
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </div>
+        </div>
+        <div class="msg-filter-section">
+          <div class="msg-filter-section-label">권한 등급</div>
+          <div class="select-wrapper" style="width:100%;">
+            <select class="form-control search-select" id="mOpFilterRole">
+              <option>권한: 전체</option>
+              <option>마스터</option>
+              <option>관리자</option>
+              <option>운영자</option>
+              <option>뷰어</option>
+            </select>
+            <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+        </div>
+        <div class="msg-filter-section">
+          <div class="msg-filter-section-label">계정 상태</div>
+          <div class="select-wrapper" style="width:100%;">
+            <select class="form-control search-select" id="mOpFilterStatus">
+              <option>상태: 전체</option>
+              <option>활성</option>
+              <option>비활성</option>
+            </select>
+            <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="msg-filter-panel-footer">
+        <button class="btn btn-primary" id="mOpFilterApply">조회하기</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 토스트 -->
   <div id="saveToast" style="position:fixed; bottom:32px; left:50%; transform:translateX(-50%); background:#1e293b; color:#fff; padding:12px 28px; border-radius:8px; font-size:14px; font-weight:500; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,0.18); opacity:0; pointer-events:none; transition:opacity 0.35s; white-space:nowrap;">
     변경사항이 적용되었습니다.
@@ -486,10 +528,14 @@
 
     function renderOperators(ops) {
       const tbody = document.getElementById('opTableBody');
-      document.getElementById('opCount').textContent = '총 ' + ops.length + '명';
+      const countText = '총 ' + ops.length + '명';
+      document.getElementById('opCount').textContent = countText;
+      document.getElementById('opCountMobile').textContent = countText;
 
       if (ops.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted);">검색 결과가 없습니다.</td></tr>';
+        const mBody = document.getElementById('opMobileCardBody');
+        if (mBody) mBody.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">검색 결과가 없습니다.</div>';
         return;
       }
 
@@ -508,6 +554,30 @@
           </div>
         </td>
       </tr>`).join('');
+
+      const mBody = document.getElementById('opMobileCardBody');
+      if (mBody) {
+        mBody.innerHTML = ops.map(op => `
+          <div class="op-mobile-card msg-card-item">
+            <div class="msg-card-row">
+              <span style="font-size:15px; font-weight:700; color:var(--text-main);">${op.name}</span>
+              ${roleBadge(op.role)}
+            </div>
+            <div style="font-size:13px; color:var(--text-muted); margin-top:3px;">@${op.login_id}</div>
+            <div style="font-size:13px; color:var(--text-main); margin-top:6px;">담당 타이틀: <strong>${op.game || '전체'}</strong></div>
+            <div class="msg-card-row" style="margin-top:8px;">
+              ${statusBadge(op.status)}
+              <span class="msg-card-date">${(op.created_at || '').substring(0, 10)}</span>
+            </div>
+            <div class="msg-card-row" style="margin-top:10px;">
+              <div class="flex gap-8">
+                <button class="btn btn-secondary btn-sm" onclick="openEditModal(${op.id})">수정</button>
+                ${op.role !== 'super_admin' ? `<button class="btn btn-secondary btn-sm" onclick="suspendUser(${op.id})">정지</button>` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
     }
 
     function renderApprovals(ops) {
@@ -517,9 +587,8 @@
       if (ops.length === 0) {
         document.getElementById('approvalSection').style.display = 'none';
         return;
-      } else {
-        document.getElementById('approvalSection').style.display = 'block';
       }
+      document.getElementById('approvalSection').style.display = 'block';
 
       tbody.innerHTML = ops.map((a, index) => `<tr>
         <td>${ops.length - index}</td>
@@ -536,6 +605,26 @@
           </div>
         </td>
       </tr>`).join('');
+
+      const mBody = document.getElementById('approvalMobileCardBody');
+      if (mBody) {
+        mBody.innerHTML = ops.map(a => `
+          <div class="msg-card-item">
+            <div class="msg-card-row">
+              <span style="font-size:15px; font-weight:700; color:var(--text-main);">${a.name}</span>
+              <span class="badge-pending-approval">승인 대기</span>
+            </div>
+            <div style="font-size:13px; color:var(--text-muted); margin-top:3px;">@${a.login_id} · ${a.team}</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">${a.game || '전체'} · ${(a.created_at || '').substring(0, 16)}</div>
+            <div class="msg-card-row" style="margin-top:10px;">
+              <div class="flex gap-8">
+                <button class="btn btn-primary btn-sm" onclick="openApproveModal(${a.id})">승인</button>
+                <button class="btn btn-secondary btn-sm" onclick="rejectUser(${a.id})">반려</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
     }
 
     function applyFilters() {
@@ -562,17 +651,39 @@
     document.getElementById('statusFilter').addEventListener('change', applyFilters);
 
     // =============================================
+    //  모바일 필터 패널
+    // =============================================
+    const opFilterOverlay = document.getElementById('opMobileFilterOverlay');
+
+    document.getElementById('opMobileFilterBtn')?.addEventListener('click', () => {
+      opFilterOverlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    });
+
+    function closeOpFilterPanel() {
+      opFilterOverlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('opMobileFilterClose')?.addEventListener('click', closeOpFilterPanel);
+    opFilterOverlay?.addEventListener('click', e => { if (e.target === opFilterOverlay) closeOpFilterPanel(); });
+
+    document.getElementById('mOpFilterApply')?.addEventListener('click', () => {
+      document.getElementById('opSearch').value = document.getElementById('mOpFilterKeyword').value;
+      document.getElementById('roleFilter').value = document.getElementById('mOpFilterRole').value;
+      document.getElementById('statusFilter').value = document.getElementById('mOpFilterStatus').value;
+      closeOpFilterPanel();
+      applyFilters();
+    });
+
+    // =============================================
     //  모달 상태/권한 UI 헬퍼
     // =============================================
     function setSegmentVal(id, val) {
       const group = document.getElementById(id);
       if (!group) return;
       group.querySelectorAll('.segment-toggle').forEach(el => {
-        if (el.dataset.val === val) {
-          el.classList.add('active');
-        } else {
-          el.classList.remove('active');
-        }
+        el.classList.toggle('active', el.dataset.val === val);
       });
     }
 
@@ -694,9 +805,6 @@
     }
 
     // =============================================
-    //  모달
-    // =============================================
-    // =============================================
     //  수정 모달
     // =============================================
     let currentEditId = null;
@@ -715,7 +823,6 @@
 
       const displayRole = formatRole(op.role);
       document.getElementById('editRole').value = displayRole;
-
       document.querySelectorAll('#editRoleTabs .role-tab').forEach(el => {
         el.classList.remove('active');
         if (el.dataset.role === displayRole) el.classList.add('active');
@@ -734,9 +841,7 @@
       if (!currentEditId) return;
       const op = allOperators.find(o => o.id === currentEditId);
       if (op) {
-        // 권한이나 다른 정보 저장 API가 있다면 여기에 추가 (현재는 상태만 업데이트 API가 있음)
         const newStatus = document.getElementById('editStatusToggle').checked ? 'approved' : 'suspended';
-
         if (op.status !== newStatus) {
           try {
             await updateOperatorStatus(currentEditId, newStatus);
@@ -745,7 +850,6 @@
             return;
           }
         }
-
         alert('운영자 정보가 수정되었습니다.');
         closeEditModal();
         loadOperators();
@@ -810,22 +914,19 @@
     }
 
     // =============================================
-    //  뷰 모드: 타이틀 카드 생성 (기능 토글만, 활성/비활성 없음)
+    //  타이틀 카드 (기능 설정 없이 이름 + 상태만)
     // =============================================
-    function createTitleCard(key, displayName) {
+    function createTitleCard(key, displayName, isActive) {
       const label = displayName || key;
       const container = document.getElementById('titleListContainer');
       const card = document.createElement('div');
-      card.className = 'card';
-      card.style.cssText = 'border:1px solid var(--border-color); padding:16px; margin:0;';
+      card.className = 'title-view-card';
+      const badgeClass = isActive !== false ? 'badge-active' : 'badge-inactive';
+      const badgeText = isActive !== false ? '운영 중' : '운영 중단';
       card.innerHTML = `
-        <h4 style="font-size:15px; font-weight:700; color:var(--primary-color); margin-bottom:16px;">${label}</h4>
-        <div style="display:flex; flex-direction:column; gap:12px;">
-          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>메시지 예약/관리</span><input type="checkbox" class="toggle-switch" checked></label>
-          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>이벤트 관리</span><input type="checkbox" class="toggle-switch"></label>
-          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>SNS 미러링 관리 (2차)</span><input type="checkbox" class="toggle-switch"></label>
-          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>FAQ 자동응답 (2차)</span><input type="checkbox" class="toggle-switch"></label>
-          <label style="display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--text-main); cursor:pointer;"><span>다국어 자동 번역 (2차)</span><input type="checkbox" class="toggle-switch"></label>
+        <div class="title-view-card-info">
+          <span class="title-view-name">${label}</span>
+          <span class="${badgeClass}">${badgeText}</span>
         </div>
       `;
       container.appendChild(card);
@@ -833,9 +934,8 @@
 
     function rerenderTitleListFromConfig() {
       const container = document.getElementById('titleListContainer');
-      // 기본 카드(RO1, RMK)를 포함해 전체를 재렌더링
       container.innerHTML = '';
-      getAllTitlesOrdered().forEach(t => createTitleCard(t.key, t.displayName));
+      getAllTitlesOrdered().forEach(t => createTitleCard(t.key, t.displayName, t.active));
     }
 
     function createNewTitle() {
@@ -852,10 +952,6 @@
       if (typeof refreshLNB === 'function') refreshLNB();
       input.value = '';
       alert('[' + name + '] 타이틀이 생성되었습니다.');
-    }
-
-    function initTitleModal() {
-      rerenderTitleListFromConfig();
     }
 
     // =============================================
@@ -879,7 +975,6 @@
         </div>
       `).join('');
 
-      // 편집 모드 내 토글 → 뱃지 즉시 반영
       list.querySelectorAll('.title-edit-active-toggle').forEach(toggle => {
         toggle.addEventListener('change', function () {
           const badge = this.closest('label').previousElementSibling;
@@ -929,7 +1024,6 @@
       localStorage.setItem('titleActiveStates', JSON.stringify(newActiveStates));
       localStorage.setItem('titleDisplayNames', JSON.stringify(newDisplayNames));
 
-      closeTitleSaveConfirm();
       exitTitleEditMode();
       rerenderTitleListFromConfig();
       if (typeof refreshLNB === 'function') refreshLNB();
@@ -988,7 +1082,7 @@
 
     // 초기 데이터 로드
     loadOperators();
-    initTitleModal();
+    rerenderTitleListFromConfig();
   </script>
 </body>
 
