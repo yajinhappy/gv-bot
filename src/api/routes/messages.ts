@@ -43,7 +43,7 @@ const router = Router();
 function saveImages(images: { name: string; data: string }[] | undefined): string | null {
   if (!images || images.length === 0) return null;
   
-  const uploadDir = path.join(__dirname, '../../../data/uploads');
+  const uploadDir = path.join(process.cwd(), 'data/uploads');
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }

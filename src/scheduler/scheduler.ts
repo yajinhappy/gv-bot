@@ -1,3 +1,5 @@
+import path from 'path';
+import fs from 'fs';
 import cron from 'node-cron';
 import { TextChannel, EmbedBuilder } from 'discord.js';
 import { client, eventClient } from '../bot/client';
@@ -63,28 +65,41 @@ async function sendScheduledMessage(msg: any) {
     }
 
     // 이미지 + 클릭 URL → 임베드
-    const imageFiles = msg.image_url ? msg.image_url.split(',') : [];
+    const imageFiles = msg.image_url ? msg.image_url.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0) : [];
+    
+    // DB에 저장된 웹 경로(/uploads/...)를 로컬 파일 경로로 변환
+    // process.cwd() 사용: Railway 등 프로덕션 환경에서 __dirname은 dist/ 하위를 가리키므로 불안정
+    const localImageFiles = imageFiles.map((url: string) => {
+      const filename = url.split(/[\\/]/).pop() || '';
+      return path.join(process.cwd(), 'data/uploads', filename);
+    }).filter((filePath: string) => {
+      const exists = fs.existsSync(filePath);
+      if (!exists) {
+        console.warn(`⚠️ 이미지 파일 없음: ${filePath}`);
+      }
+      return exists;
+    });
 
-    if (imageFiles.length > 0 && msg.click_url) {
+    if (localImageFiles.length > 0 && msg.click_url) {
       const imgEmbed = new EmbedBuilder()
         .setDescription(messageContent)
-        .setImage(`attachment://${imageFiles[0].split(/[\\/]/).pop()}`)
+        .setImage(`attachment://${localImageFiles[0].split(/[\\/]/).pop()}`)
         .setURL(msg.click_url);
-      await channel.send({ embeds: [imgEmbed], files: [imageFiles[0]] });
-    } else if (imageFiles.length > 0) {
+      await channel.send({ embeds: [imgEmbed], files: [localImageFiles[0]] });
+    } else if (localImageFiles.length > 0) {
       // 이미지만 → 파일 첨부
       if (messageContent.length > 2000) {
         const chunks = splitMessage(messageContent, 2000);
         for (let i = 0; i < chunks.length; i++) {
           if (i === chunks.length - 1) {
-            await channel.send({ content: chunks[i], files: imageFiles });
+            await channel.send({ content: chunks[i], files: localImageFiles });
           } else {
             await channel.send({ content: chunks[i] });
           }
           await sleep(500);
         }
       } else {
-        await channel.send({ content: messageContent, files: imageFiles });
+        await channel.send({ content: messageContent, files: localImageFiles });
       }
     } else {
       // 텍스트만
