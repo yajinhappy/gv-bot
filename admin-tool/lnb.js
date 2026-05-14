@@ -249,17 +249,32 @@
       }
 
       // 외부 클릭 시 알림 닫기 로직은 document에 추가
-    });
-
-    document.addEventListener('click', (e) => {
-      const dropdown = document.getElementById('notiDropdown');
-      const notiBtn = document.getElementById('notiToggleBtn');
-      if (dropdown && dropdown.style.display === 'flex') {
-        if (!dropdown.contains(e.target) && (!notiBtn || !notiBtn.contains(e.target))) {
-          dropdown.style.display = 'none';
+      
+      // 로그아웃
+      const logoutBtn = e.target.closest('#logoutBtn');
+      if (logoutBtn) {
+        if (typeof removeAuthToken === 'function') {
+          removeAuthToken();
+        } else {
+          localStorage.removeItem('gv_auth_token');
+          localStorage.removeItem('gv_user');
         }
       }
     });
+
+    // 중복 바인딩 방지
+    if (!window._lnbEventsBound) {
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('notiDropdown');
+        const notiBtn = document.getElementById('notiToggleBtn');
+        if (dropdown && dropdown.style.display === 'flex') {
+          if (!dropdown.contains(e.target) && (!notiBtn || !notiBtn.contains(e.target))) {
+            dropdown.style.display = 'none';
+          }
+        }
+      });
+      window._lnbEventsBound = true;
+    }
   }
 
   // ─── 모바일 헤더 HTML 생성 ───
@@ -316,20 +331,24 @@
       closeBtn.addEventListener('click', closeMenu);
     }
 
-    // 메뉴 항목 클릭 시 자동 닫기 (모바일)
-    sidebar.addEventListener('click', (e) => {
-      const link = e.target.closest('a.nav-link:not(.phase2-item)');
-      if (link && window.innerWidth <= 1100) {
-        closeMenu();
-      }
-    });
+    // 중복 바인딩 방지
+    if (!window._lnbMobileMenuBound) {
+      // 메뉴 항목 클릭 시 자동 닫기 (모바일)
+      sidebar.addEventListener('click', (e) => {
+        const link = e.target.closest('a.nav-link:not(.phase2-item)');
+        if (link && window.innerWidth <= 1100) {
+          closeMenu();
+        }
+      });
 
-    // 화면 크기 변경 시 정리
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 1100) {
-        closeMenu();
-      }
-    });
+      // 화면 크기 변경 시 정리
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 1100) {
+          closeMenu();
+        }
+      });
+      window._lnbMobileMenuBound = true;
+    }
   }
 
   // ─── 초기화 ───

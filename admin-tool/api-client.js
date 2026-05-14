@@ -148,6 +148,7 @@ async function requireAuth() {
     return null;
   }
   try {
+    const oldUser = (typeof getStoredUser === 'function') ? getStoredUser() : null;
     const result = await apiGetMe();
     if (result.success) {
       setStoredUser(result.data);
@@ -155,8 +156,8 @@ async function requireAuth() {
       const userNameEl = document.querySelector('.user-name');
       if (userNameEl) userNameEl.textContent = result.data.name;
       
-      // 권한 등급이 변경되었을 수 있으므로 LNB 새로고침
-      if (typeof window.refreshLNB === 'function') {
+      // 권한 등급이 변경되었을 수 있으므로 LNB 새로고침 (실제로 변경된 경우에만)
+      if (typeof window.refreshLNB === 'function' && (!oldUser || oldUser.role !== result.data.role)) {
         window.refreshLNB();
       }
       return result.data;
