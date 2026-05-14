@@ -840,19 +840,25 @@
     async function confirmEdit() {
       if (!currentEditId) return;
       const op = allOperators.find(o => o.id === currentEditId);
-      if (op) {
-        const newStatus = document.getElementById('editStatusToggle').checked ? 'approved' : 'suspended';
+      if (!op) return;
+
+      const newStatus = document.getElementById('editStatusToggle').checked ? 'approved' : 'suspended';
+      const displayRole = document.getElementById('editRole').value;
+      const roleMap = { '마스터': 'super_admin', '관리자': 'admin', '운영자': 'operator', '뷰어': 'viewer' };
+      const newRole = roleMap[displayRole] || 'operator';
+
+      try {
         if (op.status !== newStatus) {
-          try {
-            await updateOperatorStatus(currentEditId, newStatus);
-          } catch (error) {
-            alert('상태 변경 실패: ' + error.message);
-            return;
-          }
+          await updateOperatorStatus(currentEditId, newStatus);
+        }
+        if (op.role !== newRole) {
+          await apiUpdateOperatorRole(currentEditId, newRole);
         }
         alert('운영자 정보가 수정되었습니다.');
         closeEditModal();
         loadOperators();
+      } catch (error) {
+        alert('수정 실패: ' + error.message);
       }
     }
 

@@ -462,8 +462,14 @@ export function updateOperatorPassword(id: number, passwordHash: string): number
 }
 
 export function updateOperatorGame(id: number, game: string): number {
-
   db.run('UPDATE operators SET game = ? WHERE id = ?', [game, id]);
+  const changes = db.getRowsModified();
+  saveDatabase();
+  return changes;
+}
+
+export function updateOperatorRole(id: number, role: string): number {
+  db.run('UPDATE operators SET role = ? WHERE id = ?', [role, id]);
   const changes = db.getRowsModified();
   saveDatabase();
   return changes;

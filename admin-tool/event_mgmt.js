@@ -42,20 +42,31 @@
     if (fab) fab.setAttribute('href', 'event_write.html?title=' + enc);
 
     const user = await requireAuth();
-    
-    // 쓰기 권한 체크: view-only이면 등록 버튼 숨김
+
+    // 쓰기 권한 체크
     try {
       const permsMap = await apiFetchTitlePermsMap(title);
       const myPerms = user && user.loginId ? permsMap[user.loginId] : null;
-      if (myPerms && !myPerms.evtAll && !myPerms.evtManage) {
-        if (nbtn) nbtn.style.display = 'none';
-        if (fab) fab.style.display = 'none';
+      // 명시적 권한이 없으면 viewer 역할은 보기 전용, 나머지는 전체 허용
+      const isViewer = user && user.role === 'viewer';
+      const canWrite = myPerms ? (myPerms.evtAll || myPerms.evtManage) : !isViewer;
+      if (!canWrite) {
+        const disableBtn = (el) => {
+          if (!el) return;
+          el.removeAttribute('href');
+          el.style.opacity = '0.4';
+          el.style.pointerEvents = 'none';
+          el.style.cursor = 'not-allowed';
+          el.title = '보기 권한만 있습니다';
+        };
+        disableBtn(nbtn);
+        disableBtn(fab);
         window._isEvtViewOnly = true;
       } else {
         window._isEvtViewOnly = false;
       }
-    } catch (e) { 
-      console.warn('권한 체크 실패:', e); 
+    } catch (e) {
+      console.warn('권한 체크 실패:', e);
       window._isEvtViewOnly = false;
     }
 

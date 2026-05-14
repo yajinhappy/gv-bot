@@ -8,6 +8,7 @@ import {
   getAllOperators,
   updateOperatorStatus,
   updateOperatorPassword,
+  updateOperatorRole,
   getOperatorById,
   insertActivityLog,
   getTitlePermsMap,
@@ -331,6 +332,51 @@ router.patch('/operators/:id/status', (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, error: '상태 변경에 실패했습니다.' });
+  }
+});
+
+// ─── 운영자 역할 변경 ──────────────────────────────────
+const RoleUpdateSchema = z.object({
+  role: z.enum(['super_admin', 'admin', 'operator', 'viewer']),
+});
+
+router.patch('/operators/:id/role', (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) {
+    return res.status(400).json({ success: false, error: '잘못된 ID입니다.' });
+  }
+
+  const parsed = RoleUpdateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ success: false, error: '유효하지 않은 역할입니다.' });
+  }
+
+  try {
+    const changes = updateOperatorRole(id, parsed.data.role);
+    if (changes === 0) {
+      return res.status(404).json({ success: false, error: '운영자를 찾을 수 없습니다.' });
+    }
+
+    const authHeader = req.headers.authorization;
+    let reqLoginId = 'system';
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET) as any;
+        reqLoginId = decoded.loginId || 'system';
+      } catch {}
+    }
+    const targetOp = getOperatorById(id);
+    insertActivityLog({
+      actionType: '운영자 수정',
+      loginId: reqLoginId,
+      targetTitle: '시스템',
+      detail: `${targetOp?.name || id} 역할 → ${parsed.data.role}`,
+      ipAddress: getClientIp(req),
+      result: 'success',
+    });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: '역할 변경에 실패했습니다.' });
   }
 });
 

@@ -288,13 +288,23 @@
       const writeUrl = 'message_write.html?title=' + encodeURIComponent(at);
       const nbtn = document.getElementById('newMsgBtn'); if (nbtn) nbtn.href = writeUrl;
       const nfab = document.getElementById('newMsgFab'); if (nfab) nfab.href = writeUrl;
-      // 쓰기 권한 체크: view-only이면 쓰기 버튼 숨김
+      // 쓰기 권한 체크
       try {
         const permsMap = await apiFetchTitlePermsMap(at);
         const myPerms = user && user.loginId ? permsMap[user.loginId] : null;
-        if (myPerms && !myPerms.msgAll && !myPerms.msgManage) {
-          if (nbtn) nbtn.style.display = 'none';
-          if (nfab) nfab.style.display = 'none';
+        const isViewer = user && user.role === 'viewer';
+        const canWrite = myPerms ? (myPerms.msgAll || myPerms.msgManage) : !isViewer;
+        if (!canWrite) {
+          const disableBtn = (el) => {
+            if (!el) return;
+            el.removeAttribute('href');
+            el.style.opacity = '0.4';
+            el.style.pointerEvents = 'none';
+            el.style.cursor = 'not-allowed';
+            el.title = '보기 권한만 있습니다';
+          };
+          disableBtn(nbtn);
+          disableBtn(nfab);
         }
       } catch (e) { console.warn('권한 체크 실패:', e); }
       const ct = JSON.parse(localStorage.getItem('configuredTitles') || '["RO1"]');

@@ -135,15 +135,16 @@ async function apiChangePassword(currentPassword, newPassword) {
  * 토큰이 없거나 만료되면 로그인 페이지로 이동
  */
 async function requireAuth() {
-  // 로컬 개발/테스트 환경에서는 로그인 우회
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') {
-    const userNameEl = document.querySelector('.user-name');
-    if (userNameEl) userNameEl.textContent = '로컬 관리자';
-    return { name: '로컬 관리자', loginId: 'local_admin' };
-  }
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
 
   const token = getAuthToken();
   if (!token) {
+    if (isLocal) {
+      // 로컬에서 토큰 없으면 guest 모드 (권한 체크 우회)
+      const userNameEl = document.querySelector('.user-name');
+      if (userNameEl) userNameEl.textContent = '로컬 관리자';
+      return { name: '로컬 관리자', loginId: 'local_admin', role: 'super_admin' };
+    }
     window.location.href = 'login.html';
     return null;
   }
@@ -152,17 +153,19 @@ async function requireAuth() {
     const result = await apiGetMe();
     if (result.success) {
       setStoredUser(result.data);
-      // 사이드바 사용자명 업데이트
       const userNameEl = document.querySelector('.user-name');
       if (userNameEl) userNameEl.textContent = result.data.name;
-      
-      // 권한 등급이 변경되었을 수 있으므로 LNB 새로고침 (실제로 변경된 경우에만)
       if (typeof window.refreshLNB === 'function' && (!oldUser || oldUser.role !== result.data.role)) {
         window.refreshLNB();
       }
       return result.data;
     }
   } catch {
+    if (isLocal) {
+      const userNameEl = document.querySelector('.user-name');
+      if (userNameEl) userNameEl.textContent = '로컬 관리자';
+      return { name: '로컬 관리자', loginId: 'local_admin', role: 'super_admin' };
+    }
     removeAuthToken();
     window.location.href = 'login.html';
   }
@@ -286,6 +289,14 @@ async function apiUpdateOperatorGame(id, game) {
   const result = await apiRequest(`/auth/operators/${id}/game`, {
     method: 'PATCH',
     body: JSON.stringify({ game }),
+  });
+  return result;
+}
+
+async function apiUpdateOperatorRole(id, role) {
+  const result = await apiRequest(`/auth/operators/${id}/role`, {
+    method: 'PATCH',
+    body: JSON.stringify({ role }),
   });
   return result;
 }
