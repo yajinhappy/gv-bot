@@ -10,6 +10,8 @@ import {
   updateOperatorPassword,
   getOperatorById,
   insertActivityLog,
+  getTitlePermsMap,
+  setTitlePerms,
 } from '../../db/schema';
 
 const router = Router();
@@ -334,6 +336,45 @@ router.patch('/operators/:id/status', (req: Request, res: Response) => {
 
 // ─── 운영자 담당 게임 변경 (관리자 전용) ──────────────────────────
 import { updateOperatorGame } from '../../db/schema';
+
+// ─── 타이틀별 권한 조회 ──────────────────────────────────
+router.get('/title-perms/:title', (_req: Request, res: Response) => {
+  try {
+    const { title } = _req.params;
+    const permsMap = getTitlePermsMap(title);
+    res.json({ success: true, data: permsMap });
+  } catch (error) {
+    res.status(500).json({ success: false, error: '권한 조회에 실패했습니다.' });
+  }
+});
+
+// ─── 타이틀별 권한 저장 ──────────────────────────────────
+const TitlePermsSchema = z.object({
+  msgAll: z.boolean(),
+  msgManage: z.boolean(),
+  msgView: z.boolean(),
+  evtAll: z.boolean(),
+  evtManage: z.boolean(),
+  evtView: z.boolean(),
+});
+
+router.put('/operators/:id/title-perms/:title', (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) {
+    return res.status(400).json({ success: false, error: '잘못된 ID입니다.' });
+  }
+  const { title } = req.params;
+  const parsed = TitlePermsSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ success: false, error: '유효하지 않은 권한 데이터입니다.' });
+  }
+  try {
+    setTitlePerms(id, title, parsed.data);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: '권한 저장에 실패했습니다.' });
+  }
+});
 
 const GameUpdateSchema = z.object({
   game: z.string(),

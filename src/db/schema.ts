@@ -156,6 +156,22 @@ export async function initDatabase(): Promise<SqlJsDatabase> {
     db.exec(`ALTER TABLE events ADD COLUMN cpn_codes_pool TEXT DEFAULT NULL;`);
   } catch (e) { /* Already exists */ }
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS title_permissions (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      operator_id INTEGER NOT NULL,
+      title       TEXT    NOT NULL,
+      msg_all     INTEGER NOT NULL DEFAULT 0,
+      msg_manage  INTEGER NOT NULL DEFAULT 0,
+      msg_view    INTEGER NOT NULL DEFAULT 1,
+      evt_all     INTEGER NOT NULL DEFAULT 0,
+      evt_manage  INTEGER NOT NULL DEFAULT 0,
+      evt_view    INTEGER NOT NULL DEFAULT 1,
+      UNIQUE(operator_id, title),
+      FOREIGN KEY (operator_id) REFERENCES operators(id)
+    );
+  `);
+
   // 초기 슈퍼관리자 계정 (없을 때만)
   const adminCheck = db.exec("SELECT COUNT(*) FROM operators WHERE login_id = 'admin'");
   const adminCount = adminCheck[0]?.values[0]?.[0] ?? 0;
@@ -557,4 +573,49 @@ export function getActivityLogTitles(): string[] {
   const results = db.exec(`SELECT DISTINCT target_title FROM activity_logs WHERE target_title IS NOT NULL AND target_title != '' ORDER BY target_title`);
   if (!results || results.length === 0) return [];
   return results[0].values.map((row: any[]) => row[0] as string);
+}
+
+// ─── 타이틀별 모듈 권한 ──────────────────────────────────
+
+export function getTitlePermsMap(title: string): Record<string, {
+  msgAll: boolean; msgManage: boolean; msgView: boolean;
+  evtAll: boolean; evtManage: boolean; evtView: boolean;
+}> {
+  const results = db.exec(
+    `SELECT o.login_id, tp.msg_all, tp.msg_manage, tp.msg_view, tp.evt_all, tp.evt_manage, tp.evt_view
+     FROM title_permissions tp
+     JOIN operators o ON tp.operator_id = o.id
+     WHERE tp.title = ?`,
+    [title]
+  );
+  const rows = resultToObjects(results);
+  const map: Record<string, any> = {};
+  for (const row of rows) {
+    map[row.login_id] = {
+      msgAll: row.msg_all === 1,
+      msgManage: row.msg_manage === 1,
+      msgView: row.msg_view === 1,
+      evtAll: row.evt_all === 1,
+      evtManage: row.evt_manage === 1,
+      evtView: row.evt_view === 1,
+    };
+  }
+  return map;
+}
+
+export function setTitlePerms(operatorId: number, title: string, perms: {
+  msgAll: boolean; msgManage: boolean; msgView: boolean;
+  evtAll: boolean; evtManage: boolean; evtView: boolean;
+}): void {
+  db.run(
+    `INSERT OR REPLACE INTO title_permissions
+       (operator_id, title, msg_all, msg_manage, msg_view, evt_all, evt_manage, evt_view)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      operatorId, title,
+      perms.msgAll ? 1 : 0, perms.msgManage ? 1 : 0, perms.msgView ? 1 : 0,
+      perms.evtAll ? 1 : 0, perms.evtManage ? 1 : 0, perms.evtView ? 1 : 0,
+    ]
+  );
+  saveDatabase();
 }

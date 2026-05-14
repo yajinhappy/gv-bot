@@ -283,6 +283,19 @@ async function apiUpdateOperatorGame(id, game) {
   return result;
 }
 
+async function apiFetchTitlePermsMap(title) {
+  const result = await apiRequest(`/auth/title-perms/${encodeURIComponent(title)}`);
+  return result.data || {};
+}
+
+async function apiSetTitlePerms(operatorId, title, perms) {
+  const result = await apiRequest(`/auth/operators/${operatorId}/title-perms/${encodeURIComponent(title)}`, {
+    method: 'PUT',
+    body: JSON.stringify(perms),
+  });
+  return result;
+}
+
 // ─── 활동 로그 API ──────────────────────────
 
 /**

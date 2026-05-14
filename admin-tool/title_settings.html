@@ -303,7 +303,7 @@
     function openTitlePermModal(userId) {
       document.getElementById('permModalUserId').textContent = userId;
       
-      const savedPerms = JSON.parse(localStorage.getItem(currentTitle + '_perms_' + userId) || 'null');
+      const savedPerms = titlePermsMap[userId] || null;
       
       const msgAll = document.querySelector('.editMsg-all');
       const msgManage = document.querySelector('.editMsg-sub.manage-chk');
@@ -337,28 +337,32 @@
       document.getElementById('titlePermModal').classList.add('show');
     }
 
-    function saveTitlePermModal() {
+    async function saveTitlePermModal() {
       const userId = document.getElementById('permModalUserId').textContent;
-      
-      const msgAll = document.querySelector('.editMsg-all').checked;
-      const msgManage = document.querySelector('.editMsg-sub.manage-chk').checked;
-      const msgView = document.querySelector('.editMsg-sub.view-chk').checked;
-      
-      const evtAll = document.querySelector('.editEvt-all').checked;
-      const evtManage = document.querySelector('.editEvt-sub.manage-chk').checked;
-      const evtView = document.querySelector('.editEvt-sub.view-chk').checked;
-      
+
       const perms = {
-        msgAll, msgManage, msgView,
-        evtAll, evtManage, evtView
+        msgAll: document.querySelector('.editMsg-all').checked,
+        msgManage: document.querySelector('.editMsg-sub.manage-chk').checked,
+        msgView: document.querySelector('.editMsg-sub.view-chk').checked,
+        evtAll: document.querySelector('.editEvt-all').checked,
+        evtManage: document.querySelector('.editEvt-sub.manage-chk').checked,
+        evtView: document.querySelector('.editEvt-sub.view-chk').checked,
       };
-      
-      localStorage.setItem(currentTitle + '_perms_' + userId, JSON.stringify(perms));
-      closeTitlePermModal();
-      showToast('상세 권한이 저장되었습니다.');
-      
-      if (allOperators.length > 0) {
-        renderTitleOperators(allOperators, currentTitle);
+
+      const op = allOperators.find(o => o.login_id === userId);
+      if (!op) return;
+
+      try {
+        await apiSetTitlePerms(op.id, currentTitle, perms);
+        titlePermsMap[userId] = perms;
+        closeTitlePermModal();
+        showToast('상세 권한이 저장되었습니다.');
+        if (allOperators.length > 0) {
+          renderTitleOperators(allOperators, currentTitle);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('권한 저장에 실패했습니다.');
       }
     }
 
@@ -368,6 +372,7 @@
 
     let allOperators = [];
     let currentTitle = '';
+    let titlePermsMap = {};
 
     // =============================================
     //  운영자 추가 모달
@@ -484,6 +489,7 @@
         try {
           // 실제 API 연동 시도
           const ops = await fetchOperators();
+          titlePermsMap = await apiFetchTitlePermsMap(activeTitle);
           renderTitleOperators(ops, activeTitle);
           
           // 디스코드 역할 불러오기
@@ -613,7 +619,7 @@
           let roleClass = op.role === 'admin' ? 'badge-admin' : (op.role === 'operator' ? 'badge-operator' : (op.role === 'super_admin' ? 'badge-super' : 'badge-viewer'));
           let styleStr = op.role === 'admin' ? 'background:#F0FDF4; color:#16A34A;' : (op.role === 'operator' ? 'background:#FFF7ED; color:#EA580C;' : 'background:#F1F5F9; color:#475569;');
           
-          const savedPerms = JSON.parse(localStorage.getItem(activeTitle + '_perms_' + op.login_id) || 'null');
+          const savedPerms = titlePermsMap[op.login_id] || null;
           let modulePermMsg = '';
           let modulePermEvt = '';
 
