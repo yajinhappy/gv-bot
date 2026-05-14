@@ -114,8 +114,19 @@
         return;
       }
 
+      const user = await requireAuth();
+      let isViewOnly = false;
       try {
         const item = await fetchMessageById(msgId);
+        // Find title from localStorage or use RO1 as fallback. A more robust way is to pass title via url.
+        // Actually, let's see if we can get it from the message data if title is not passed.
+        // For now, let's just use the current active title
+        const pageTitle = new URLSearchParams(window.location.search).get('title') || 'RO1';
+        const permsMap = await apiFetchTitlePermsMap(pageTitle);
+        const myPerms = user && user.loginId ? permsMap[user.loginId] : null;
+        if (myPerms && !myPerms.msgAll && !myPerms.msgManage) {
+          isViewOnly = true;
+        }
         
         let statusKor = item.status;
         if (item.status === 'pending') statusKor = '예약 대기';
@@ -201,29 +212,30 @@
         if (data.status === '예약 대기') {
           statusBadge.classList.add('status-pending');
           
-          const btnModify = document.createElement('button');
-          btnModify.className = 'btn btn-primary';
-          btnModify.textContent = '수정';
-          btnModify.onclick = () => { window.location.href = 'message_write.html?edit=' + data.no; };
-          
-          const btnCancel = document.createElement('button');
-          btnCancel.className = 'btn btn-secondary';
-          btnCancel.textContent = '발송 취소';
-          btnCancel.onclick = async () => {
-            if(confirm('발송을 취소하시겠습니까?')) {
-              try {
-                await cancelMessage(data.no);
-                alert('취소되었습니다.');
-                window.location.href = 'msg-mgmt.html';
-              } catch (e) {
-                alert('취소 실패: ' + e.message);
+          if (!isViewOnly) {
+            const btnModify = document.createElement('button');
+            btnModify.className = 'btn btn-primary';
+            btnModify.textContent = '수정';
+            btnModify.onclick = () => { window.location.href = 'message_write.html?edit=' + data.no; };
+            
+            const btnCancel = document.createElement('button');
+            btnCancel.className = 'btn btn-secondary';
+            btnCancel.textContent = '발송 취소';
+            btnCancel.onclick = async () => {
+              if(confirm('발송을 취소하시겠습니까?')) {
+                try {
+                  await cancelMessage(data.no);
+                  alert('취소되었습니다.');
+                  window.location.href = 'msg-mgmt.html';
+                } catch (e) {
+                  alert('취소 실패: ' + e.message);
+                }
               }
-            }
-          };
-          
-          actionContainer.appendChild(btnModify);
-          actionContainer.appendChild(btnCancel);
-          
+            };
+            
+            actionContainer.appendChild(btnModify);
+            actionContainer.appendChild(btnCancel);
+          }
         } else if (data.status === '발송 완료') {
           statusBadge.classList.add('status-completed');
           document.getElementById('detailCompletedRow').classList.remove('d-none');

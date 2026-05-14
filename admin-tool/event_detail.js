@@ -61,6 +61,19 @@
       return;
     }
 
+    const user = await requireAuth();
+
+    let isViewOnly = false;
+    try {
+      const permsMap = await apiFetchTitlePermsMap(pageTitle);
+      const myPerms = user && user.loginId ? permsMap[user.loginId] : null;
+      if (myPerms && !myPerms.evtAll && !myPerms.evtManage) {
+        isViewOnly = true;
+      }
+    } catch (e) {
+      console.warn('권한 체크 실패:', e);
+    }
+
     try {
       const [evtRes, ptcRes, chRes] = await Promise.all([
         fetch(apiBase() + '/events/' + evtId, { headers: authHeaders() }).then(r => r.json()),
@@ -86,9 +99,18 @@
       document.getElementById('evtBackBtn')?.addEventListener('click', function () {
         location.href = 'event_mgmt.html?title=' + encodeURIComponent(pageTitle);
       });
-      document.getElementById('evtEditBtn')?.addEventListener('click', function () {
-        location.href = 'event_write.html?edit=' + evtId + '&title=' + encodeURIComponent(pageTitle);
-      });
+      const editBtn = document.getElementById('evtEditBtn');
+      if (editBtn) {
+        if (isViewOnly) editBtn.style.display = 'none';
+        else editBtn.addEventListener('click', function () {
+          location.href = 'event_write.html?edit=' + evtId + '&title=' + encodeURIComponent(pageTitle);
+        });
+      }
+
+      const cpnSendBtn = document.getElementById('ptcCouponSendBtn');
+      if (cpnSendBtn && isViewOnly) {
+        cpnSendBtn.style.display = 'none';
+      }
 
       renderInfo();
       renderStock();

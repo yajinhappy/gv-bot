@@ -30,15 +30,34 @@
   }
   function typeLabel(t) { return t === 'text' ? '일반 이벤트' : '이미지 인증'; }
 
-  function init() {
+  async function init() {
     const title = new URLSearchParams(location.search).get('title') || 'RO1';
     document.getElementById('pageTitle').textContent = title + ' - 이벤트 관리';
 
     // 등록 버튼
     const enc = encodeURIComponent(title);
-    document.getElementById('evtNewBtn')?.setAttribute('href', 'event_write.html?title=' + enc);
+    const nbtn = document.getElementById('evtNewBtn');
+    if (nbtn) nbtn.setAttribute('href', 'event_write.html?title=' + enc);
     const fab = document.getElementById('evtNewFab');
     if (fab) fab.setAttribute('href', 'event_write.html?title=' + enc);
+
+    const user = await requireAuth();
+    
+    // 쓰기 권한 체크: view-only이면 등록 버튼 숨김
+    try {
+      const permsMap = await apiFetchTitlePermsMap(title);
+      const myPerms = user && user.loginId ? permsMap[user.loginId] : null;
+      if (myPerms && !myPerms.evtAll && !myPerms.evtManage) {
+        if (nbtn) nbtn.style.display = 'none';
+        if (fab) fab.style.display = 'none';
+        window._isEvtViewOnly = true;
+      } else {
+        window._isEvtViewOnly = false;
+      }
+    } catch (e) { 
+      console.warn('권한 체크 실패:', e); 
+      window._isEvtViewOnly = false;
+    }
 
     fetch((window.API_CONFIG ? window.API_CONFIG.BASE_URL : '/api') + '/events', {
       headers: {
@@ -138,6 +157,10 @@
       const cpnTxt = e.couponMethod === 'auto' ? '자동 발송' : '수동 발송';
       const createdStr = e.createdAt.substring(0, 16);
       
+      const ahBtn = window._isEvtViewOnly 
+        ? `<a href="event_detail.html?id=${e.id}&title=${encTitle}" class="btn btn-outline-secondary btn-sm">조회</a>`
+        : `<a href="event_detail.html?id=${e.id}&title=${encTitle}" class="btn btn-secondary btn-sm">관리</a>`;
+      
       return `<tr onclick="location.href='event_detail.html?id=${e.id}&title=${encTitle}'" style="cursor:pointer;">
         <td class="col-no">${start + i + 1}</td>
         <td><strong>${esc(e.title)}</strong></td>
@@ -148,7 +171,7 @@
         <td>${createdStr}</td>
         <td>${esc(e.author||'-')}</td>
         <td>${statusBadge(e._status)}</td>
-        <td class="col-action" onclick="event.stopPropagation()"><a href="event_detail.html?id=${e.id}&title=${encTitle}" class="btn btn-secondary btn-sm">관리</a></td>
+        <td class="col-action" onclick="event.stopPropagation()">${ahBtn}</td>
       </tr>`;
     }).join('');
   }

@@ -150,9 +150,15 @@ async function requireAuth() {
   try {
     const result = await apiGetMe();
     if (result.success) {
+      setStoredUser(result.data);
       // 사이드바 사용자명 업데이트
       const userNameEl = document.querySelector('.user-name');
       if (userNameEl) userNameEl.textContent = result.data.name;
+      
+      // 권한 등급이 변경되었을 수 있으므로 LNB 새로고침
+      if (typeof window.refreshLNB === 'function') {
+        window.refreshLNB();
+      }
       return result.data;
     }
   } catch {
