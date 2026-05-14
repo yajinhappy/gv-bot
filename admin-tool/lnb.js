@@ -75,6 +75,10 @@
     const currentPage = getCurrentPage();
     const currentTitle = getCurrentTitle();
     const customTitles = getCustomTitles();
+    const storedUser = (typeof getStoredUser === 'function') ? getStoredUser() : null;
+    const userRole = storedUser ? storedUser.role : null;
+    const canSeeSettings = !userRole || userRole === 'admin' || userRole === 'super_admin';
+    const canSeeLogs = !userRole || userRole !== 'viewer';
 
     // 모든 타이틀 합치기 (비활성 제외, 저장된 순서 적용)
     const titleActiveStates = getTitleActiveStates();
@@ -133,17 +137,14 @@
         ${accordionsHTML}
 
         <!-- 시스템 공통 관리 -->
+        ${(canSeeSettings || canSeeLogs) ? `
         <div class="nav-section mt-24">
           <div class="nav-section-title">시스템 공통 관리</div>
           <ul class="nav-menu">
-            <li class="nav-item">
-              <a href="operator_mgmt.html" class="nav-link${isOperator ? ' active' : ''}">설정</a>
-            </li>
-            <li class="nav-item">
-              <a href="activity_log.html" class="nav-link${isLog ? ' active' : ''}">활동 로그</a>
-            </li>
+            ${canSeeSettings ? `<li class="nav-item"><a href="operator_mgmt.html" class="nav-link${isOperator ? ' active' : ''}">설정</a></li>` : ''}
+            ${canSeeLogs ? `<li class="nav-item"><a href="activity_log.html" class="nav-link${isLog ? ' active' : ''}">활동 로그</a></li>` : ''}
           </ul>
-        </div>
+        </div>` : ''}
       </div>
 
       <!-- Sidebar Footer User Profile -->

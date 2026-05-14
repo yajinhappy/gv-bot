@@ -1080,9 +1080,21 @@
       }, 3000);
     }
 
-    // 초기 데이터 로드
-    loadOperators();
-    rerenderTitleListFromConfig();
+    // 초기 데이터 로드 (role 게이트)
+    requireAuth().then(user => {
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+      if (!isLocal && user && user.role !== 'admin' && user.role !== 'super_admin') {
+        window.location.href = 'index.html';
+        return;
+      }
+      // super_admin이 아니면 승인 대기 섹션 숨김
+      if (user && user.role !== 'super_admin' && !isLocal) {
+        const approvalSection = document.getElementById('approvalSection');
+        if (approvalSection) approvalSection.style.display = 'none';
+      }
+      loadOperators();
+      rerenderTitleListFromConfig();
+    });
   </script>
 </body>
 

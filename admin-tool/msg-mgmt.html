@@ -281,12 +281,22 @@
     // ---- 초기화 ----
     let channelMap = {};
     async function init() {
+      const user = await requireAuth();
       const up = new URLSearchParams(window.location.search), at = up.get('title') || 'RO1';
       document.querySelector('.page-title').textContent = `${at} - 메시지 예약/관리`;
       // 새 메시지 링크에 title 파라미터 전달
       const writeUrl = 'message_write.html?title=' + encodeURIComponent(at);
       const nbtn = document.getElementById('newMsgBtn'); if (nbtn) nbtn.href = writeUrl;
       const nfab = document.getElementById('newMsgFab'); if (nfab) nfab.href = writeUrl;
+      // 쓰기 권한 체크: view-only이면 쓰기 버튼 숨김
+      try {
+        const permsMap = await apiFetchTitlePermsMap(at);
+        const myPerms = user && user.loginId ? permsMap[user.loginId] : null;
+        if (myPerms && !myPerms.msgAll && !myPerms.msgManage) {
+          if (nbtn) nbtn.style.display = 'none';
+          if (nfab) nfab.style.display = 'none';
+        }
+      } catch (e) { console.warn('권한 체크 실패:', e); }
       const ct = JSON.parse(localStorage.getItem('configuredTitles') || '["RO1"]');
       if (!ct.includes(at)) { tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:100px 0;color:#666;"><div style="font-size:15px;margin-bottom:16px;">연동된 서버가 없습니다.</div><button class="btn btn-primary" onclick="location.href='title_settings.html?title=${encodeURIComponent(at)}'">설정으로 이동</button></td></tr>`; mobileCardBody.innerHTML = '<div style="text-align:center;padding:60px 16px;color:#666;">연동된 서버가 없습니다.</div>'; listCountEl.textContent = '총 0건'; if (listCountMEl) listCountMEl.textContent = '총 0건'; return; }
       try {
