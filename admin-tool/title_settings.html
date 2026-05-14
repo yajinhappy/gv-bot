@@ -555,14 +555,16 @@
           let roleClass = op.role === 'admin' ? 'badge-admin' : (op.role === 'operator' ? 'badge-operator' : (op.role === 'super_admin' ? 'badge-super' : 'badge-viewer'));
           let styleStr = op.role === 'admin' ? 'background:#F0FDF4; color:#16A34A;' : (op.role === 'operator' ? 'background:#FFF7ED; color:#EA580C;' : 'background:#F1F5F9; color:#475569;');
           
-          let modulePerm = roleName === '뷰어' ? '메시지 예약/관리 (보기)' : '메시지 예약/관리 (전체)';
+          let modulePermMsg = roleName === '뷰어' ? '메시지 예약/관리 (보기)' : '메시지 예약/관리 (전체)';
+          let modulePermEvt = roleName === '뷰어' ? '이벤트 관리 (보기)' : '이벤트 관리 (전체)';
 
           return `<tr>
             <td style="white-space:nowrap; font-weight:600;">${op.login_id} (${op.name})</td>
             <td style="white-space:nowrap;"><span class="badge-role ${roleClass}" style="${styleStr} padding:2px 10px; border-radius:12px; font-size:11px; font-weight:700;">${roleName}</span></td>
             <td>
               <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <span style="font-size:12px; background:#F1F5F9; border:1px solid #E2E8F0; padding:2px 8px; border-radius:4px; color:#475569;">${modulePerm}</span>
+                <span style="font-size:12px; background:#F1F5F9; border:1px solid #E2E8F0; padding:2px 8px; border-radius:4px; color:#475569;">${modulePermMsg}</span>
+                <span style="font-size:12px; background:#F1F5F9; border:1px solid #E2E8F0; padding:2px 8px; border-radius:4px; color:#475569;">${modulePermEvt}</span>
               </div>
             </td>
             <td style="white-space:nowrap; text-align:center;">
