@@ -236,8 +236,13 @@ button {
   margin-bottom: 4px;
 }
 
-.page-breadcrumb span {
+.page-breadcrumb span,
+.page-breadcrumb a {
   color: var(--text-muted);
+  text-decoration: none;
+}
+.page-breadcrumb a:hover {
+  text-decoration: underline;
 }
 
 .page-breadcrumb .breadcrumb-sep {

@@ -32,8 +32,8 @@
 
   async function init() {
     const title = new URLSearchParams(location.search).get('title') || 'RO1';
-    document.getElementById('pageTitle').textContent = title + ' - 이벤트 관리';
-
+    const breadcrumbTitle = document.getElementById('breadcrumbTitle');
+    if (breadcrumbTitle) breadcrumbTitle.textContent = title;
     // 등록 버튼
     const enc = encodeURIComponent(title);
     const nbtn = document.getElementById('evtNewBtn');

@@ -21,9 +21,9 @@
       <!-- Top Header -->
       <header class="top-header">
         <div class="page-breadcrumb">
-          <span>타이틀 관리</span>
+          <span id="breadcrumbTitle">RO1</span>
           <span class="breadcrumb-sep">›</span>
-          <span>메시지 예약/관리</span>
+          <a href="msg-mgmt.html">메시지 예약/관리</a>
           <span class="breadcrumb-sep">›</span>
           <span class="breadcrumb-current">메시지 상세</span>
         </div>
@@ -129,6 +129,8 @@
         // Actually, let's see if we can get it from the message data if title is not passed.
         // For now, let's just use the current active title
         const pageTitle = new URLSearchParams(window.location.search).get('title') || 'RO1';
+        const breadcrumbTitle = document.getElementById('breadcrumbTitle');
+        if (breadcrumbTitle) breadcrumbTitle.textContent = pageTitle;
         const permsMap = await apiFetchTitlePermsMap(pageTitle);
         const myPerms = user && user.loginId ? permsMap[user.loginId] : null;
         if (myPerms && !myPerms.msgAll && !myPerms.msgManage) {

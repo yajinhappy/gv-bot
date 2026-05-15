@@ -55,6 +55,8 @@
     const params = new URLSearchParams(location.search);
     evtId = params.get('id');
     pageTitle = params.get('title') || 'RO1';
+    const breadcrumbTitle = document.getElementById('breadcrumbTitle');
+    if (breadcrumbTitle) breadcrumbTitle.textContent = pageTitle;
 
     if (!evtId) {
       document.getElementById('evtDetailGrid').innerHTML = '<p>잘못된 접근입니다.</p>';

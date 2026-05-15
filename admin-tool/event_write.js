@@ -17,6 +17,8 @@
   async function init() {
     const params = new URLSearchParams(location.search);
     const title = params.get('title') || 'RO1';
+    const breadcrumbTitle = document.getElementById('breadcrumbTitle');
+    if (breadcrumbTitle) breadcrumbTitle.textContent = title;
     pageTitle = title;
     editId = params.get('edit');
     isEditMode = !!editId;
@@ -471,9 +473,11 @@
 
     let currentDate = new Date();
     let selectedDate = null;
-    let selectedHour = '12';
+    let h = currentDate.getHours();
+    let selectedAmPm = h >= 12 ? 'PM' : 'AM';
+    let displayH = h % 12 || 12;
+    let selectedHour = String(displayH).padStart(2, '0');
     let selectedMin = '00';
-    let selectedAmPm = 'AM';
 
     function updateInput() {
       if (!selectedDate) { input.value = ''; return; }
@@ -536,12 +540,25 @@
         div.textContent = daysInPrevMonth - firstDay + i + 1;
         calGrid.appendChild(div);
       }
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
       for (let i = 1; i <= daysInMonth; i++) {
         const div = document.createElement('div');
+        const cellDate = new Date(year, month, i);
+        const isPast = cellDate < today;
         const isSelected = selectedDate && selectedDate.getFullYear() === year && selectedDate.getMonth() === month && selectedDate.getDate() === i;
-        div.className = 'cal-day' + (isSelected ? ' active' : '');
-        div.textContent = i;
-        div.onclick = () => { selectedDate = new Date(year, month, i); renderCalendar(); };
+
+        if (isPast) {
+          div.className = 'cal-day other-month disabled';
+          div.style.cursor = 'not-allowed';
+          div.style.opacity = '0.4';
+          div.textContent = i;
+        } else {
+          div.className = 'cal-day' + (isSelected ? ' active' : '');
+          div.textContent = i;
+          div.onclick = () => { selectedDate = new Date(year, month, i); renderCalendar(); };
+        }
         calGrid.appendChild(div);
       }
     }

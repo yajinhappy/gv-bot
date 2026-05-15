@@ -50,11 +50,11 @@
       <!-- Top Header -->
       <header class="top-header">
         <div class="page-breadcrumb">
-          <span>타이틀 관리</span>
+          <span id="breadcrumbTitle">RO1</span>
           <span class="breadcrumb-sep">›</span>
           <span class="breadcrumb-current">타이틀별 설정</span>
         </div>
-        <div class="page-title">RO1 - 타이틀 설정</div>
+        <div class="page-title" id="pageTitle">타이틀별 설정</div>
       </header>
 
       <!-- Content Area -->
@@ -451,7 +451,8 @@
     document.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const activeTitle = urlParams.get('title') || 'RO1';
-      document.querySelector('.page-title').textContent = `${activeTitle} - 타이틀 설정`;
+      const breadcrumbTitle = document.getElementById('breadcrumbTitle');
+      if (breadcrumbTitle) breadcrumbTitle.textContent = activeTitle;
       
       // Update the modal title as well
       const modalTitle = document.querySelector('#addOperatorModal .modal-title');

@@ -21,7 +21,7 @@
       <!-- Top Header -->
       <header class="top-header">
         <div class="page-breadcrumb">
-          <span>타이틀 관리</span>
+          <span id="breadcrumbTitle">RO1</span>
           <span class="breadcrumb-sep">›</span>
           <span class="breadcrumb-current">메시지 예약/관리</span>
         </div>
@@ -288,7 +288,8 @@
     async function init() {
       const user = await requireAuth();
       const up = new URLSearchParams(window.location.search), at = up.get('title') || 'RO1';
-      document.querySelector('.page-title').textContent = `${at} - 메시지 예약/관리`;
+      const breadcrumbTitle = document.getElementById('breadcrumbTitle');
+      if (breadcrumbTitle) breadcrumbTitle.textContent = at;
       // 새 메시지 링크에 title 파라미터 전달
       const writeUrl = 'message_write.html?title=' + encodeURIComponent(at);
       const nbtn = document.getElementById('newMsgBtn'); if (nbtn) nbtn.href = writeUrl;

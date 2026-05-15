@@ -35,6 +35,8 @@
     seedIfEmpty();
     allCoupons = load();
     const title = new URLSearchParams(location.search).get('title') || 'RO1';
+    const breadcrumbTitle = document.getElementById('breadcrumbTitle');
+    if (breadcrumbTitle) breadcrumbTitle.textContent = title;
     const pt = document.getElementById('pageTitle');
     if (pt) pt.textContent = title + ' - 쿠폰 코드 관리';
 
