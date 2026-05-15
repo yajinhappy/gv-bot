@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>새 예약 작성 - GV DiscordBot Admin Tool</title>
+  <title>GV 디스코드봇 운영 관리툴 - 새 메시지 보내기</title>
   <link rel="stylesheet" href="style.css">
   <!-- Quill WYSIWYG Editor -->
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -25,6 +25,13 @@
 
       <!-- Top Header -->
       <header class="top-header">
+        <div class="page-breadcrumb">
+          <span>타이틀 관리</span>
+          <span class="breadcrumb-sep">›</span>
+          <span>메시지 예약/관리</span>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-current">새 메시지 보내기</span>
+        </div>
         <div class="page-title">
           <span id="pageTitle">새 메시지 보내기</span>
         </div>
@@ -794,7 +801,7 @@
       if (!editId) return;
 
       // 페이지 타이틀 변경
-      document.title = '메시지 수정 - GV DiscordBot Admin Tool';
+      document.title = 'GV 디스코드봇 운영 관리툴 - 메시지 수정';
       document.getElementById('pageTitle').textContent = '메시지 수정';
       document.getElementById('cardTitle').textContent = '메시지 수정';
 

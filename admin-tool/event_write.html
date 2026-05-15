@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>이벤트 등록 - GV DiscordBot Admin Tool</title>
+  <title>GV 디스코드봇 운영 관리툴 - 이벤트 등록</title>
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
@@ -14,6 +14,13 @@
     <aside id="lnb"></aside>
     <main class="main-wrapper">
       <header class="top-header">
+        <div class="page-breadcrumb">
+          <span>타이틀 관리</span>
+          <span class="breadcrumb-sep">›</span>
+          <span>이벤트 관리</span>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-current">이벤트 등록</span>
+        </div>
         <div class="page-title"><span id="pageTitle">이벤트 등록</span></div>
       </header>
       <div class="main-content">
@@ -77,11 +84,73 @@
             <div class="evt-datetime-row" style="margin-bottom:20px;">
               <div class="form-group">
                 <label class="form-label">시작일 <span class="required">*</span></label>
-                <input type="datetime-local" class="form-control" id="evtStartDate" required>
+                <div class="custom-datetime-picker" id="evtStartPicker">
+                  <input type="text" class="form-control" id="evtStartDate" placeholder="YYYY-MM-DD HH:mm" readonly style="background: white; cursor: pointer;" required>
+                  <div class="datetime-dropdown" id="evtStartDropdown" style="display:none;">
+                    <div class="dt-content-row">
+                      <div class="dt-calendar">
+                        <div class="calendar-header flex items-center justify-between mb-12">
+                          <span class="calendar-title" id="evtStartCalTitle"></span>
+                          <div class="flex gap-4">
+                            <button type="button" class="cal-nav-btn" data-picker="start" data-dir="prev">&#8593;</button>
+                            <button type="button" class="cal-nav-btn" data-picker="start" data-dir="next">&#8595;</button>
+                          </div>
+                        </div>
+                        <div class="calendar-grid" id="evtStartCalGrid"></div>
+                        <div class="flex items-center justify-end mt-12">
+                          <button type="button" class="btn-text text-primary-color" data-picker="start" data-action="today">오늘</button>
+                        </div>
+                      </div>
+                      <div class="dt-timepicker">
+                        <div class="dt-time-col" id="evtStartHourCol"></div>
+                        <div class="dt-time-col" id="evtStartMinCol"></div>
+                        <div class="dt-time-col" id="evtStartAmPmCol">
+                          <div class="dt-time-item" data-val="AM">오전</div>
+                          <div class="dt-time-item" data-val="PM">오후</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="daterange-footer">
+                      <button type="button" class="btn btn-secondary btn-sm" data-picker="start" data-action="reset">초기화</button>
+                      <button type="button" class="btn btn-primary btn-sm" data-picker="start" data-action="save">저장</button>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="form-group">
                 <label class="form-label">종료일 <span class="required">*</span></label>
-                <input type="datetime-local" class="form-control" id="evtEndDate" required>
+                <div class="custom-datetime-picker" id="evtEndPicker">
+                  <input type="text" class="form-control" id="evtEndDate" placeholder="YYYY-MM-DD HH:mm" readonly style="background: white; cursor: pointer;" required>
+                  <div class="datetime-dropdown" id="evtEndDropdown" style="display:none;">
+                    <div class="dt-content-row">
+                      <div class="dt-calendar">
+                        <div class="calendar-header flex items-center justify-between mb-12">
+                          <span class="calendar-title" id="evtEndCalTitle"></span>
+                          <div class="flex gap-4">
+                            <button type="button" class="cal-nav-btn" data-picker="end" data-dir="prev">&#8593;</button>
+                            <button type="button" class="cal-nav-btn" data-picker="end" data-dir="next">&#8595;</button>
+                          </div>
+                        </div>
+                        <div class="calendar-grid" id="evtEndCalGrid"></div>
+                        <div class="flex items-center justify-end mt-12">
+                          <button type="button" class="btn-text text-primary-color" data-picker="end" data-action="today">오늘</button>
+                        </div>
+                      </div>
+                      <div class="dt-timepicker">
+                        <div class="dt-time-col" id="evtEndHourCol"></div>
+                        <div class="dt-time-col" id="evtEndMinCol"></div>
+                        <div class="dt-time-col" id="evtEndAmPmCol">
+                          <div class="dt-time-item" data-val="AM">오전</div>
+                          <div class="dt-time-item" data-val="PM">오후</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="daterange-footer">
+                      <button type="button" class="btn btn-secondary btn-sm" data-picker="end" data-action="reset">초기화</button>
+                      <button type="button" class="btn btn-primary btn-sm" data-picker="end" data-action="save">저장</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             

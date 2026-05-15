@@ -347,6 +347,15 @@
     const ed = document.getElementById('evtEndDate').value;
     if (!sd || !ed) { alert('이벤트 기간을 설정해주세요.'); return; }
     if (sd > ed) { alert('종료일은 시작일 이후여야 합니다.'); return; }
+
+    // ─── 과거 날짜 등록 불가 검증 ───
+    if (!isEditMode) {
+      const sdParts = sd.split(/[- :]/);
+      const startTime = new Date(+sdParts[0], +sdParts[1]-1, +sdParts[2], +sdParts[3]||0, +sdParts[4]||0);
+      if (startTime < new Date()) {
+        alert('과거 날짜로는 이벤트를 등록할 수 없습니다.'); return;
+      }
+    }
     const channelVal = document.getElementById('evtChannel').value.trim();
     if (!channelVal) { alert('적용 채널을 선택해주세요.'); return; }
 
@@ -443,6 +452,209 @@
       }).catch(e => console.error('API Error:', e));
     }
   }
+
+  // ═══════════════════════════════════════════════════
+  // 커스텀 Date/Time Picker (message_write.html 동일 스타일)
+  // ═══════════════════════════════════════════════════
+  function initCustomDateTimePicker(prefix) {
+    const input = document.getElementById(prefix === 'start' ? 'evtStartDate' : 'evtEndDate');
+    const dropdown = document.getElementById(prefix === 'start' ? 'evtStartDropdown' : 'evtEndDropdown');
+    const calTitle = document.getElementById(prefix === 'start' ? 'evtStartCalTitle' : 'evtEndCalTitle');
+    const calGrid = document.getElementById(prefix === 'start' ? 'evtStartCalGrid' : 'evtEndCalGrid');
+    const hourCol = document.getElementById(prefix === 'start' ? 'evtStartHourCol' : 'evtEndHourCol');
+    const minCol = document.getElementById(prefix === 'start' ? 'evtStartMinCol' : 'evtEndMinCol');
+    const ampmCol = document.getElementById(prefix === 'start' ? 'evtStartAmPmCol' : 'evtEndAmPmCol');
+    const ampmItems = ampmCol ? ampmCol.querySelectorAll('.dt-time-item') : [];
+    const picker = document.getElementById(prefix === 'start' ? 'evtStartPicker' : 'evtEndPicker');
+
+    if (!input || !dropdown) return;
+
+    let currentDate = new Date();
+    let selectedDate = null;
+    let selectedHour = '12';
+    let selectedMin = '00';
+    let selectedAmPm = 'AM';
+
+    function updateInput() {
+      if (!selectedDate) { input.value = ''; return; }
+      let h = parseInt(selectedHour);
+      if (selectedAmPm === 'PM' && h !== 12) h += 12;
+      if (selectedAmPm === 'AM' && h === 12) h = 0;
+      const yyyy = selectedDate.getFullYear();
+      const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(selectedDate.getDate()).padStart(2, '0');
+      const hh = String(h).padStart(2, '0');
+      const min = String(selectedMin).padStart(2, '0');
+      input.value = `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+    }
+
+    function renderTimeCols() {
+      if (!hourCol || !minCol) return;
+      hourCol.innerHTML = '';
+      for (let i = 1; i <= 12; i++) {
+        const val = String(i).padStart(2, '0');
+        const div = document.createElement('div');
+        div.className = 'dt-time-item' + (val === selectedHour ? ' active' : '');
+        div.textContent = val;
+        div.onclick = () => { selectedHour = val; renderTimeCols(); };
+        hourCol.appendChild(div);
+      }
+      minCol.innerHTML = '';
+      for (let i = 0; i < 60; i++) {
+        const val = String(i).padStart(2, '0');
+        const div = document.createElement('div');
+        div.className = 'dt-time-item' + (val === selectedMin ? ' active' : '');
+        div.textContent = val;
+        div.onclick = () => { selectedMin = val; renderTimeCols(); };
+        minCol.appendChild(div);
+      }
+      ampmItems.forEach(item => {
+        item.className = 'dt-time-item' + (item.dataset.val === selectedAmPm ? ' active' : '');
+        item.onclick = () => { selectedAmPm = item.dataset.val; renderTimeCols(); };
+      });
+    }
+
+    function renderCalendar() {
+      if (!calGrid) return;
+      calGrid.innerHTML = '';
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      if (calTitle) calTitle.textContent = `${year}년 ${String(month + 1).padStart(2, '0')}월 ▾`;
+      const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+      weekdays.forEach(day => {
+        const div = document.createElement('div');
+        div.className = 'cal-weekday';
+        div.textContent = day;
+        calGrid.appendChild(div);
+      });
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+      for (let i = 0; i < firstDay; i++) {
+        const div = document.createElement('div');
+        div.className = 'cal-day other-month';
+        div.textContent = daysInPrevMonth - firstDay + i + 1;
+        calGrid.appendChild(div);
+      }
+      for (let i = 1; i <= daysInMonth; i++) {
+        const div = document.createElement('div');
+        const isSelected = selectedDate && selectedDate.getFullYear() === year && selectedDate.getMonth() === month && selectedDate.getDate() === i;
+        div.className = 'cal-day' + (isSelected ? ' active' : '');
+        div.textContent = i;
+        div.onclick = () => { selectedDate = new Date(year, month, i); renderCalendar(); };
+        calGrid.appendChild(div);
+      }
+    }
+
+    // 입력 클릭 → 드롭다운 토글
+    input.addEventListener('click', () => {
+      const isHidden = dropdown.style.display === 'none' || dropdown.style.display === '';
+      dropdown.style.display = isHidden ? 'flex' : 'none';
+      if (!selectedDate) {
+        selectedDate = new Date();
+        renderCalendar();
+        updateInput();
+      }
+    });
+
+    // 네비게이션 버튼 (이전/다음 월)
+    picker.querySelectorAll('.cal-nav-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (btn.dataset.dir === 'prev') currentDate.setMonth(currentDate.getMonth() - 1);
+        else currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
+      });
+    });
+
+    // 오늘
+    picker.querySelector('[data-action="today"]')?.addEventListener('click', e => {
+      e.stopPropagation();
+      selectedDate = new Date();
+      currentDate = new Date();
+      renderCalendar();
+    });
+
+    // 초기화
+    picker.querySelector('[data-action="reset"]')?.addEventListener('click', e => {
+      e.stopPropagation();
+      selectedDate = null;
+      selectedHour = '12';
+      selectedMin = '00';
+      selectedAmPm = 'AM';
+      currentDate = new Date();
+      input.value = '';
+      renderTimeCols();
+      renderCalendar();
+    });
+
+    // 저장
+    picker.querySelector('[data-action="save"]')?.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!selectedDate) { alert('날짜를 선택해주세요.'); return; }
+      let h = parseInt(selectedHour);
+      if (selectedAmPm === 'PM' && h !== 12) h += 12;
+      if (selectedAmPm === 'AM' && h === 12) h = 0;
+      const targetTime = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), h, parseInt(selectedMin));
+      if (targetTime < new Date()) { alert('과거 시간은 선택할 수 없습니다.'); return; }
+      updateInput();
+      dropdown.style.display = 'none';
+    });
+
+    // 외부 클릭 시 닫기
+    document.addEventListener('click', e => {
+      if (!document.body.contains(e.target)) return;
+      if (!e.target.closest('#' + picker.id)) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    renderTimeCols();
+    renderCalendar();
+
+    // 수정 모드 값 파싱
+    return {
+      setValue(dateStr) {
+        if (!dateStr) return;
+        // YYYY-MM-DD HH:mm 또는 YYYY-MM-DDTHH:mm 형식 지원
+        const normalized = dateStr.replace('T', ' ');
+        const parts = normalized.split(/[- :]/);
+        if (parts.length >= 5) {
+          let hr = parseInt(parts[3]);
+          const mn = parts[4];
+          selectedAmPm = hr >= 12 ? 'PM' : 'AM';
+          if (hr > 12) hr -= 12;
+          if (hr === 0) hr = 12;
+          selectedHour = String(hr).padStart(2, '0');
+          selectedMin = mn;
+          selectedDate = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+          currentDate = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+          renderTimeCols();
+          renderCalendar();
+          updateInput();
+        }
+      }
+    };
+  }
+
+  // 커스텀 달력 초기화 및 수정 모드 값 세팅
+  let startPicker, endPicker;
+  function initPickers() {
+    startPicker = initCustomDateTimePicker('start');
+    endPicker = initCustomDateTimePicker('end');
+  }
+
+  // init 완료 후 달력 초기화
+  const _origInit = init;
+  init = async function() {
+    await _origInit();
+    initPickers();
+    // 수정 모드일 경우 기존 값 세팅
+    if (isEditMode && editEvt) {
+      if (startPicker && editEvt.startDate) startPicker.setValue(editEvt.startDate);
+      if (endPicker && editEvt.endDate) endPicker.setValue(editEvt.endDate);
+    }
+  };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

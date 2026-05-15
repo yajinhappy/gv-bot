@@ -227,8 +227,32 @@ button {
   flex-shrink: 0;
 }
 
+.page-breadcrumb {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.page-breadcrumb span {
+  color: var(--text-muted);
+}
+
+.page-breadcrumb .breadcrumb-sep {
+  color: #CBD5E1;
+  margin: 0 2px;
+  font-size: 11px;
+}
+
+.page-breadcrumb .breadcrumb-current {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
 .page-title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--text-main);
 }
@@ -2308,8 +2332,8 @@ td .btn {
 .custom-datetime-picker { position: relative; }
 .datetime-dropdown {
   position: absolute;
-  bottom: calc(100% + 4px);
-  top: auto;
+  top: calc(100% + 4px);
+  bottom: auto;
   left: 0;
   z-index: 1000;
   background: var(--bg-surface);

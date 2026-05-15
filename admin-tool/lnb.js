@@ -80,6 +80,9 @@
     const canSeeSettings = !userRole || userRole === 'admin' || userRole === 'super_admin';
     const canSeeLogs = !userRole || userRole !== 'viewer';
 
+    // ─── 사용자 이름 즉시 결정 (깜빡임 방지) ───
+    const userName = storedUser && storedUser.name ? storedUser.name : '';
+
     // 모든 타이틀 합치기 (비활성 제외, 저장된 순서 적용)
     const titleActiveStates = getTitleActiveStates();
     const titleDisplayNames = getTitleDisplayNames();
@@ -177,7 +180,7 @@
             <img src="img/user.svg" alt="User" class="user-icon-white">
           </div>
           <div class="user-text">
-            <span class="user-name">로컬 관리자</span>
+            <span class="user-name">${userName}</span>
           </div>
         </a>
         
@@ -367,12 +370,20 @@
     bindEvents(sidebar);
     initMobileMenu();
     initNotifications();
+
+    // '모두 읽기' 버튼 이벤트 바인딩
+    const readAllBtn = document.querySelector('.noti-read-all');
+    if (readAllBtn && !readAllBtn._lnbBound) {
+      readAllBtn._lnbBound = true;
+      readAllBtn.addEventListener('click', readAllNotifications);
+    }
   }
 
   function initNotifications() {
     const listEl = document.querySelector('.noti-list');
     const badgeDot = document.querySelector('.noti-badge-dot');
     const unreadTab = document.querySelector('.noti-tabs .noti-tab:nth-child(2)');
+    const allTab = document.querySelector('.noti-tabs .noti-tab:nth-child(1)');
     const notiHeaderCount = document.querySelector('.noti-header h4');
 
     // Clean up old notifications (> 30 days)
@@ -399,11 +410,33 @@
       notiHeaderCount.textContent = `알림 (${notis.length})`;
     }
 
+    // Tab filtering state
+    const showAll = !unreadTab || !unreadTab.classList.contains('active');
+    const displayNotis = showAll ? notis : unreadNotis;
+
+    // Tab click handlers
+    if (allTab && !allTab._lnbBound) {
+      allTab._lnbBound = true;
+      allTab.addEventListener('click', () => {
+        allTab.classList.add('active');
+        if (unreadTab) unreadTab.classList.remove('active');
+        initNotifications();
+      });
+    }
+    if (unreadTab && !unreadTab._lnbBound) {
+      unreadTab._lnbBound = true;
+      unreadTab.addEventListener('click', () => {
+        unreadTab.classList.add('active');
+        if (allTab) allTab.classList.remove('active');
+        initNotifications();
+      });
+    }
+
     if (listEl) {
-      if (notis.length === 0) {
+      if (displayNotis.length === 0) {
         listEl.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 13px;">최근 30일 이내 알림이 없습니다.</div>';
       } else {
-        listEl.innerHTML = notis.map(n => {
+        listEl.innerHTML = displayNotis.map((n, idx) => {
           let iconSvg = '';
           if (n.type === 'new_event') {
             iconSvg = '<img src="img/plus.svg" style="width:16px;height:16px;">';
@@ -417,8 +450,10 @@
           }
 
           const timeStr = new Date(n.date).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+          // Use the original index in notis array for marking read
+          const origIdx = notis.indexOf(n);
           return `
-            <div class="noti-item ${n.isRead ? '' : 'unread'}">
+            <div class="noti-item ${n.isRead ? '' : 'unread'}" data-noti-idx="${origIdx}" style="cursor:pointer;">
               <div class="noti-icon" style="display:flex; align-items:center; justify-content:center;">
                 ${iconSvg}
               </div>
@@ -432,6 +467,19 @@
             </div>
           `;
         }).join('');
+
+        // Individual notification click-to-read
+        listEl.querySelectorAll('.noti-item.unread').forEach(item => {
+          item.addEventListener('click', () => {
+            const notiIdx = parseInt(item.dataset.notiIdx, 10);
+            let storedNotis = JSON.parse(localStorage.getItem('gv_notifications') || '[]');
+            if (storedNotis[notiIdx]) {
+              storedNotis[notiIdx].isRead = true;
+              localStorage.setItem('gv_notifications', JSON.stringify(storedNotis));
+              initNotifications();
+            }
+          });
+        });
       }
     }
   }
