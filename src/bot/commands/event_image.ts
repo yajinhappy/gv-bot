@@ -34,7 +34,7 @@ const command: SlashCommand = {
     const content = interaction.options.getString('내용') || '';
     const attachment = interaction.options.getAttachment('이미지', true);
     const now = nowKST();
-    const nowIso = now.replace(' ', 'T');
+    const nowCompare = now.substring(0, 16);
 
     if (!attachment.contentType || !attachment.contentType.startsWith('image/')) {
       await interaction.editReply('❌ 이미지 파일만 첨부할 수 있습니다. (jpg, png, gif 등)');
@@ -49,7 +49,7 @@ const command: SlashCommand = {
          AND start_date <= ?
          AND end_date >= ?
        ORDER BY created_at DESC LIMIT 1`,
-      [channelId, nowIso, nowIso]
+      [channelId, nowCompare, nowCompare]
     );
 
     if (!evtResults || evtResults.length === 0 || evtResults[0].values.length === 0) {

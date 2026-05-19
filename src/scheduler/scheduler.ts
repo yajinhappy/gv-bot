@@ -143,7 +143,7 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function processEventStartAnnouncements() {
   const db = getDb();
-  const isoStr = nowKST().substring(0, 16).replace(' ', 'T');
+  const isoStr = nowKST().substring(0, 16);
 
   const results = db.exec(`
     SELECT * FROM events
@@ -189,7 +189,7 @@ async function processEventStartAnnouncements() {
 async function processDailyEvents() {
   const db = getDb();
   const nowStr = nowKST();
-  const isoStr = nowStr.substring(0, 16).replace(' ', 'T');
+  const isoStr = nowStr.substring(0, 16);
   const currentTime = nowStr.substring(11, 16);
 
   const results = db.exec(`
@@ -232,7 +232,7 @@ async function processDailyEvents() {
 
 async function processEventEndNotifications() {
   const db = getDb();
-  const isoStr = nowKST().substring(0, 16).replace(' ', 'T');
+  const isoStr = nowKST().substring(0, 16);
 
   const results = db.exec(`
     SELECT * FROM events

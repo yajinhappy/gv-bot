@@ -27,7 +27,7 @@ const command: SlashCommand = {
     const userName = interaction.user.displayName || interaction.user.username;
     const content = interaction.options.getString('내용', true);
     const now = nowKST();
-    const nowIso = now.replace(' ', 'T');
+    const nowCompare = now.substring(0, 16);
     const todayDate = now.slice(0, 10);
 
     const evtResults = db.exec(
@@ -38,7 +38,7 @@ const command: SlashCommand = {
          AND start_date <= ?
          AND end_date >= ?
        ORDER BY created_at DESC LIMIT 1`,
-      [channelId, nowIso, nowIso]
+      [channelId, nowCompare, nowCompare]
     );
 
     if (!evtResults || evtResults.length === 0 || evtResults[0].values.length === 0) {
