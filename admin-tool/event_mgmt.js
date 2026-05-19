@@ -13,7 +13,12 @@
   function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
   function nowKSTIso() {
-    return new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 16);
+    const fmt = new Intl.DateTimeFormat('sv-SE', {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false
+    });
+    return fmt.format(new Date()).replace(' ', 'T');
   }
 
   function getEvtStatus(e) {
